@@ -21,13 +21,12 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 readme = open('README.rst').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 setup(
     name='django-model-publisher',
     version=version,
     description="""Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.""",
-    long_description=readme + '\n\n' + history,
+    long_description=readme,
     author='JP74',
     author_email='tech@jp74.com',
     url='https://github.com/jp74/django-model-publisher',
