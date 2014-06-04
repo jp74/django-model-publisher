@@ -1,0 +1,34 @@
+.publisher.col-published label img {
+    display: none;
+}
+
+.publisher .viewpage {
+    text-indent: 200%;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url("../suit/bootstrap/img/glyphicons-halflings.png");
+    background-position: -96px -120px;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: .6;
+    margin: 0;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.icon.publish {
+    text-indent: 200%;
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url("../suit/bootstrap/img/glyphicons-halflings.png");
+    background-position: -72px -96px;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: .6;
+    margin: 0;
+    opacity: .3;
+}

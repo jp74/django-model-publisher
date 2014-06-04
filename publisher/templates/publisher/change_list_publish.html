@@ -1,0 +1,9 @@
+<div style="width: 66px;" class="col-published publisher">
+    <label><img src="/static/admin/img/icon-yes.gif"></label>
+	{% if can_publish %}
+    	<input type="checkbox" class="publish-checkbox" {{ checked }} value="{{ object.pk }}" data-publish="{{ publish_url }}" data-unpublish="{{ unpublish_url }}">
+	{% endif %}
+    {% if object.get_absolute_url %}
+        <a href="{{ object.get_absolute_url }}?edit" title="View on page" class="icon selector-add viewpage" id="view-page-{{ object.pk }}"><span>view</span></a>
+    {% endif %}
+</div>
