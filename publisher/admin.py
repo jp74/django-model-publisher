@@ -233,6 +233,8 @@ class PublisherAdmin(ModelAdmin):
         if not obj:
             return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
 
+        publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
+
         preview_draft_btn = None
         if callable(getattr(obj, 'get_absolute_url', None)):
             preview_draft_btn = True
@@ -246,7 +248,7 @@ class PublisherAdmin(ModelAdmin):
             revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
 
         context.update({
-            'publish_btn': True,
+            'publish_btn_live': publish_btn,
             'preview_draft_btn': preview_draft_btn,
             'unpublish_btn': unpublish_btn,
             'revert_btn': revert_btn,

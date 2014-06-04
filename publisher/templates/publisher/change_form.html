@@ -1,36 +1,32 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_static admin_modify suit_tags admin_urls %}
+{% load i18n admin_static admin_modify admin_urls %}
 {% load url from future %}
 {% block object-tools %}
-    {{ block.super }}
-	{% block object-tools-items %}
-		<ul class="box menu-box">
-			{{ block.super }}
-		</ul>
-		{% if publish_btn_live or preview_draft_btn %}
-			<ul class="box menu-box">
+	{% if change %}{% if not is_popup %}
+		<ul class="object-tools">
+			{% block object-tools-items %}
 				{% if publish_btn_live %}
 					<li>
-						<a href="{{ publish_btn_live }}"><i class="icon-ok icon-alpha75"></i>Publish Draft</a>
+						<a href="{{ publish_btn_live }}">Publish Draft</a>
 					</li>
 				{% endif %}
 				{% if unpublish_btn %}
 					<li>
-						<a href="{{ unpublish_btn }}"><i class="icon-remove icon-alpha75"></i>Unpublish</a>
+						<a href="{{ unpublish_btn }}">Unpublish</a>
 					</li>
 				{% endif %}
 				{% if revert_btn %}
 					<li>
-						<a href="{{ revert_btn }}"><i class="icon-arrow-left icon-alpha75"></i>Revert to Published</a>
+						<a href="{{ revert_btn }}">Revert to Published</a>
 					</li>
 				{% endif %}
 				{% if preview_draft_btn %}
 					<li>
-						<a href="{{ original.get_absolute_url }}?edit"><i class="icon-eye-open icon-alpha75"></i>Preview Draft</a>
+						<a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
 					</li>
 				{% endif %}
-			</ul>
-		{% endif %}
-	{% endblock %}
-    {% if language_tabs %}{% include "admin/parler/language_tabs.html" %}{% endif %}
+				{{ block.super }}
+			{% endblock %}
+		</ul>
+	{% endif %}{% endif %}
 {% endblock %}
