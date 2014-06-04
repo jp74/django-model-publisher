@@ -34,13 +34,22 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="setup.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="setup.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="103" selection-start="650" selection-end="741" vertical-scroll-proportion="0.5026681" vertical-offset="5" max-vertical-offset="1020">
+            <state line="28" column="103" selection-start="650" selection-end="741" vertical-scroll-proportion="-18.84" vertical-offset="5" max-vertical-offset="1020">
               <folding>
                 <element signature="e#47#56#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="43" column="5" selection-start="379" selection-end="379" vertical-scroll-proportion="0.75987524" vertical-offset="0" max-vertical-offset="962">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -100,6 +109,13 @@
     <FindUsagesManager>
       <setting name="OPEN_NEW_TAB" value="false" />
     </FindUsagesManager>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="y" value="22" />
@@ -393,13 +409,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="964">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MANIFEST.in">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="187">
@@ -523,10 +532,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="103" selection-start="650" selection-end="741" vertical-scroll-proportion="0.5026681" vertical-offset="5" max-vertical-offset="1020">
+        <state line="28" column="103" selection-start="650" selection-end="741" vertical-scroll-proportion="-18.84" vertical-offset="5" max-vertical-offset="1020">
           <folding>
             <element signature="e#47#56#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="5" selection-start="379" selection-end="379" vertical-scroll-proportion="0.75987524" vertical-offset="0" max-vertical-offset="867">
+          <folding />
         </state>
       </provider>
     </entry>
