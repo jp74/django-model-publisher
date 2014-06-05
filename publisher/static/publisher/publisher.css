@@ -8,13 +8,11 @@
     text-indent: 100%;
     white-space: nowrap;
     overflow: hidden;
-    opacity: .6;
     margin: 0;
     padding: 0;
     margin-left: 4px;
     margin-top: 3px;
 }
-
 
 .icon.publish {
     display: inline-block;
@@ -26,5 +24,4 @@
     white-space: nowrap;
     overflow: hidden;
     margin: 0;
-    opacity: .3;
 }
