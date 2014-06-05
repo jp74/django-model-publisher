@@ -189,22 +189,16 @@ class PublisherAdmin(ModelAdmin):
     def revert_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not request.user.has_perm('pages.can_do_publisher_action', obj):
-            raise PermissionDenied
-
         obj.revert_to_public()
 
         if not request.is_ajax():
             messages.success(request, _('Draft has been revert to the public version.'))
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
-        return http_json_response({'status': 'complete'})
+        return http_json_response({'success': True})
 
     def unpublish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
-
-        if not request.user.has_perm('pages.can_do_publisher_action', obj):
-            raise PermissionDenied
 
         obj.unpublish()
 
@@ -212,13 +206,10 @@ class PublisherAdmin(ModelAdmin):
             messages.success(request, _('Published version has been deleted.'))
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
-        return http_json_response({'status': 'complete'})
+        return http_json_response({'success': True})
 
     def publish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
-
-        if not request.user.has_perm('pages.can_do_publisher_action', obj):
-            raise PermissionDenied
 
         obj.publish()
 
@@ -226,7 +217,7 @@ class PublisherAdmin(ModelAdmin):
             messages.success(request, _('Draft version has been published.'))
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
-        return http_json_response({'status': 'complete'})
+        return http_json_response({'success': True})
 
     def render_change_form(self, request, context, **kwargs):
         obj = context.get('original', None)

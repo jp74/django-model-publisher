@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="col-published">
 	<label class="published-icon">
-		<img src="/static/admin/img/icon_success.gif"{% if not is_published %} style="display:none"{% endif %}>
+		<img src="/static/admin/img/icon-yes.gif"{% if not is_published %} style="display:none"{% endif %}>
 		<img src="/static/admin/img/icon-no.gif"{% if is_published %} style="display:none"{% endif %}>
 	</label>
 	<input type="checkbox" class="publish-checkbox" name="status-{{ object.id }}"
