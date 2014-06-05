@@ -118,7 +118,6 @@ class PublisherAdmin(ModelAdmin):
         t = loader.get_template(template_name)
         c = Context({
             'publish_btn': publish_btn,
-            'can_publish': self.request.user.has_perm('pages.can_do_publisher_action', obj),
         })
         return t.render(c)
     publisher_status.short_description = 'Last Changes'
@@ -127,17 +126,16 @@ class PublisherAdmin(ModelAdmin):
 
         template_name = 'publisher/change_list_publish.html'
 
-        checked = ''
+        is_published = False
         if obj.publisher_linked and obj.is_draft:
-            checked = 'checked'
+            is_published = True
 
         t = loader.get_template(template_name)
         c = Context({
             'object': obj,
-            'checked': checked,
+            'is_published': is_published,
             'publish_url': reverse(self.publish_reverse, args=(obj.pk, )),
             'unpublish_url': reverse(self.unpublish_reverse, args=(obj.pk, )),
-            'can_publish': self.request.user.has_perm('pages.can_do_publisher_action', obj),
         })
         return t.render(c)
     publisher_publish.short_description = 'Published'
