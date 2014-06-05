@@ -259,6 +259,9 @@ class PublisherModel(PublisherModelBase):
 
     class Meta:
         abstract = True
+        permissions = (
+            ('can_publish', 'Can publish'),
+        )
 
     def save(self, suppress_modified=False, **kwargs):
         if suppress_modified is False:
