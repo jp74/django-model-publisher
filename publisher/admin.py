@@ -121,7 +121,7 @@ class PublisherAdmin(ModelAdmin):
         })
         return t.render(c)
     publisher_status.short_description = 'Last Changes'
-    publisher_status.allow_tag = True
+    publisher_status.allow_tags = True
 
     def publisher_publish(self, obj):
 
@@ -140,7 +140,7 @@ class PublisherAdmin(ModelAdmin):
         })
         return t.render(c)
     publisher_publish.short_description = 'Published'
-    publisher_publish.allow_tag = True
+    publisher_publish.allow_tags = True
 
     def queryset(self, request):
         self.request = request
