@@ -7,6 +7,10 @@ $(function() {
         else {
             var url = $(this).data('unpublish');
         }
-        $.get(url, function(json) { });
+        $.get(url, function(data) {
+			if (data.success) {
+				$('.published-icon').find('img').toggle();
+			}
+		});
     })
 })
