@@ -189,6 +189,9 @@ class PublisherAdmin(ModelAdmin):
     def revert_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
+        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+            raise PermissionDenied
+
         obj.revert_to_public()
 
         if not request.is_ajax():
@@ -200,6 +203,9 @@ class PublisherAdmin(ModelAdmin):
     def unpublish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
+        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+            raise PermissionDenied
+
         obj.unpublish()
 
         if not request.is_ajax():
@@ -210,6 +216,9 @@ class PublisherAdmin(ModelAdmin):
 
     def publish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
+
+        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+            raise PermissionDenied
 
         obj.publish()
 
