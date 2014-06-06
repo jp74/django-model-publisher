@@ -18,4 +18,3 @@ class Command(BaseCommand):
                 apps.append(get_app(arg))
         for app in apps:
             create_permissions(app, get_models(), int(options.get('verbosity', 0)))
-

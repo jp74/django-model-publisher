@@ -144,7 +144,6 @@ class PublisherModelBase(models.Model):
                 published_placeholder.pk = None
                 published_placeholder.save()
 
-
     @assert_draft
     def unpublish(self):
         if not self.is_draft or not self.publisher_linked:

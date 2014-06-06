@@ -267,6 +267,7 @@ class PublisherAdmin(ModelAdmin):
 
         return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
 
+
 class PublisherPublishedFilter(SimpleListFilter):
     title = _('Published')
     parameter_name = 'published'
