@@ -108,6 +108,10 @@ class PublisherAdmin(ModelAdmin):
             self.admin_site.name,
             self.url_name_prefix, )
 
+    def has_publish_permission(self, request, obj=None):
+        opts = self.opts
+        return request.user.has_perm('%s.can_publish' % opts.app_label)
+
     def publisher_status(self, obj):
         template_name = 'publisher/change_list_publish_status.html'
 
@@ -189,7 +193,7 @@ class PublisherAdmin(ModelAdmin):
     def revert_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+        if not self.has_publish_permission(request, obj):
             raise PermissionDenied
 
         obj.revert_to_public()
@@ -203,7 +207,7 @@ class PublisherAdmin(ModelAdmin):
     def unpublish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+        if not self.has_publish_permission(request, obj):
             raise PermissionDenied
 
         obj.unpublish()
@@ -217,7 +221,7 @@ class PublisherAdmin(ModelAdmin):
     def publish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not request.user.has_perm('%s.can_publish' % self.model._meta.app_label, obj):
+        if not self.has_publish_permission(request, obj):
             raise PermissionDenied
 
         obj.publish()
