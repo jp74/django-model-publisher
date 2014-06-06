@@ -11,7 +11,7 @@ django-model-publisher
 .. image:: https://coveralls.io/repos/jp74/django-model-publisher/badge.png?branch=master
     :target: https://coveralls.io/r/jp74/django-model-publisher?branch=master
 
-Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.
+A handy mixin/abstract set of classes for provising a publisher workflow (draft, publish) to arbitrary Django models.
 
 Documentation
 -------------
@@ -25,9 +25,6 @@ Install django-model-publisher::
 
     pip install django-model-publisher
 
-Then use it in a project::
-
-    import django-model-publisher
 
 Features
 --------

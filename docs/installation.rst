@@ -2,11 +2,15 @@
 Installation
 ============
 
-At the command line::
+Install django-model-publisher::
 
-    $ easy_install django-model-publisher
+    pip install django-model-publisher
 
-Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv django-model-publisher
-    $ pip install django-model-publisher
+Add to installed apps::
+
+    INSTALLED_APPS = (
+        ...
+
+        'publisher',
+    )
