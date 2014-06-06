@@ -29,4 +29,4 @@ Install django-model-publisher::
 Features
 --------
 
-* TODO
+Restrict user access to publish functions with user permissions.
