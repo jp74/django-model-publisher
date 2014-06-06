@@ -5,25 +5,27 @@
 	{% if change %}{% if not is_popup %}
 		<ul class="object-tools">
 			{% block object-tools-items %}
-				{% if publish_btn_live %}
-					<li>
-						<a href="{{ publish_btn_live }}">Publish Draft</a>
-					</li>
-				{% endif %}
-				{% if unpublish_btn %}
-					<li>
-						<a href="{{ unpublish_btn }}">Unpublish</a>
-					</li>
-				{% endif %}
-				{% if revert_btn %}
-					<li>
-						<a href="{{ revert_btn }}">Revert to Published</a>
-					</li>
-				{% endif %}
-				{% if preview_draft_btn %}
-					<li>
-						<a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
-					</li>
+				{% if has_publish_permission %}
+					{% if publish_btn_live %}
+						<li>
+							<a href="{{ publish_btn_live }}">Publish Draft</a>
+						</li>
+					{% endif %}
+					{% if unpublish_btn %}
+						<li>
+							<a href="{{ unpublish_btn }}">Unpublish</a>
+						</li>
+					{% endif %}
+					{% if revert_btn %}
+						<li>
+							<a href="{{ revert_btn }}">Revert to Published</a>
+						</li>
+					{% endif %}
+					{% if preview_draft_btn %}
+						<li>
+							<a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
+						</li>
+					{% endif %}
 				{% endif %}
 				{{ block.super }}
 			{% endblock %}

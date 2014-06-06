@@ -237,26 +237,30 @@ class PublisherAdmin(ModelAdmin):
         if not obj:
             return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
 
-        publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
+        if not self.has_publish_permission(request, obj):
+            context['has_publish_permission'] = False
+        else:
+            context['has_publish_permission'] = True
+            publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
 
-        preview_draft_btn = None
-        if callable(getattr(obj, 'get_absolute_url', None)):
-            preview_draft_btn = True
+            preview_draft_btn = None
+            if callable(getattr(obj, 'get_absolute_url', None)):
+                preview_draft_btn = True
 
-        unpublish_btn = None
-        if obj.is_draft and obj.publisher_linked:
-            unpublish_btn = reverse(self.unpublish_reverse, args=(obj.pk, ))
+            unpublish_btn = None
+            if obj.is_draft and obj.publisher_linked:
+                unpublish_btn = reverse(self.unpublish_reverse, args=(obj.pk, ))
 
-        revert_btn = None
-        if obj.is_dirty:
-            revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
+            revert_btn = None
+            if obj.is_dirty:
+                revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
 
-        context.update({
-            'publish_btn_live': publish_btn,
-            'preview_draft_btn': preview_draft_btn,
-            'unpublish_btn': unpublish_btn,
-            'revert_btn': revert_btn,
-        })
+            context.update({
+                'publish_btn_live': publish_btn,
+                'preview_draft_btn': preview_draft_btn,
+                'unpublish_btn': unpublish_btn,
+                'revert_btn': revert_btn,
+            })
 
         return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
 
