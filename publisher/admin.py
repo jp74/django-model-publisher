@@ -113,6 +113,9 @@ class PublisherAdmin(ModelAdmin):
         return request.user.has_perm('%s.can_publish' % opts.app_label)
 
     def publisher_status(self, obj):
+        if not self.has_publish_permission(self.request, obj):
+            return ''
+
         template_name = 'publisher/change_list_publish_status.html'
 
         publish_btn = None
@@ -128,7 +131,6 @@ class PublisherAdmin(ModelAdmin):
     publisher_status.allow_tags = True
 
     def publisher_publish(self, obj):
-
         template_name = 'publisher/change_list_publish.html'
 
         is_published = False
@@ -139,6 +141,7 @@ class PublisherAdmin(ModelAdmin):
         c = Context({
             'object': obj,
             'is_published': is_published,
+            'has_publish_permission': self.has_publish_permission(self.request, obj),
             'publish_url': reverse(self.publish_reverse, args=(obj.pk, )),
             'unpublish_url': reverse(self.unpublish_reverse, args=(obj.pk, )),
         })
