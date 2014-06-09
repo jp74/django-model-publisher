@@ -9,24 +9,24 @@ from .utils import create_models_from_app
 
 
 class PublisherTest(test.TestCase):
+
     def setUp(self):
         create_models_from_app('publisher.tests')
 
     def test_initial_data(self):
         PublisherTestModel.objects.create(title='cow')
 
-        # Only one record should exist
+        # Only one record should exist.
         count = PublisherTestModel.objects.filter(title='cow').count()
         self.assertEqual(count, 1)
 
-        # Any initial record should start as a draft
+        # Any initial record should start as a draft.
         count = PublisherTestModel.objects.drafts().filter(title='cow').count()
         self.assertEqual(count, 1)
 
     def test_edit(self):
         """
-        Editing a record should not cause a duplicated. Only the draft version
-        should be affected
+        Editing a record should not cause a duplicate. Only the draft version should be affected.
         """
         obj = PublisherTestModel.objects.create(title='lion')
         obj.title = 'white lion'
@@ -41,7 +41,7 @@ class PublisherTest(test.TestCase):
 
     def test_publish(self):
         """
-        Create a draft object then publish. One of each type should exist
+        Create a draft object then publish. One of each type should exist.
         """
         obj = PublisherTestModel.objects.create(title='dog')
         obj.publish()
@@ -63,7 +63,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
 
-        # Republish the object to ensure moving back and forth works as intended
+        # Republish the object to ensure moving back and forth works as intended.
         obj.publish()
 
         published = PublisherTestModel.objects.published().filter(title='donkey').count()
@@ -75,12 +75,12 @@ class PublisherTest(test.TestCase):
     def test_published_at_publish(self):
         now = timezone.now()
 
-        # Check that the published_at is set to None when the object is created
+        # Check that the published_at is set to None when the object is created.
         draft = PublisherTestModel.objects.create(title='hawk')
         draft.save()
         self.assertEqual(draft.publisher_published_at, None)
 
-        # Check that the values are correct when published
+        # Check that the values are correct when published.
         draft.publish()
         draft = PublisherTestModel.objects.drafts().get(title='hawk')
         published = PublisherTestModel.objects.drafts().get(title='hawk')
@@ -89,7 +89,7 @@ class PublisherTest(test.TestCase):
         self.assertGreaterEqual(published.publisher_published_at, now)
         self.assertEqual(draft.publisher_published_at, published.publisher_published_at)
 
-        # Check that the value is not changed when re-published
+        # Check that the value is not changed when re-published.
         draft = PublisherTestModel.objects.drafts().get(title='hawk')
         dt = draft.publisher_published_at
         draft.publish()
@@ -98,13 +98,13 @@ class PublisherTest(test.TestCase):
         self.assertEqual(draft.publisher_published_at, dt)
         self.assertEqual(published.publisher_published_at, dt)
 
-        # Check that the published_at is set to None when unpublished
+        # Check that the published_at is set to None when unpublished.
         draft = PublisherTestModel.objects.drafts().get(title='hawk')
         draft.unpublish()
         draft = PublisherTestModel.objects.drafts().get(title='hawk')
         self.assertIsNone(draft.publisher_published_at)
 
-        # Check that the published_at is set to when unpublished and re-published
+        # Check that the published_at is set to when unpublished and re-published.
         draft = PublisherTestModel.objects.drafts().get(title='hawk')
         draft.publish()
         draft.unpublish()
@@ -113,7 +113,7 @@ class PublisherTest(test.TestCase):
 
     def test_delete(self):
         """
-        Testing if deleting a draft object also removes the published object
+        Testing if deleting a draft object also removes the published object.
         """
         obj = PublisherTestModel.objects.create(title='fish')
         obj.publish()
@@ -127,7 +127,7 @@ class PublisherTest(test.TestCase):
 
     def test_delete_published(self):
         """
-        Deleting a published object should not delete the draft version
+        Deleting a published object should not delete the draft version.
         """
         obj = PublisherTestModel.objects.create(title='sheep')
         obj.publish()
@@ -143,8 +143,8 @@ class PublisherTest(test.TestCase):
 
     def test_revert(self):
         """
-        Create an object, publish, amend the draft.. Then revert it to
-        published version which should disgard the changes
+        Create an object, publish, amend the draft... Then revert it to published version which
+        should discard the changes.
         """
         test_str = 'wolf'
         new_str = 'white wolf'
@@ -159,8 +159,8 @@ class PublisherTest(test.TestCase):
 
     def test_actions_on_published(self):
         """
-        Only draft records can be published or reverted
-        Expected exceptions to be raised
+        Only draft records can be published or reverted.
+        Expected exceptions to be raised.
         """
         draft = PublisherTestModel.objects.create(title='frog')
         draft.publish()
@@ -204,7 +204,7 @@ class PublisherTest(test.TestCase):
 
         publisher_post_unpublish.connect(handle_signal)
 
-        # call the function
+        # Call the function.
         obj = PublisherTestModel.objects.create(title='emperor penguin')
         obj.publish()
         obj.unpublish()
