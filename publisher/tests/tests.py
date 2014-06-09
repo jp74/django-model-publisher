@@ -118,16 +118,13 @@ class PublisherTest(test.TestCase):
         draft.publish()
         self.assertGreaterEqual(draft.publisher_published_at, now)
 
-    def test_delete(self):
-        """
-        Testing if deleting a draft object also removes the published object.
-        """
-        obj = PublisherTestModel.objects.create(title='fish')
-        obj.publish()
-        obj.delete()
+    def test_deleting_draft_also_deletes_published_record(self):
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
+        instance.delete()
 
-        published = PublisherTestModel.objects.published().filter(title='fish').count()
-        drafts = PublisherTestModel.objects.drafts().filter(title='fish').count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 0)
