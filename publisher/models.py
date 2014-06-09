@@ -130,7 +130,7 @@ class PublisherModelBase(models.Model):
     @assert_draft
     def patch_placeholders(self, draft_obj):
         try:
-            from cms.utils.copy_plugins import copy_plugins_to
+            from cms.utils.copy_plugins import copy_plugins_to  # noqa
         except ImportError:
             return
 
