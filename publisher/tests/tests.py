@@ -1,3 +1,5 @@
+import datetime
+
 from django import test
 from django.utils import timezone
 
@@ -87,10 +89,15 @@ class PublisherTest(test.TestCase):
         self.assertEqual(draft.publisher_published_at, published.publisher_published_at)
 
     def test_published_date_is_not_changed_when_publishing_twice(self):
-        # TODO: that doesn't test anything!
+        published_date = datetime.datetime(1970, 1, 1, 0, 0, tzinfo=timezone.utc)
         draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
-        published_date = draft.publisher_published_at
+        published = PublisherTestModel.objects.drafts().get()
+        draft.publisher_published_at = published_date
+        draft.save()
+        published.publisher_published_at = published_date
+        published.save()
+
         draft.publish()
         draft = PublisherTestModel.objects.drafts().get()
         published = PublisherTestModel.objects.drafts().get()
