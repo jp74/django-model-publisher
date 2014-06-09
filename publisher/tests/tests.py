@@ -48,22 +48,25 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
 
-    def test_unpublish(self):
-        obj = PublisherTestModel.objects.create(title='donkey')
-        obj.publish()
-        obj.unpublish()
+    def test_unpublishing_deletes_published_record(self):
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
+        instance.unpublish()
 
-        published = PublisherTestModel.objects.published().filter(title='donkey').count()
-        drafts = PublisherTestModel.objects.drafts().filter(title='donkey').count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
 
-        # Republish the object to ensure moving back and forth works as intended.
-        obj.publish()
+    def test_unpublished_record_can_be_republished(self):
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
+        instance.unpublish()
+        instance.publish()
 
-        published = PublisherTestModel.objects.published().filter(title='donkey').count()
-        drafts = PublisherTestModel.objects.drafts().filter(title='donkey').count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
