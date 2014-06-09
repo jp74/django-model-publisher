@@ -13,16 +13,14 @@ class PublisherTest(test.TestCase):
     def setUp(self):
         create_models_from_app('publisher.tests')
 
-    def test_initial_data(self):
-        PublisherTestModel.objects.create(title='cow')
-
-        # Only one record should exist.
-        count = PublisherTestModel.objects.filter(title='cow').count()
+    def test_creating_model_creates_only_one_record(self):
+        PublisherTestModel.objects.create(title='Test model')
+        count = PublisherTestModel.objects.count()
         self.assertEqual(count, 1)
 
-        # Any initial record should start as a draft.
-        count = PublisherTestModel.objects.drafts().filter(title='cow').count()
-        self.assertEqual(count, 1)
+    def test_new_models_are_draft(self):
+        instance = PublisherTestModel(title='Test model')
+        self.assertTrue(instance.is_draft)
 
     def test_edit(self):
         """
