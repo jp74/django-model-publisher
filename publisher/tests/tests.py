@@ -174,12 +174,12 @@ class PublisherTest(test.TestCase):
         publisher_post_publish.connect(handle_signal)
 
         # call the function
-        obj = PublisherTestModel.objects.create(title='gentoo penguin')
-        obj.publish()
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
 
         self.assertTrue(self.got_signal)
         self.assertEqual(self.signal_sender, PublisherTestModel)
-        self.assertEqual(self.signal_instance, obj)
+        self.assertEqual(self.signal_instance, instance)
 
     def test_unpublished_signal(self):
         # Check the signal was sent. These get lost if they don't reference self.
@@ -195,10 +195,10 @@ class PublisherTest(test.TestCase):
         publisher_post_unpublish.connect(handle_signal)
 
         # Call the function.
-        obj = PublisherTestModel.objects.create(title='emperor penguin')
-        obj.publish()
-        obj.unpublish()
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
+        instance.unpublish()
 
         self.assertTrue(self.got_signal)
         self.assertEqual(self.signal_sender, PublisherTestModel)
-        self.assertEqual(self.signal_instance, obj)
+        self.assertEqual(self.signal_instance, instance)
