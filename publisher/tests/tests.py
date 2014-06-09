@@ -38,15 +38,12 @@ class PublisherTest(test.TestCase):
         published_instance = PublisherTestModel.objects.published().get()
         self.assertEqual(published_instance.title, title)
 
-    def test_publish(self):
-        """
-        Create a draft object then publish. One of each type should exist.
-        """
-        obj = PublisherTestModel.objects.create(title='dog')
-        obj.publish()
+    def test_publishing_creates_new_record(self):
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.publish()
 
-        published = PublisherTestModel.objects.published().filter(title='dog').count()
-        drafts = PublisherTestModel.objects.drafts().filter(title='dog').count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
