@@ -20,8 +20,8 @@ class PublisherTest(test.TestCase):
         self.assertEqual(count, 1)
 
         # Any initial record should start as a draft
-        obj = PublisherTestModel.objects.drafts().get(title='cow')
-        return True
+        count = PublisherTestModel.objects.drafts().filter(title='cow').count()
+        self.assertEqual(count, 1)
 
     def test_edit(self):
         """
