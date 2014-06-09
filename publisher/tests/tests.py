@@ -142,21 +142,14 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
 
-    def test_revert(self):
-        """
-        Create an object, publish, amend the draft... Then revert it to published version which
-        should discard the changes.
-        """
-        test_str = 'wolf'
-        new_str = 'white wolf'
-
-        obj = PublisherTestModel.objects.create(title=test_str)
-        obj.publish()
-        obj.title = new_str
-        obj.save()
-
-        revert_obj = obj.revert_to_public()
-        self.assertEqual(test_str, revert_obj.title)
+    def test_reverting_reverts_draft_from_published_record(self):
+        title = 'Test model'
+        instance = PublisherTestModel.objects.create(title=title)
+        instance.publish()
+        instance.title = 'Updated test model'
+        instance.save()
+        revert_instance = instance.revert_to_public()
+        self.assertEqual(title, revert_instance.title)
 
     def test_actions_on_published(self):
         """
