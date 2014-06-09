@@ -151,15 +151,11 @@ class PublisherTest(test.TestCase):
         revert_instance = instance.revert_to_public()
         self.assertEqual(title, revert_instance.title)
 
-    def test_actions_on_published(self):
-        """
-        Only draft records can be published or reverted.
-        Expected exceptions to be raised.
-        """
-        draft = PublisherTestModel.objects.create(title='frog')
+    def test_only_draft_records_can_be_published_or_reverted(self):
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
 
-        published = PublisherTestModel.objects.published().get(title='frog')
+        published = PublisherTestModel.objects.published().get()
         self.assertRaises(NotDraftException, published.publish)
         self.assertRaises(NotDraftException, published.unpublish)
         self.assertRaises(NotDraftException, published.revert_to_public)
