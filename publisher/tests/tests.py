@@ -71,40 +71,41 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
 
-    def test_published_at_publish(self):
-        now = timezone.now()
-
-        # Check that the published_at is set to None when the object is created.
-        draft = PublisherTestModel.objects.create(title='hawk')
-        draft.save()
+    def test_published_date_is_set_to_none_for_new_records(self):
+        draft = PublisherTestModel(title='Test model')
         self.assertEqual(draft.publisher_published_at, None)
 
-        # Check that the values are correct when published.
+    def test_published_date_is_updated_when_publishing(self):
+        now = timezone.now()
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
-        published = PublisherTestModel.objects.drafts().get(title='hawk')
+        draft = PublisherTestModel.objects.drafts().get()
+        published = PublisherTestModel.objects.drafts().get()
 
         self.assertGreaterEqual(draft.publisher_published_at, now)
         self.assertGreaterEqual(published.publisher_published_at, now)
         self.assertEqual(draft.publisher_published_at, published.publisher_published_at)
 
-        # Check that the value is not changed when re-published.
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
-        dt = draft.publisher_published_at
+    def test_published_date_is_not_changed_when_publishing_twice(self):
+        # TODO: that doesn't test anything!
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
-        published = PublisherTestModel.objects.drafts().get(title='hawk')
-        self.assertEqual(draft.publisher_published_at, dt)
-        self.assertEqual(published.publisher_published_at, dt)
+        published_date = draft.publisher_published_at
+        draft.publish()
+        draft = PublisherTestModel.objects.drafts().get()
+        published = PublisherTestModel.objects.drafts().get()
+        self.assertEqual(draft.publisher_published_at, published_date)
+        self.assertEqual(published.publisher_published_at, published_date)
 
-        # Check that the published_at is set to None when unpublished.
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
+    def test_published_date_is_set_to_none_when_unpublished(self):
+        draft = PublisherTestModel.objects.create(title='Test model')
+        draft.publish()
         draft.unpublish()
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
         self.assertIsNone(draft.publisher_published_at)
 
-        # Check that the published_at is set to when unpublished and re-published.
-        draft = PublisherTestModel.objects.drafts().get(title='hawk')
+    def test_published_date_is_set_when_republished(self):
+        now = timezone.now()
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
         draft.unpublish()
         draft.publish()
