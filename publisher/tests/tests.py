@@ -129,18 +129,15 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 0)
 
-    def test_delete_published(self):
-        """
-        Deleting a published object should not delete the draft version.
-        """
-        obj = PublisherTestModel.objects.create(title='sheep')
+    def test_delete_published_does_not_delete_draft(self):
+        obj = PublisherTestModel.objects.create(title='Test model')
         obj.publish()
 
-        published = PublisherTestModel.objects.published().get(title='sheep')
+        published = PublisherTestModel.objects.published().get()
         published.delete()
 
-        published = PublisherTestModel.objects.published().filter(title='sheep').count()
-        drafts = PublisherTestModel.objects.drafts().filter(title='sheep').count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
