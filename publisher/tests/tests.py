@@ -22,20 +22,21 @@ class PublisherTest(test.TestCase):
         instance = PublisherTestModel(title='Test model')
         self.assertTrue(instance.is_draft)
 
-    def test_edit(self):
-        """
-        Editing a record should not cause a duplicate. Only the draft version should be affected.
-        """
-        obj = PublisherTestModel.objects.create(title='lion')
-        obj.title = 'white lion'
-        obj.save()
+    def test_editing_a_record_does_not_create_a_duplicate(self):
+        instance = PublisherTestModel.objects.create(title='Test model')
+        instance.title = 'Updated test model'
+        instance.save()
+        count = PublisherTestModel.objects.count()
+        self.assertEqual(count, 1)
 
-        published = PublisherTestModel.objects.published().filter(title='white lion')
-        drafts = PublisherTestModel.objects.drafts().filter(title='white lion')
-
-        # Ensure that only one record exists and it's still a draft
-        self.assertEqual(published.count(), 0)
-        self.assertEqual(drafts.count(), 1)
+    def test_editing_a_draft_does_not_update_published_record(self):
+        title = 'Test model'
+        instance = PublisherTestModel.objects.create(title=title)
+        instance.publish()
+        instance.title = 'Updated test model'
+        instance.save()
+        published_instance = PublisherTestModel.objects.published().get()
+        self.assertEqual(published_instance.title, title)
 
     def test_publish(self):
         """
