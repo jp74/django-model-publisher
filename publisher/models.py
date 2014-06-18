@@ -254,7 +254,7 @@ class PublisherModelBase(models.Model):
 
 
 class PublisherModel(PublisherModelBase):
-    objects = PublisherManager.for_queryset_class(PublisherQuerySet)()
+    publisher_manager = PublisherManager.for_queryset_class(PublisherQuerySet)()
 
     class Meta:
         abstract = True

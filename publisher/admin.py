@@ -109,6 +109,7 @@ class PublisherAdmin(ModelAdmin):
             self.url_name_prefix, )
 
     def has_publish_permission(self, request, obj=None):
+        return True
         opts = self.opts
         return request.user.has_perm('%s.can_publish' % opts.app_label)
 
@@ -151,7 +152,7 @@ class PublisherAdmin(ModelAdmin):
 
     def queryset(self, request):
         self.request = request
-        qs = self.model.objects.drafts()
+        qs = self.model.publisher_manager.drafts()
         ordering = self.get_ordering(request)
         if ordering:
             qs = qs.order_by(*ordering)
@@ -235,10 +236,10 @@ class PublisherAdmin(ModelAdmin):
 
         return http_json_response({'success': True})
 
-    def render_change_form(self, request, context, **kwargs):
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         obj = context.get('original', None)
         if not obj:
-            return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
+            return super(PublisherAdmin, self).render_change_form(request, context, add, change, form_url, obj=None)
 
         if not self.has_publish_permission(request, obj):
             context['has_publish_permission'] = False
@@ -265,7 +266,31 @@ class PublisherAdmin(ModelAdmin):
                 'revert_btn': revert_btn,
             })
 
-        return super(PublisherAdmin, self).render_change_form(request, context, **kwargs)
+        return super(PublisherAdmin, self).render_change_form(request, context, add, change, form_url, obj=None)
+
+
+try:
+    from hvad.admin import TranslatableAdmin
+    from hvad.manager import FALLBACK_LANGUAGES
+except ImportError:
+    pass
+else:
+    class PublisherHvadAdmin(TranslatableAdmin, PublisherAdmin):
+        change_form_template = 'publisher/hvad/change_form.html'
+
+        def queryset(self, request):
+            language = self._language(request)
+            languages = [language,]
+            for lang in FALLBACK_LANGUAGES:
+                if lang not in languages:
+                    languages.append(lang)
+            qs = self.model._default_manager.untranslated().use_fallbacks(*languages)
+            """qs = super(TranslatableAdmin, self).queryset(request)"""
+            qs = qs.filter(publisher_is_draft=True)
+            ordering = getattr(self, 'ordering', None) or ()
+            if ordering:
+                qs = qs.order_by(*ordering)
+            return qs
 
 
 class PublisherPublishedFilter(SimpleListFilter):

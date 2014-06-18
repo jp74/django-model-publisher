@@ -2,6 +2,7 @@
 {% load i18n admin_static admin_modify admin_urls %}
 {% load url from future %}
 {% block object-tools %}
+    {{ block.super }}
 	{% if change %}{% if not is_popup %}
 		<ul class="object-tools">
 			{% block object-tools-items %}
