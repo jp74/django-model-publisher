@@ -293,6 +293,26 @@ else:
             return qs
 
 
+try:
+    from parler.admin import TranslatableAdmin as PTranslatableAdmin
+except ImportError:
+    pass
+else:
+    class PublisherParlerAdmin(PTranslatableAdmin, PublisherAdmin):
+        change_form_template = 'publisher/parler/change_form.html'
+
+        def queryset(self, request):
+            qs = self.model.objects
+            qs_language = self.get_queryset_language(request)
+            if qs_language:
+                qs = qs.language(qs_language)
+            qs = qs.filter(publisher_is_draft=True)
+            ordering = getattr(self, 'ordering', None) or ()
+            if ordering:
+                qs = qs.order_by(*ordering)
+            return qs
+
+
 class PublisherPublishedFilter(SimpleListFilter):
     title = _('Published')
     parameter_name = 'published'
