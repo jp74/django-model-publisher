@@ -244,7 +244,7 @@ class PublisherModelBase(models.Model):
                 placeholder = getattr(obj, field)
                 if isinstance(placeholder, Placeholder):
                     placeholder_fields.append(field)
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, AttributeError):
                 continue
 
         return placeholder_fields
