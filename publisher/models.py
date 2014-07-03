@@ -118,6 +118,9 @@ class PublisherModelBase(models.Model):
         # Clone any placeholder fields into the new published object
         self.clone_placeholder(draft_obj, publish_obj)
 
+        # Clone relationships
+        self.clone_relations(draft_obj, publish_obj)
+
         # Link the draft obj to the current published version
         draft_obj.publisher_linked = publish_obj
 
@@ -223,6 +226,12 @@ class PublisherModelBase(models.Model):
 
             # CMS automatically generates a new Placeholder ID
             copy_plugins_to(src_plugins, dst_placeholder)
+
+    def clone_relations(self, src_obj, dst_obj):
+        """
+        Since copying relations is so complex, leave this to the implementing class
+        """
+        pass
 
     def get_placeholder_fields(self, obj=None):
         placeholder_fields = []
