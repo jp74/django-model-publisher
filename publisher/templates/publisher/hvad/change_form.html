@@ -30,43 +30,44 @@
 </style>
 {% endblock %}
 
-{% block object-tools %}
-{{ block.super }}
-<div class="hvad-language-tabs nani-language-tabs">
-    {% for url,name,code,status in language_tabs %}
-       {% if status == 'current' %}
-           <input type="hidden" class="language_button selected" name="{{ code }}" />
-           <span class="current">{{ name }}{% if current_is_translated and allow_deletion %}<a class="deletelink" href="./delete-translation/{{ code }}/" title="{% trans 'Delete Translation' %}">&nbsp;</a>{% endif %}</span>
-       {% else %}
-           <span class="{{ status }}"><a href="{{ url }}">{{ name }}</a> {% if status == 'available' and allow_deletion %}<a class="deletelink" href="./delete-translation/{{ code }}/" title="{% trans 'Delete Translation' %}">&nbsp;</a>{% endif %}</span>
-       {% endif %} 
-    {% endfor %}
-</div>
+{% block object-tools-items %}
+	{% if change and not is_popup %}
+		{% if has_publish_permission %}
+			{% if publish_btn_live %}
+				<li>
+					<a href="{{ publish_btn_live }}">Publish Draft</a>
+				</li>
+			{% endif %}
+			{% if unpublish_btn %}
+				<li>
+					<a href="{{ unpublish_btn }}">Unpublish</a>
+				</li>
+			{% endif %}
+			{% if revert_btn %}
+				<li>
+					<a href="{{ revert_btn }}">Revert to Published</a>
+				</li>
+			{% endif %}
+			{% if preview_draft_btn %}
+				<li>
+					<a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
+				</li>
+			{% endif %}
+		{% endif %}
+	{% endif %}
+	{{ block.super }}
+{% endblock %}
 
-{% if change and not is_popup %}
-    <ul class="object-tools">
-        {% if has_publish_permission %}
-            {% if publish_btn_live %}
-                <li>
-                    <a href="{{ publish_btn_live }}">Publish Draft</a>
-                </li>
-            {% endif %}
-            {% if unpublish_btn %}
-                <li>
-                    <a href="{{ unpublish_btn }}">Unpublish</a>
-                </li>
-            {% endif %}
-            {% if revert_btn %}
-                <li>
-                    <a href="{{ revert_btn }}">Revert to Published</a>
-                </li>
-            {% endif %}
-            {% if preview_draft_btn %}
-                <li>
-                    <a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
-                </li>
-            {% endif %}
-        {% endif %}
-    </ul>
-{% endif %}
+{% block object-tools %}
+	{{ block.super }}
+	<div class="hvad-language-tabs nani-language-tabs">
+		{% for url,name,code,status in language_tabs %}
+		   {% if status == 'current' %}
+			   <input type="hidden" class="language_button selected" name="{{ code }}" />
+			   <span class="current">{{ name }}{% if current_is_translated and allow_deletion %}<a class="deletelink" href="./delete-translation/{{ code }}/" title="{% trans 'Delete Translation' %}">&nbsp;</a>{% endif %}</span>
+		   {% else %}
+			   <span class="{{ status }}"><a href="{{ url }}">{{ name }}</a> {% if status == 'available' and allow_deletion %}<a class="deletelink" href="./delete-translation/{{ code }}/" title="{% trans 'Delete Translation' %}">&nbsp;</a>{% endif %}</span>
+		   {% endif %}
+		{% endfor %}
+	</div>
 {% endblock %}
