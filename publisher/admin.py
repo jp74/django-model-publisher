@@ -284,7 +284,6 @@ else:
                 if lang not in languages:
                     languages.append(lang)
             qs = self.model._default_manager.untranslated().use_fallbacks(*languages)
-            """qs = super(TranslatableAdmin, self).queryset(request)"""
             qs = qs.filter(publisher_is_draft=True)
             ordering = getattr(self, 'ordering', None) or ()
             if ordering:
