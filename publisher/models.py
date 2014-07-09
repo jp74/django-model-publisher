@@ -23,7 +23,7 @@ class PublisherModelBase(models.Model):
         default=STATE_DRAFT,
         editable=False,
         db_index=True)
-    publisher_modifed_at = models.DateTimeField(
+    publisher_modified_at = models.DateTimeField(
         default=timezone.now(),
         editable=False)
 
@@ -32,7 +32,7 @@ class PublisherModelBase(models.Model):
     publisher_fields = (
         'publisher_linked',
         'publisher_is_draft',
-        'publisher_modifed_at',
+        'publisher_modified_at',
         'publisher_draft'
     )
     publisher_ignore_fields = publisher_fields + (
@@ -65,14 +65,14 @@ class PublisherModelBase(models.Model):
         if not self.publisher_linked:
             return True
 
-        if self.publisher_modifed_at > self.publisher_linked.publisher_modifed_at:
+        if self.publisher_modified_at > self.publisher_linked.publisher_modified_at:
             return True
 
         # Get all placeholders + their plugins to find their modified date
         for placeholder_field in self.get_placeholder_fields():
             placeholder = getattr(self, placeholder_field)
             for plugin in placeholder.get_plugins_list():
-                if plugin.changed_date > self.publisher_linked.publisher_modifed_at:
+                if plugin.changed_date > self.publisher_linked.publisher_modified_at:
                     return True
 
         return False
@@ -259,7 +259,7 @@ class PublisherModelBase(models.Model):
         return placeholder_fields
 
     def update_modified_at(self):
-        self.publisher_modifed_at = timezone.now()
+        self.publisher_modified_at = timezone.now()
 
 
 class PublisherModel(PublisherModelBase):
