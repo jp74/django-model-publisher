@@ -33,7 +33,7 @@ class PublisherModelBase(models.Model):
         'publisher_linked',
         'publisher_is_draft',
         'publisher_modified_at',
-        'publisher_draft'
+        'publisher_draft',
     )
     publisher_ignore_fields = publisher_fields + (
         'pk',

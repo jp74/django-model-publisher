@@ -238,7 +238,8 @@ class PublisherAdmin(ModelAdmin):
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         obj = context.get('original', None)
         if not obj:
-            return super(PublisherAdmin, self).render_change_form(request, context, add, change, form_url, obj=None)
+            return super(PublisherAdmin, self).render_change_form(
+                request, context, add, change, form_url, obj=None)
 
         if not self.has_publish_permission(request, obj):
             context['has_publish_permission'] = False
@@ -265,7 +266,8 @@ class PublisherAdmin(ModelAdmin):
                 'revert_btn': revert_btn,
             })
 
-        return super(PublisherAdmin, self).render_change_form(request, context, add, change, form_url, obj=None)
+        return super(PublisherAdmin, self).render_change_form(
+            request, context, add, change, form_url, obj=None)
 
 
 try:
@@ -279,7 +281,7 @@ else:
 
         def queryset(self, request):
             language = self._language(request)
-            languages = [language,]
+            languages = [language]
             for lang in FALLBACK_LANGUAGES:
                 if lang not in languages:
                     languages.append(lang)
