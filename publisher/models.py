@@ -263,6 +263,7 @@ class PublisherModelBase(models.Model):
 
 
 class PublisherModel(PublisherModelBase):
+    objects = models.Manager()
     publisher_manager = PublisherManager.for_queryset_class(PublisherQuerySet)()
 
     class Meta:
