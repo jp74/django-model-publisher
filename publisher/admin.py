@@ -109,7 +109,6 @@ class PublisherAdmin(ModelAdmin):
             self.url_name_prefix, )
 
     def has_publish_permission(self, request, obj=None):
-        return True
         opts = self.opts
         return request.user.has_perm('%s.can_publish' % opts.app_label)
 
