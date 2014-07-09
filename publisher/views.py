@@ -12,7 +12,7 @@ class PublisherViewMixin(object):
 
     def is_draft(self):
         if self.request.user.is_authenticated() and self.request.user.is_staff:
-            if self.request.GET and 'edit' in self.request.GET:
+            if 'edit' in self.request.GET:
                 return True
         return False
 
