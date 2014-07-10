@@ -14,7 +14,7 @@ Contents:
    readme
    installation
    usage
-   restricting permissions
+   restricting_permissions
    contributing
    authors
    history
