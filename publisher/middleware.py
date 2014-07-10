@@ -7,7 +7,7 @@ class PublisherMiddleware(object):
     @staticmethod
     def is_draft(request):
         authenticated = request.user.is_authenticated() and request.user.is_staff
-        is_draft = True if request.GET and 'edit' in request.GET and authenticated else False
+        is_draft = 'edit' in request.GET and authenticated
         return is_draft
 
     def process_request(self, request):
