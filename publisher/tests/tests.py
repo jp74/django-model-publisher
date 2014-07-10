@@ -3,9 +3,11 @@ import datetime
 from django import test
 from django.utils import timezone
 
+from mock import MagicMock
+
 from ..utils import NotDraftException
 from ..signals import publisher_post_publish, publisher_post_unpublish
-from ..middleware import PublisherMiddleware
+from ..middleware import PublisherMiddleware, get_draft_status
 
 from .models import PublisherTestModel
 from .utils import create_models_from_app
@@ -263,3 +265,15 @@ class PublisherTest(test.TestCase):
 
         mock_request = MockRequest()
         self.assertTrue(PublisherMiddleware.is_draft(mock_request))
+
+    def test_middleware_get_draft_status_shortcut_defaults_to_false(self):
+        self.assertFalse(get_draft_status())
+
+    def test_middleware_get_draft_status_shortcut_returns_true_in_draft_mode(self):
+        # Mock the request process to initialise the middleware, but force the middleware to go in
+        # draft mode.
+        middleware = PublisherMiddleware()
+        middleware.is_draft = MagicMock(return_value=True)
+        middleware.process_request(None)
+
+        self.assertTrue(get_draft_status())
