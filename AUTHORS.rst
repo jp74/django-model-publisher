@@ -5,7 +5,11 @@ Credits
 Development Lead
 ----------------
 
-* JP74 <tech@jp74.com>
+* Lee Solway
+* Ashley Wilson
+* Mishbah Razzaque
+* Nathan Walsh
+* Fabien Wald
 
 Contributors
 ------------
