@@ -15,6 +15,7 @@ Contents:
    installation
    usage
    restricting_permissions
+   handling_relations
    signals
    contributing
    authors
