@@ -6,6 +6,8 @@ from django.utils import timezone
 from publisher.utils import NotDraftException
 
 from ..signals import publisher_post_publish, publisher_post_unpublish
+from ..middleware import PublisherMiddleware
+
 from .models import PublisherTestModel
 from .utils import create_models_from_app
 
@@ -202,3 +204,63 @@ class PublisherTest(test.TestCase):
         self.assertTrue(self.got_signal)
         self.assertEqual(self.signal_sender, PublisherTestModel)
         self.assertEqual(self.signal_instance, instance)
+
+    def test_middleware_detects_published_when_logged_out(self):
+
+        class MockUser(object):
+            is_staff = False
+
+            def is_authenticated(self):
+                return False
+
+        class MockRequest(object):
+            user = MockUser()
+            GET = {'edit': '1'}
+
+        mock_request = MockRequest()
+        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
+
+    def test_middleware_detects_published_when_user_edit_parameter_is_missing(self):
+
+        class MockUser(object):
+            is_staff = True
+
+            def is_authenticated(self):
+                return True
+
+        class MockRequest(object):
+            user = MockUser()
+            GET = {}
+
+        mock_request = MockRequest()
+        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
+
+    def test_middleware_detects_published_when_user_is_not_staff(self):
+
+        class MockUser(object):
+            is_staff = False
+
+            def is_authenticated(self):
+                return True
+
+        class MockRequest(object):
+            user = MockUser()
+            GET = {'edit': '1'}
+
+        mock_request = MockRequest()
+        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
+
+    def test_middleware_detects_draft_when_user_is_staff_and_edit_parameter_is_present(self):
+
+        class MockUser(object):
+            is_staff = True
+
+            def is_authenticated(self):
+                return True
+
+        class MockRequest(object):
+            user = MockUser()
+            GET = {'edit': '1'}
+
+        mock_request = MockRequest()
+        self.assertTrue(PublisherMiddleware.is_draft(mock_request))
