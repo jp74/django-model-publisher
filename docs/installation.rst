@@ -11,9 +11,17 @@ Add it to installed apps in your settings::
 
     INSTALLED_APPS = (
         ...
-
         'publisher',
     )
+
+
+Add the middleware::
+
+    MIDDLEWARE_CLASSES = (
+        ...
+        'publisher.middleware.PublisherMiddleware',
+    )
+
 
 Making models publishable
 -------------------------

@@ -1,6 +1,8 @@
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 
+from .middleware import get_draft_status
+
 
 class PublisherViewMixin(object):
 
@@ -8,13 +10,7 @@ class PublisherViewMixin(object):
         abstract = True
 
     def get_queryset(self):
-        return self.model.objects.filter(publisher_is_draft=self.is_draft()).all()
-
-    def is_draft(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
-            if 'edit' in self.request.GET:
-                return True
-        return False
+        return self.model.objects.filter(publisher_is_draft=get_draft_status()).all()
 
 
 class PublisherDetailView(PublisherViewMixin, DetailView):
