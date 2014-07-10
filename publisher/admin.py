@@ -150,6 +150,7 @@ class PublisherAdmin(ModelAdmin):
     publisher_publish.allow_tags = True
 
     def queryset(self, request):
+        # hack! We need request.user to check user publish perms
         self.request = request
         qs = self.model.publisher_manager.drafts()
         ordering = self.get_ordering(request)
@@ -280,6 +281,8 @@ else:
         change_form_template = 'publisher/hvad/change_form.html'
 
         def queryset(self, request):
+            # hack! We need request.user to check user publish perms
+            self.request = request
             language = self._language(request)
             languages = [language]
             for lang in FALLBACK_LANGUAGES:
@@ -302,6 +305,8 @@ else:
         change_form_template = 'publisher/parler/change_form.html'
 
         def queryset(self, request):
+            # hack! We need request.user to check user publish perms
+            self.request = request
             qs = self.model.objects
             qs_language = self.get_queryset_language(request)
             if qs_language:
