@@ -18,5 +18,4 @@ Contents:
    handling_relations
    signals
    contributing
-   authors
    history
