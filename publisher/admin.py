@@ -75,7 +75,7 @@ class PublisherAdmin(ModelAdmin):
     # publish or unpublish actions sometime makes the plugins disappear from page
     # so we disable it for now, until we can investigate it further.
     # actions = (make_published, make_unpublished, )
-    list_display = ('__unicode__', 'publisher_publish', 'publisher_status', )
+    list_display = ('publisher_object_title', 'publisher_publish', 'publisher_status', )
     url_name_prefix = None
 
     class Media:
@@ -111,6 +111,10 @@ class PublisherAdmin(ModelAdmin):
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
         return request.user.has_perm('%s.can_publish' % opts.app_label)
+
+    def publisher_object_title(self, obj):
+        return u'%s' % obj
+    publisher_object_title.short_description = 'Title'
 
     def publisher_status(self, obj):
         if not self.has_publish_permission(self.request, obj):
