@@ -2,88 +2,19 @@
 Usage
 ========
 
-Getting started
----------------
+Viewing/previewing
+------------------
 
-Browse to your page with /?edit to view the draft version of your model.
+The views provided will only display the published version by default. To preview the draft version, either follow the preview link from the admin, or append ``?edit`` at the end of the URL (note that you will need to be logged in).
 
-Make changes to your model as you normally would. When you are happy with your changes, use the publish button to copy your model to its published instance.
+Publishing/unpublishing
+-----------------------
 
-Now when you view your live page you should see the updated version of your model.
+Press the "publish draft" button from an edit page to make your model public. If the model has been published, there will also be an "unpublished" button.
 
-Updating your model
+By default, the listing page displays a checkbox to quickly publish/unpublished models. The "Last changes" column highlights wether or not there's unpublished changes. Clicking on the button in that column will publish the changes.
+
+Discarding changes
 -------------------
 
-You can now go back to /?edit and make changes to your model. These changes will remain in a draft state until you hit publish again.
-
 If you are unhappy with the new draft, use the revert button to discard your draft changes.
-
-Permissions
------------
-
-To restrict publish access to your model, add 'PublisherModel.Meta' to your models Meta class::
-
-    class Meta(PublisherModel.Meta):
-       ...
-
-
-Then run the following management command::
-
-    python manage.py update_permissions
-
-
-You should now have the 'Can publish' permission available for your model.
-
-Model
------
-::
-
-    from django.db import models
-    from publisher.models import PublisherModel
-
-
-    class Article(PublisherModel):
-        title = models.CharField('Title', max_length=255)
-        slug = models.CharField('Slug', max_length=255)
-        copy = models.CharField('Copy', max_length=255)
-
-        def __unicode__(self):
-            return self.title
-
-
-View
-----
-::
-
-    from .models import Article
-
-    from publisher.views import PublisherDetailView, PublisherListView
-
-
-    class ArticleListView(PublisherListView):
-        model = Article
-        context_object_name = 'articles'
-
-
-    class ArticleView(PublisherDetailView):
-        model = Article
-        context_object_name = 'article'
-
-
-Admin
------
-::
-
-    from django.contrib import admin
-
-    from publisher.admin import PublisherAdmin, PublisherPublishedFilter
-
-    from .models import Article
-
-
-    class ArticleAdmin(PublisherAdmin):
-        list_filter = (PublisherPublishedFilter,)
-        list_display = ('__unicode__', 'publisher_publish', 'publisher_status', )
-
-
-    admin.site.register(Article, ArticleAdmin)
