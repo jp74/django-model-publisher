@@ -3,8 +3,7 @@ import datetime
 from django import test
 from django.utils import timezone
 
-from publisher.utils import NotDraftException
-
+from ..utils import NotDraftException
 from ..signals import publisher_post_publish, publisher_post_unpublish
 from ..middleware import PublisherMiddleware
 
