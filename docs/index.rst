@@ -15,6 +15,7 @@ Contents:
    installation
    usage
    restricting_permissions
+   signals
    contributing
    authors
    history
