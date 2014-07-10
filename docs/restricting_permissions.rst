@@ -4,8 +4,10 @@ Permissions
 
 To restrict publish access to your model, add 'PublisherModel.Meta' to your models Meta class::
 
-    class Meta(PublisherModel.Meta):
-       ...
+    class Article(PublisherModel):
+
+        class Meta(PublisherModel.Meta):
+               pass
 
 
 Then run the following management command::
