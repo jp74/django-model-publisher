@@ -29,4 +29,6 @@ Install django-model-publisher::
 Features
 --------
 
-Restrict user access to publish functions with user permissions.
+- Django CMS placeholders support.
+- Hvad/Parler support.
+- Restrict user access to publish functions with user permissions.
