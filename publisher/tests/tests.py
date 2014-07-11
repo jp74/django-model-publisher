@@ -275,5 +275,27 @@ class PublisherTest(test.TestCase):
         middleware = PublisherMiddleware()
         middleware.is_draft = MagicMock(return_value=True)
         middleware.process_request(None)
+        draft_status = get_draft_status()
+        PublisherMiddleware.process_response(None, None)
 
-        self.assertTrue(get_draft_status())
+        self.assertTrue(draft_status)
+
+    def test_middleware_get_draft_status_shortcut_does_not_change_draft_status(self):
+        # The get_draft_status() shortcut shouldn't change the value returned by
+        # PublisherMiddleware.get_draft_status().
+        middleware = PublisherMiddleware()
+        middleware.is_draft = MagicMock(return_value=True)
+        middleware.process_request(None)
+        expected_draft_status = PublisherMiddleware.get_draft_status()
+        draft_status = get_draft_status()
+        PublisherMiddleware.process_response(None, None)
+
+        self.assertTrue(expected_draft_status, draft_status)
+
+    def test_middleware_forgets_current_draft_status_after_request(self):
+        middleware = PublisherMiddleware()
+        middleware.is_draft = MagicMock(return_value=True)
+        middleware.process_request(None)
+        PublisherMiddleware.process_response(None, None)
+
+        self.assertFalse(get_draft_status())
