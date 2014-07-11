@@ -28,7 +28,7 @@ setup(
     description="""Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.""",
     long_description=readme,
     author='JP74',
-    author_email='tech@jp74.com',
+    author_email='opensource@jp74.com',
     url='https://github.com/jp74/django-model-publisher',
     packages=[
         'publisher',
