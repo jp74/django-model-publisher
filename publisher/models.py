@@ -24,7 +24,7 @@ class PublisherModelBase(models.Model):
         editable=False,
         db_index=True)
     publisher_modified_at = models.DateTimeField(
-        default=timezone.now(),
+        default=timezone.now,
         editable=False)
 
     publisher_published_at = models.DateTimeField(null=True, editable=False)
