@@ -15,7 +15,10 @@ class PublisherMiddleware(object):
 
     @staticmethod
     def process_response(request, response):
-        del PublisherMiddleware._draft_status[current_thread()]
+        try:
+            del PublisherMiddleware._draft_status[current_thread()]
+        except KeyError:
+            pass
         return response
 
     @staticmethod
