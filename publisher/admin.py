@@ -1,5 +1,6 @@
 import json
 
+import django
 from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.contrib import messages
 from django.conf.urls import patterns, url
@@ -91,7 +92,7 @@ class PublisherAdmin(ModelAdmin):
         self.request = None
         self.url_name_prefix = '%(app_label)s_%(module_name)s_' % {
             'app_label': self.model._meta.app_label,
-            'module_name': self.model._meta.module_name,
+            'module_name': self.model._meta.model_name if django.VERSION >= (1, 7) else self.model._meta.module_name,
         }
 
         # Reverse URL strings used in multiple places..
