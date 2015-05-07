@@ -169,14 +169,13 @@ class PublisherAdmin(ModelAdmin):
         publish_name = '%spublish' % (self.url_name_prefix, )
         unpublish_name = '%sunpublish' % (self.url_name_prefix, )
         revert_name = '%srevert' % (self.url_name_prefix, )
-
-        publish_urls = patterns(
-            '',
-            url(r'^publish/(?P<object_id>\d+)/$',
+        
+        publish_urls = patterns('',
+            url(r'^(?P<object_id>\d+)/publish/$',
                 self.publish_view, name=publish_name),
-            url(r'^unpublish/(?P<object_id>\d+)/$',
+            url(r'^(?P<object_id>\d+)/unpublish/$',
                 self.unpublish_view, name=unpublish_name),
-            url(r'^revert/(?P<object_id>\d+)/$',
+            url(r'^(?P<object_id>\d+)/revert/$',
                 self.revert_view, name=revert_name),
         )
 
