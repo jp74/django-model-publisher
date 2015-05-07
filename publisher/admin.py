@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.template import loader, Context
 
