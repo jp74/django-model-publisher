@@ -43,3 +43,7 @@ docs/_build
 
 # PyCharm
 .idea/
+
+# PyPI
+*.pypirc
+.pypirc
