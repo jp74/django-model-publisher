@@ -14,4 +14,4 @@ Development Lead
 Contributors
 ------------
 
- * Basil Shubin
+* Basil Shubin
