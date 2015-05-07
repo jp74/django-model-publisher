@@ -154,7 +154,7 @@ class PublisherAdmin(ModelAdmin):
     publisher_publish.short_description = 'Published'
     publisher_publish.allow_tags = True
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         # hack! We need request.user to check user publish perms
         self.request = request
         qs = self.model.publisher_manager.drafts()
@@ -162,6 +162,8 @@ class PublisherAdmin(ModelAdmin):
         if ordering:
             qs = qs.order_by(*ordering)
         return qs
+
+    queryset = get_queryset
 
     def get_urls(self):
         urls = super(PublisherAdmin, self).get_urls()
