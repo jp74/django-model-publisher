@@ -263,7 +263,7 @@ class PublisherAdmin(ModelAdmin):
                 unpublish_btn = reverse(self.unpublish_reverse, args=(obj.pk, ))
 
             revert_btn = None
-            if obj.is_dirty:
+            if obj.is_dirty and obj.publisher_linked:
                 revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
 
             context.update({
