@@ -252,7 +252,10 @@ class PublisherAdmin(ModelAdmin):
             context['has_publish_permission'] = False
         else:
             context['has_publish_permission'] = True
-            publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
+
+            publish_btn = None
+            if obj.is_dirty:
+                publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
 
             preview_draft_btn = None
             if callable(getattr(obj, 'get_absolute_url', None)):
