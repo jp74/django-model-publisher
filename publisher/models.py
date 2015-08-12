@@ -5,8 +5,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from .managers import PublisherManager, PublisherQuerySet
 from .utils import assert_draft
 from .signals import (
-    publisher_publish_pre_save_draft, publisher_post_publish,
-    publisher_pre_unpublish, publisher_post_unpublish)
+    publisher_publish_pre_save_draft,
+    publisher_pre_publish,
+    publisher_post_publish,
+    publisher_pre_unpublish,
+    publisher_post_unpublish,
+)
 
 
 class PublisherModelBase(models.Model):
@@ -84,6 +88,8 @@ class PublisherModelBase(models.Model):
 
         if not self.is_dirty:
             return
+
+        publisher_pre_publish.send(sender=self.__class__, instance=self)
 
         # Reference self for readability
         draft_obj = self
