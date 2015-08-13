@@ -8,7 +8,7 @@ def publisher_pre_delete(sender, **kwargs):
 
     # If the draft record is deleted, the published object should be as well
     if instance.is_draft and instance.publisher_linked:
-        instance.publisher_linked.delete()
+        instance.unpublish()
 
 
 # Sent when a model is about to be published (the draft is sent).

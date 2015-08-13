@@ -206,6 +206,27 @@ class PublisherTest(test.TestCase):
         self.assertEqual(self.signal_sender, PublisherTestModel)
         self.assertEqual(self.signal_instance, instance)
 
+    def test_unpublished_signal_is_sent_when_deleting(self):
+        self.got_signal = False
+        self.signal_sender = None
+        self.signal_instance = None
+
+        def handle_signal(sender, instance, **kwargs):
+            self.got_signal = True
+            self.signal_sender = sender
+            self.signal_instance = instance
+
+        publisher_post_unpublish.connect(handle_signal)
+
+        # Call the function.
+        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance.publish()
+        instance.delete()
+
+        self.assertTrue(self.got_signal)
+        self.assertEqual(self.signal_sender, PublisherTestModel)
+        self.assertEqual(self.signal_instance, instance)
+
     def test_middleware_detects_published_when_logged_out(self):
 
         class MockUser(object):
