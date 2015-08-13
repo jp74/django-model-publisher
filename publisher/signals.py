@@ -2,15 +2,12 @@ from django.dispatch import Signal
 
 
 def publisher_pre_delete(sender, **kwargs):
-    from publisher.models import PublisherModelBase
-
     instance = kwargs.get('instance', None)
     if not instance:
         return
 
     # If the draft record is deleted, the published object should be as well
-    if (instance.publisher_is_draft == PublisherModelBase.STATE_DRAFT and
-            instance.publisher_linked):
+    if instance.is_draft and instance.publisher_linked:
         instance.publisher_linked.delete()
 
 
