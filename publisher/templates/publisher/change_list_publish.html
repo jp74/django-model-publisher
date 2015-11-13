@@ -10,7 +10,7 @@
 		value="{{ object.pk}}" data-publish="{{ publish_url }}" data-unpublish="{{ unpublish_url }}"
 		title="{% if is_published %}{% trans 'Unpublish' %}{% else %}{% trans 'Publish' %}{% endif %}"/>
 	{% endif %}
-	{% if is_published %}
+	{% if is_published and object.get_absolute_url %}
 		<a href="{{ object.get_absolute_url }}?edit" title="{% trans 'View on page' %}" class="icon selector-add viewpage" id="view-page-{{object.id}}"><span>{% trans "View" %}</span></a>
 	{% endif %}
 </div>
