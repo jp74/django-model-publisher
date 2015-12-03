@@ -1,4 +1,0 @@
-django>=1.4.3,<=1.6.99
-wheel==0.23.0
-# Additional requirements go here
-django-model-utils==2.0.3
