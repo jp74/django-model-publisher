@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models.query import QuerySet
 
-from model_utils.managers import PassThroughManagerMixin
-
 from .signals import publisher_pre_delete
 from .middleware import get_draft_status
 
@@ -23,7 +21,7 @@ class PublisherQuerySet(QuerySet):
         return self.published()
 
 
-class PublisherManager(PassThroughManagerMixin, models.Manager):
+class PublisherManager(models.Manager):
 
     def contribute_to_class(self, model, name):
         super(PublisherManager, self).contribute_to_class(model, name)

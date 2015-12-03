@@ -35,8 +35,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'Django>=1.4.3',
-        'django-model-utils>=2.0.3',
+        'Django>=1.7',
     ],
     license="BSD",
     zip_safe=False,
