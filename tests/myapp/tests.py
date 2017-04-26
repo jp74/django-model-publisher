@@ -5,9 +5,9 @@ from django.utils import timezone
 
 from mock import MagicMock
 
-from ..utils import NotDraftException
-from ..signals import publisher_post_publish, publisher_post_unpublish
-from ..middleware import PublisherMiddleware, get_draft_status
+from publisher.utils import NotDraftException
+from publisher.signals import publisher_post_publish, publisher_post_unpublish
+from publisher.middleware import PublisherMiddleware, get_draft_status
 
 from .models import PublisherTestModel
 from .utils import create_models_from_app
