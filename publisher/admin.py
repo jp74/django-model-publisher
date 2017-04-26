@@ -1,6 +1,5 @@
 import json
 
-import django
 from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.contrib import messages
 from django.conf.urls import patterns, url
@@ -17,12 +16,16 @@ from django.template import loader, Context
 def make_published(modeladmin, request, queryset):
     for row in queryset.all():
         row.publish()
+
+
 make_published.short_description = _('Publish')
 
 
 def make_unpublished(modeladmin, request, queryset):
     for row in queryset.all():
         row.unpublish()
+
+
 make_unpublished.short_description = _('Unpublish')
 
 
@@ -92,7 +95,7 @@ class PublisherAdmin(ModelAdmin):
         self.request = None
         self.url_name_prefix = '%(app_label)s_%(module_name)s_' % {
             'app_label': self.model._meta.app_label,
-            'module_name': self.model._meta.model_name if django.VERSION >= (1, 7) else self.model._meta.module_name,
+            'module_name': self.model._meta.model_name,
         }
 
         # Reverse URL strings used in multiple places..
@@ -171,14 +174,11 @@ class PublisherAdmin(ModelAdmin):
         publish_name = '%spublish' % (self.url_name_prefix, )
         unpublish_name = '%sunpublish' % (self.url_name_prefix, )
         revert_name = '%srevert' % (self.url_name_prefix, )
-        
-        publish_urls = patterns('',
-            url(r'^(?P<object_id>\d+)/publish/$',
-                self.publish_view, name=publish_name),
-            url(r'^(?P<object_id>\d+)/unpublish/$',
-                self.unpublish_view, name=unpublish_name),
-            url(r'^(?P<object_id>\d+)/revert/$',
-                self.revert_view, name=revert_name),
+        publish_urls = patterns(
+            '',
+            url(r'^(?P<object_id>\d+)/publish/$', self.publish_view, name=publish_name),
+            url(r'^(?P<object_id>\d+)/unpublish/$', self.unpublish_view, name=unpublish_name),
+            url(r'^(?P<object_id>\d+)/revert/$', self.revert_view, name=revert_name),
         )
 
         return publish_urls + urls
