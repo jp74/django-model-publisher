@@ -1,5 +1,5 @@
 [run]
-include = */mptt/*
+include = */publisher/*
 
 [report]
 exclude_lines =
