@@ -2,7 +2,7 @@ import json
 
 from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.contrib import messages
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponse
@@ -174,12 +174,11 @@ class PublisherAdmin(ModelAdmin):
         publish_name = '%spublish' % (self.url_name_prefix, )
         unpublish_name = '%sunpublish' % (self.url_name_prefix, )
         revert_name = '%srevert' % (self.url_name_prefix, )
-        publish_urls = patterns(
-            '',
+        publish_urls = [
             url(r'^(?P<object_id>\d+)/publish/$', self.publish_view, name=publish_name),
             url(r'^(?P<object_id>\d+)/unpublish/$', self.unpublish_view, name=unpublish_name),
             url(r'^(?P<object_id>\d+)/revert/$', self.revert_view, name=revert_name),
-        )
+        ]
 
         return publish_urls + urls
 
