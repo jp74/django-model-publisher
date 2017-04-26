@@ -18,6 +18,8 @@ env:
 matrix:
   exclude:
     - env: DJANGO="Django>=1.8,<1.9"
+      python: "3.6"
+    - env: DJANGO="Django>=1.8,<1.9"
       python: "3.5"
     - env: DJANGO="Django>=1.9,<1.10"
       python: "3.3"
@@ -36,8 +38,16 @@ before_install: pip install --upgrade pip
 
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install $DJANGO mock-django==0.6.9
+install:
+  - pip install $DJANGO
+  - pip install -r tests/requirements.txt
 
 # command to run tests, e.g. python setup.py test
+before_script:
+  -cd tests
+
 script:
-  cd tests/ && ./runtests.sh
+  - coverage run --source=publisher runtests.py
+
+after_script:
+  - coveralls
