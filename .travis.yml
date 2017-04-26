@@ -43,11 +43,6 @@ install:
   - pip install -r tests/requirements.txt
 
 # command to run tests, e.g. python setup.py test
-before_script:
-  -cd tests
-
-script:
-  - coverage run --source=publisher runtests.py
-
-after_script:
-  - coveralls
+before_script: cd tests
+script: coverage run --source=publisher runtests.py
+after_script: coveralls
