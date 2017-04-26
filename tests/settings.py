@@ -57,3 +57,4 @@ TEMPLATES = [
 ]
 
 ROOT_URLCONF = 'myapp.urls'
+USE_TZ = True
