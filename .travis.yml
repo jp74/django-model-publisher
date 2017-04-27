@@ -33,9 +33,8 @@ before_install: pip install --upgrade pip
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
   - pip install $DJANGO
-  - pip install -r tests/requirements.txt
+  - pip install -r requirements/dev.txt
 
 # command to run tests, e.g. python setup.py test
-before_script: cd tests
-script: coverage run --source=publisher runtests.py
+script: coverage run --source=publisher tests/manage.py test myapp
 after_script: coveralls

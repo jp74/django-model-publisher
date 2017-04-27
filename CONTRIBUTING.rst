@@ -78,7 +78,7 @@ Now you can make your changes locally.
 tests, including testing other Python versions with tox::
 
     $ flake8 publisher tests
-    $ cd tests && python runtests.py
+    $ python tests/manage.py test myapp
     $ tox
 
 To get flake8 and tox, just pip install them into your virtualenv. 
