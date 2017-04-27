@@ -27,7 +27,7 @@ lint:
 	flake8 django-model-publisher tests
 
 test:
-	python runtests.py test
+    cd tests && python runtests.py
 
 test-all:
 	tox
