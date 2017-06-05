@@ -18,7 +18,7 @@ class Command(BaseCommand):
         """
         Print error and stop command
         """
-        print >>sys.stderr, message
+        print(message)
         sys.exit(code)
 
     def handle(self, model_name=None, pk=None, show_list=None, *args, **options):
@@ -37,9 +37,14 @@ class Command(BaseCommand):
         if qs.count() < 1:
             self.error('No model(s) found to publish')
 
+        if show_list:
+            for model in qs.all():
+                print("%s doesn't have published version yet" % model)
+            return
+
         for model in qs.all():
             model.publish()
-            print 'Successfully published %s' % model
+            print('Successfully published %s' % model)
 
     def get_model(self, model_name):
         """
@@ -50,7 +55,7 @@ class Command(BaseCommand):
             module_name, class_name = model_name.rsplit('.', 1)
             mod = __import__(module_name, fromlist=[class_name])
             klass = getattr(mod, class_name)
-        except ImportError, e:
+        except ImportError as e:
             self.error('Cannot find app %s %s' % (model_name, e))
 
         return klass

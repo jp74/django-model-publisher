@@ -26,13 +26,14 @@ Add the middleware::
 Making models publishable
 -------------------------
 
-#. Have your model inherit from PublisherModel::
+#. Have your model inherit from PublisherModel and use the custom manager (or signals won't work)::
 
+    from publisher.managers import PublisherManager
     from publisher.models import PublisherModel
 
 
     class Article(PublisherModel):
-        pass
+        publisher_manager = PublisherManager()
 
 
 #. Update your database schema. If using South, you can run::
