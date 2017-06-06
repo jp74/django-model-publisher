@@ -20,13 +20,13 @@ if sys.argv[-1] == 'publish':
 readme = open('README.rst').read()
 
 setup(
-    name='django-model-publisher',
+    name='django-model-publisher-ai',
     version=version,
     description="""Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.""",
     long_description=readme,
     author='JP74',
     author_email='opensource@jp74.com',
-    url='https://github.com/jp74/django-model-publisher',
+    url='https://github.com/andersinno/django-model-publisher-ai',
     packages=[
         'publisher',
     ],
