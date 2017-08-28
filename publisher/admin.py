@@ -288,7 +288,7 @@ else:
     class PublisherHvadAdmin(TranslatableAdmin, PublisherAdmin):
         change_form_template = 'publisher/hvad/change_form.html'
 
-        def queryset(self, request):
+        def get_queryset(self, request):
             # hack! We need request.user to check user publish perms
             self.request = request
             language = self._language(request)
@@ -312,7 +312,7 @@ else:
     class PublisherParlerAdmin(PTranslatableAdmin, PublisherAdmin):
         change_form_template = 'publisher/parler/change_form.html'
 
-        def queryset(self, request):
+        def get_queryset(self, request):
             # hack! We need request.user to check user publish perms
             self.request = request
             qs = self.model.objects
