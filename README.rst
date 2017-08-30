@@ -1,3 +1,7 @@
+
+Note: This project is unmaintained. Please use the fork: https://github.com/andersinno/django-model-publisher-ai
+
+
 =============================
 django-model-publisher
 =============================
