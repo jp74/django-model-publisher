@@ -1,0 +1,34 @@
+# see http://editorconfig.org
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[{Makefile,**.mk}]
+indent_style = tab
+
+[*.{html,html,scss,js}]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = false
+
+[*.py]
+# Configuring isort
+# https://github.com/timothycrosley/isort/wiki/isort-Settings
+atomic = true
+line_length = 120
+
+known_external=pytest
+known_django=django
+known_cms=cms
+
+known_first_party=publisher
+
+default_section=THIRDPARTY
+sections=FUTURE,STDLIB,EXTERNAL,DJANGO,CMS,THIRDPARTY,FIRSTPARTY,LOCALFOLDER
