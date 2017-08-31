@@ -267,6 +267,12 @@ class PublisherModelBase(models.Model):
     def update_modified_at(self):
         self.publisher_modified_at = timezone.now()
 
+    def save(self, suppress_modified=False, **kwargs):
+        if suppress_modified is False:
+            self.update_modified_at()
+
+        super(PublisherModelBase, self).save(**kwargs)
+
 
 class PublisherModel(PublisherModelBase):
     objects = models.Manager()
@@ -278,11 +284,6 @@ class PublisherModel(PublisherModelBase):
             ('can_publish', 'Can publish'),
         )
 
-    def save(self, suppress_modified=False, **kwargs):
-        if suppress_modified is False:
-            self.update_modified_at()
-
-        super(PublisherModel, self).save(**kwargs)
 
 try:
     from .managers import PublisherParlerManager

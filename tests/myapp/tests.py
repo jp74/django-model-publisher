@@ -366,3 +366,13 @@ class PublisherParlerTest(test.TestCase):
         queryset = queryset.drafts()
         count = queryset.count()
         self.assertEqual(count, 0)
+
+    def test_publish(self):
+        instance = PublisherParlerTestModel.objects.create()
+        instance.publish()
+
+        count = PublisherParlerTestModel.objects.drafts().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerTestModel.objects.published().count()
+        self.assertEqual(count, 1)
