@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from .managers import PublisherManager
+from .managers import PublisherManager, PublisherParlerManager
 from .utils import assert_draft
 from .signals import (
     publisher_publish_pre_save_draft,
@@ -283,3 +283,15 @@ class PublisherModel(PublisherModelBase):
             self.update_modified_at()
 
         super(PublisherModel, self).save(**kwargs)
+
+try:
+    from .managers import PublisherParlerManager
+    from parler.models import TranslatableModelMixin
+except ImportError:
+    pass
+else:
+    class PublisherParlerModel(TranslatableModelMixin, PublisherModelBase):
+        objects = PublisherParlerManager()
+
+        class Meta(PublisherModel.Meta):
+            abstract = True

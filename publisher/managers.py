@@ -1,5 +1,6 @@
 from django.db import models
 
+
 from .signals import publisher_pre_delete
 from .middleware import get_draft_status
 
@@ -22,3 +23,11 @@ class PublisherManager(models.Manager):
         if get_draft_status():
             return self.drafts()
         return self.published()
+
+try:
+    from parler.managers import TranslatableManager as PTranslatableManager
+except ImportError:
+    pass
+else:
+    class PublisherParlerManager(PTranslatableManager, PublisherManager):
+        pass
