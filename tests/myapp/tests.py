@@ -1,4 +1,5 @@
 import datetime
+import unittest
 
 from django import test
 from django.utils import timezone
@@ -10,6 +11,15 @@ from publisher.signals import publisher_post_publish, publisher_post_unpublish
 from publisher.middleware import PublisherMiddleware, get_draft_status
 
 from myapp.models import PublisherTestModel
+
+try:
+    from parler.managers import TranslatableQuerySet
+    from parler.models import TranslatableModel
+except ImportError:
+    PARLER_INSTALLED=False
+else:
+    PARLER_INSTALLED = True
+    from myapp.models import PublisherParlerTestModel
 
 
 class PublisherTest(test.TestCase):
@@ -316,3 +326,19 @@ class PublisherTest(test.TestCase):
         PublisherMiddleware.process_response(None, None)
 
         self.assertFalse(get_draft_status())
+
+
+@unittest.skipIf(PARLER_INSTALLED != True, "Django-Parler is not installed")
+class PublisherParlerTest(test.TestCase):
+
+    def test_queryset_subclass(self):
+        queryset = PublisherParlerTestModel.objects.all()
+        self.assertTrue(issubclass(queryset.__class__, TranslatableQuerySet))
+
+    def test_creating_instance(self):
+        instance = PublisherParlerTestModel.objects.create()
+        instance.create_translation("en", title="title en")
+        instance.save()
+
+        count = PublisherParlerTestModel.objects.count()
+        self.assertEqual(count, 1)
