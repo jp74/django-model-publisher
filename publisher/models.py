@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from .managers import PublisherManager, PublisherParlerManager
+from .managers import PublisherManager
 from .utils import assert_draft
 from .signals import (
     publisher_publish_pre_save_draft,
