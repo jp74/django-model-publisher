@@ -342,3 +342,27 @@ class PublisherParlerTest(test.TestCase):
 
         count = PublisherParlerTestModel.objects.count()
         self.assertEqual(count, 1)
+
+        count = PublisherParlerTestModel.objects.drafts().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerTestModel.objects.published().count()
+        self.assertEqual(count, 0)
+
+        count = PublisherParlerTestModel.objects.language(language_code="en").count()
+        self.assertEqual(count, 1)
+
+        queryset = PublisherParlerTestModel.objects.active_translations("en")
+        queryset = queryset.drafts()
+        count = queryset.count()
+        self.assertEqual(count, 1)
+
+        queryset = PublisherParlerTestModel.objects.active_translations("en")
+        queryset = queryset.published()
+        count = queryset.count()
+        self.assertEqual(count, 0)
+
+        queryset = PublisherParlerTestModel.objects.active_translations("de")
+        queryset = queryset.drafts()
+        count = queryset.count()
+        self.assertEqual(count, 0)
