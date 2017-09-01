@@ -250,14 +250,13 @@ class PublisherModelBase(models.Model):
         if obj is None:
             obj = self
 
-        model_fields = obj.__class__._meta.get_all_field_names()
+        model_fields = obj.__class__._meta.get_fields()
         for field in model_fields:
-            if field in self.publisher_ignore_fields:
+            if field.name in self.publisher_ignore_fields:
                 continue
 
             try:
-                placeholder = getattr(obj, field)
-                if isinstance(placeholder, Placeholder):
+                if isinstance(field, Placeholder):
                     placeholder_fields.append(field)
             except (ObjectDoesNotExist, AttributeError):
                 continue
