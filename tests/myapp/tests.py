@@ -340,6 +340,117 @@ class PublisherTest(test.TestCase):
 
         self.assertFalse(get_draft_status())
 
+    def test_publication_start_date(self):
+        yesterday = timezone.now() - datetime.timedelta(days=1)
+        tomorrow = timezone.now() + datetime.timedelta(days=1)
+
+        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance.publish()
+
+        # No publication_start_date set:
+
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 1)
+        # Check model instance
+        obj = published[0]
+        self.assertEqual(obj.publication_start_date, None)
+        self.assertEqual(obj.publication_end_date, None)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, False)
+        self.assertEqual(obj.hidden_by_start_date, False)
+        self.assertEqual(obj.is_visible, True)
+
+        # Hidden, because publication_start_date is in the future:
+
+        instance.publication_start_date = tomorrow
+        instance.save()
+        instance.publish()
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 0)
+        count = PublisherTestModel.publisher_manager.all().count()
+        self.assertEqual(count, 2) # draft + published
+        draft = PublisherTestModel.publisher_manager.drafts()[0]
+        self.assertEqual(draft.publication_start_date, tomorrow)
+        # Check model instance
+        obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
+        self.assertEqual(obj.publication_start_date, tomorrow)
+        self.assertEqual(obj.publication_end_date, None)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, False)
+        self.assertEqual(obj.hidden_by_start_date, True)
+        self.assertEqual(obj.is_visible, False)
+
+        # Visible, because publication_start_date is in the past:
+
+        instance.publication_start_date = yesterday
+        instance.save()
+        instance.publish()
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 1)
+        # Check model instance
+        obj = published[0]
+        self.assertEqual(obj.publication_start_date, yesterday)
+        self.assertEqual(obj.publication_end_date, None)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, False)
+        self.assertEqual(obj.hidden_by_start_date, False)
+        self.assertEqual(obj.is_visible, True)
+
+
+    def test_publication_end_date(self):
+        yesterday = timezone.now() - datetime.timedelta(days=1)
+        tomorrow = timezone.now() + datetime.timedelta(days=1)
+
+        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance.publish()
+
+        # No publication_end_date set:
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 1)
+        # Check model instance
+        obj = published[0]
+        self.assertEqual(obj.publication_start_date, None)
+        self.assertEqual(obj.publication_end_date, None)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, False)
+        self.assertEqual(obj.hidden_by_start_date, False)
+        self.assertEqual(obj.is_visible, True)
+
+        # Hidden, because publication_end_date is in the past:
+        instance.publication_end_date = yesterday
+        instance.save()
+        instance.publish()
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 0)
+        count = PublisherTestModel.publisher_manager.all().count()
+        self.assertEqual(count, 2) # draft + published
+        draft = PublisherTestModel.publisher_manager.drafts()[0]
+        self.assertEqual(draft.publication_start_date, None)
+        self.assertEqual(draft.publication_end_date, yesterday)
+        # Check model instance
+        obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
+        self.assertEqual(obj.publication_start_date, None)
+        self.assertEqual(obj.publication_end_date, yesterday)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, True)
+        self.assertEqual(obj.hidden_by_start_date, False)
+        self.assertEqual(obj.is_visible, False)
+
+        # Visible, because publication_end_date is in the future:
+        instance.publication_end_date = tomorrow
+        instance.save()
+        instance.publish()
+        published = PublisherTestModel.publisher_manager.published()
+        self.assertEqual(published.count(), 1)
+        # Check model instance
+        obj = published[0]
+        self.assertEqual(obj.publication_start_date, None)
+        self.assertEqual(obj.publication_end_date, tomorrow)
+        self.assertEqual(obj.is_published, True)
+        self.assertEqual(obj.hidden_by_end_date, False)
+        self.assertEqual(obj.hidden_by_start_date, False)
+        self.assertEqual(obj.is_visible, True)
+
 
 @unittest.skipIf(PARLER_INSTALLED != True, 'Django-Parler is not installed')
 class PublisherParlerTest(test.TestCase):

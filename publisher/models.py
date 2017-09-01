@@ -1,6 +1,8 @@
 from django.utils import timezone
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from .managers import PublisherManager
 from .utils import assert_draft
@@ -33,6 +35,23 @@ class PublisherModelBase(models.Model):
 
     publisher_published_at = models.DateTimeField(null=True, editable=False)
 
+    publication_start_date = models.DateTimeField(
+        _("publication start date"),
+        null=True, blank=True, db_index=True,
+        help_text=_(
+            "Published content will only be visible from this point in time."
+            " Leave blank if always visible."
+        )
+    )
+    publication_end_date = models.DateTimeField(
+        _("publication end date"),
+        null=True, blank=True, db_index=True,
+        help_text=_(
+            "When to expire the published version."
+            " Leave empty to never expire."
+        ),
+    )
+
     publisher_fields = (
         'publisher_linked',
         'publisher_is_draft',
@@ -59,6 +78,22 @@ class PublisherModelBase(models.Model):
     @property
     def is_published(self):
         return self.publisher_is_draft == self.STATE_PUBLISHED
+
+    @property
+    def hidden_by_end_date(self):
+        if not self.publication_end_date:
+            return False
+        return self.publication_end_date <= timezone.now()
+
+    @property
+    def hidden_by_start_date(self):
+        if not self.publication_start_date:
+            return False
+        return self.publication_start_date >= timezone.now()
+
+    @property
+    def is_visible(self):
+        return self.is_published and (not self.hidden_by_end_date) and (not self.hidden_by_start_date)
 
     @property
     def is_dirty(self):

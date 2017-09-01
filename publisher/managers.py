@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.db.models import Q
+from django.utils import timezone
 
 from .signals import publisher_pre_delete
 from .middleware import get_draft_status
@@ -12,7 +13,11 @@ class PublisherQuerySet(models.QuerySet):
 
     def published(self):
         from .models import PublisherModelBase
-        return self.filter(publisher_is_draft=PublisherModelBase.STATE_PUBLISHED)
+        return self.filter(
+            Q(publication_start_date__isnull=True) | Q(publication_start_date__lte=timezone.now()),
+            Q(publication_end_date__isnull=True) | Q(publication_end_date__gt=timezone.now()),
+            publisher_is_draft=PublisherModelBase.STATE_PUBLISHED,
+        )
 
 
 class PublisherManager(models.Manager):
