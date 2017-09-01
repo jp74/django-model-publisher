@@ -20,6 +20,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites', # django-cms will import sites models
+    'menus', # django-cms will import menu models
+
     'publisher',
     'myapp',
 )
@@ -58,3 +62,42 @@ TEMPLATES = [
 
 ROOT_URLCONF = 'urls'
 USE_TZ = True
+
+# https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-LANGUAGE_CODE
+LANGUAGE_CODE = "en"
+
+# http://docs.django-cms.org/en/latest/reference/configuration.html#std:setting-CMS_LANGUAGES
+CMS_LANGUAGES = {
+    1: [
+        {
+            "code": "de",
+            "fallbacks": ["en"],
+            "hide_untranslated": True,
+            "name": "German",
+            "public": True,
+            "redirect_on_fallback": False,
+        },
+        {
+            "code": "en",
+            "fallbacks": ["de"],
+            "hide_untranslated": True,
+            "name": "English",
+            "public": True,
+            "redirect_on_fallback": False,
+        },
+    ],
+    "default": { # all SITE_ID"s
+        "fallbacks": [LANGUAGE_CODE],
+        "redirect_on_fallback": False,
+        "public": True,
+        "hide_untranslated": True,
+    },
+}
+
+# https://docs.djangoproject.com/en/1.8/ref/settings/#languages
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGES = tuple([(d["code"], d["name"]) for d in CMS_LANGUAGES[1]])
+
+# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
+PARLER_LANGUAGES = CMS_LANGUAGES

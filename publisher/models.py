@@ -132,7 +132,8 @@ class PublisherModelBase(models.Model):
 
         publisher_publish_pre_save_draft.send(sender=draft_obj.__class__, instance=draft_obj)
 
-        draft_obj.save(suppress_modified=True)
+        draft_obj.publisher_modified_at = timezone.now()
+        draft_obj.save()
 
         publisher_post_publish.send(sender=draft_obj.__class__, instance=draft_obj)
 
@@ -263,15 +264,6 @@ class PublisherModelBase(models.Model):
 
         return placeholder_fields
 
-    def update_modified_at(self):
-        self.publisher_modified_at = timezone.now()
-
-    def save(self, suppress_modified=False, **kwargs):
-        if suppress_modified is False:
-            self.update_modified_at()
-
-        super(PublisherModelBase, self).save(**kwargs)
-
 
 class PublisherModel(PublisherModelBase):
     objects = models.Manager()
@@ -295,3 +287,37 @@ else:
 
         class Meta(PublisherModel.Meta):
             abstract = True
+
+    try:
+        from aldryn_translation_tools.models import TranslatedAutoSlugifyMixin
+    except ImportError:
+        pass
+    else:
+        class PublisherParlerAutoSlugifyModel(TranslatedAutoSlugifyMixin, PublisherParlerModel):
+
+            def _get_slug_queryset(self, *args, **kwargs):
+                """
+                The slug must be only unique for drafts
+                """
+                qs = super(PublisherParlerAutoSlugifyModel, self)._get_slug_queryset()
+                qs = qs.filter(publisher_is_draft=PublisherModelBase.STATE_DRAFT)
+                return qs
+
+            def save(self, **kwargs):
+                """
+                Set new slug by TranslatedAutoSlugifyMixin only on drafts
+                see also:
+                https://github.com/andersinno/django-model-publisher-ai/issues/8
+                """
+                if self.publisher_is_draft:
+                    # code from TranslatedAutoSlugifyMixin.save():
+                    slug = self._get_existing_slug()
+                    if not slug or self._slug_exists(slug):
+                        slug = self.make_new_slug(slug=slug)
+                        setattr(self, self.slug_field_name, slug)
+
+                # NOTE: We call PublisherParlerModel.save() here:
+                super(PublisherParlerModel, self).save(**kwargs)
+
+            class Meta(PublisherParlerModel.Meta):
+                abstract = True

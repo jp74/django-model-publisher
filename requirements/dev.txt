@@ -4,3 +4,5 @@ coverage
 flake8
 tox
 coveralls
+aldryn_translation_tools
+django-parler

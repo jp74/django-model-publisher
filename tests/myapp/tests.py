@@ -2,7 +2,8 @@ import datetime
 import unittest
 
 from django import test
-from django.utils import timezone
+from django.conf import settings
+from django.utils import timezone, translation
 
 from mock import MagicMock
 
@@ -12,14 +13,26 @@ from publisher.middleware import PublisherMiddleware, get_draft_status
 
 from myapp.models import PublisherTestModel
 
+
 try:
+    import parler
     from parler.managers import TranslatableQuerySet
-    from parler.models import TranslatableModel
 except ImportError:
     PARLER_INSTALLED=False
 else:
     PARLER_INSTALLED = True
     from myapp.models import PublisherParlerTestModel
+
+
+TRANSLATION_TOOLS_INSTALLED=False
+if PARLER_INSTALLED:
+    try:
+        import aldryn_translation_tools
+    except ImportError as err:
+        pass
+    else:
+        TRANSLATION_TOOLS_INSTALLED = True
+        from myapp.models import PublisherParlerAutoSlugifyTestModel
 
 
 class PublisherTest(test.TestCase):
@@ -328,17 +341,30 @@ class PublisherTest(test.TestCase):
         self.assertFalse(get_draft_status())
 
 
-@unittest.skipIf(PARLER_INSTALLED != True, "Django-Parler is not installed")
+@unittest.skipIf(PARLER_INSTALLED != True, 'Django-Parler is not installed')
 class PublisherParlerTest(test.TestCase):
 
     def test_queryset_subclass(self):
         queryset = PublisherParlerTestModel.objects.all()
         self.assertTrue(issubclass(queryset.__class__, TranslatableQuerySet))
 
+    def test_creation(self):
+        x = PublisherParlerTestModel.objects.create(title='english title')
+        x.create_translation('de', title='deutsche Titel')
+        self.assertEqual(sorted(x.get_available_languages()), ['de', 'en'])
+
     def test_creating_instance(self):
-        instance = PublisherParlerTestModel.objects.create()
-        instance.create_translation("en", title="title en")
+        instance = PublisherParlerTestModel()
+        instance.set_current_language('en')
+        instance.title = 'The english title'
         instance.save()
+        instance.set_current_language('de')
+        instance.title = 'Der deutsche Titel'
+        instance.save()
+
+        instance = PublisherParlerTestModel.objects.get(pk=instance.pk)
+
+        self.assertEqual(sorted(instance.get_available_languages()), ['de', 'en'])
 
         count = PublisherParlerTestModel.objects.count()
         self.assertEqual(count, 1)
@@ -349,23 +375,23 @@ class PublisherParlerTest(test.TestCase):
         count = PublisherParlerTestModel.objects.published().count()
         self.assertEqual(count, 0)
 
-        count = PublisherParlerTestModel.objects.language(language_code="en").count()
+        count = PublisherParlerTestModel.objects.language(language_code='en').count()
         self.assertEqual(count, 1)
 
-        queryset = PublisherParlerTestModel.objects.active_translations("en")
+        queryset = PublisherParlerTestModel.objects.active_translations('en')
         queryset = queryset.drafts()
         count = queryset.count()
         self.assertEqual(count, 1)
 
-        queryset = PublisherParlerTestModel.objects.active_translations("en")
+        queryset = PublisherParlerTestModel.objects.active_translations('en')
         queryset = queryset.published()
         count = queryset.count()
         self.assertEqual(count, 0)
 
-        queryset = PublisherParlerTestModel.objects.active_translations("de")
+        queryset = PublisherParlerTestModel.objects.active_translations('de')
         queryset = queryset.drafts()
         count = queryset.count()
-        self.assertEqual(count, 0)
+        self.assertEqual(count, 1)
 
     def test_publish(self):
         instance = PublisherParlerTestModel.objects.create()
@@ -376,3 +402,52 @@ class PublisherParlerTest(test.TestCase):
 
         count = PublisherParlerTestModel.objects.published().count()
         self.assertEqual(count, 1)
+
+
+
+@unittest.skipIf(TRANSLATION_TOOLS_INSTALLED != True, 'aldryn_translation_tools is not installed')
+class PublisherParlerAutoSlugifyTest(test.TestCase):
+    def _create_draft(self):
+        instance = PublisherParlerAutoSlugifyTestModel.objects.language('de').create(title='Der deutsche Titel')
+        instance.set_current_language('en')
+        instance.title = 'The english title'
+        instance.save()
+        instance = PublisherParlerAutoSlugifyTestModel.objects.get(pk=instance.pk)
+        return instance
+
+    def assert_instance(self, instance):
+        instance.set_current_language('de')
+        self.assertEqual(instance.title, 'Der deutsche Titel')
+        self.assertEqual(instance.slug, "der-deutsche-titel")
+
+        instance.set_current_language('en')
+        self.assertEqual(instance.title, 'The english title')
+        self.assertEqual(instance.slug, "the-english-title")
+
+        # FIXME: Will fail in some cases:
+        # self.assertEqual(sorted(instance.get_available_languages()), ['de', 'en'])
+
+    def test_slug_creation(self):
+        instance = self._create_draft()
+        self.assert_instance(instance)
+
+    def test_publish(self):
+        instance = self._create_draft()
+        self.assert_instance(instance)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.drafts().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.published().count()
+        self.assertEqual(count, 0)
+
+        instance.publish()
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.drafts().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.published().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.count()
+        self.assertEqual(count, 2)
