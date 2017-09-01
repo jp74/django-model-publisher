@@ -137,6 +137,8 @@ class PublisherModelBase(models.Model):
 
         publisher_post_publish.send(sender=draft_obj.__class__, instance=draft_obj)
 
+        return publish_obj
+
     @assert_draft
     def patch_placeholders(self, draft_obj):
         try:
