@@ -167,10 +167,13 @@ class PublisherModelBase(models.Model):
 
         publisher_publish_pre_save_draft.send(sender=draft_obj.__class__, instance=draft_obj)
 
-        draft_obj.publisher_modified_at = timezone.now()
+        self._suppress_modified=True # Don't update self.publisher_modified_at
         draft_obj.save()
+        self._suppress_modified=False
 
         publisher_post_publish.send(sender=draft_obj.__class__, instance=draft_obj)
+
+        return publish_obj
 
     @assert_draft
     def patch_placeholders(self, draft_obj):
@@ -298,6 +301,14 @@ class PublisherModelBase(models.Model):
                 continue
 
         return placeholder_fields
+
+    _suppress_modified=False
+
+    def save(self, **kwargs):
+        if self._suppress_modified is False:
+            self.publisher_modified_at = timezone.now()
+
+        super(PublisherModelBase, self).save(**kwargs)
 
 
 class PublisherModel(PublisherModelBase):
