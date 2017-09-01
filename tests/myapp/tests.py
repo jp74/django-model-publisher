@@ -2,8 +2,8 @@ import datetime
 import unittest
 
 from django import test
-from django.conf import settings
-from django.utils import timezone, translation
+from django.core.cache import cache
+from django.utils import timezone
 
 from mock import MagicMock
 
@@ -451,6 +451,11 @@ class PublisherParlerTest(test.TestCase):
 
 @unittest.skipIf(TRANSLATION_TOOLS_INSTALLED != True, 'aldryn_translation_tools is not installed')
 class PublisherParlerAutoSlugifyTest(test.TestCase):
+    def tearDown(self):
+        # Parler cache must be cleared, otherwise some test failed.
+        # Maybe a other way is to set PARLER_ENABLE_CACHING=False in settings
+        cache.clear()
+
     def _create_draft(self):
         instance = PublisherParlerAutoSlugifyTestModel.objects.language('de').create(title='Der deutsche Titel')
         instance.set_current_language('en')
@@ -495,3 +500,47 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
 
         count = PublisherParlerAutoSlugifyTestModel.objects.count()
         self.assertEqual(count, 2)
+
+    def test_model_properties(self):
+        draft_obj = PublisherParlerAutoSlugifyTestModel.objects.create(title="one")
+
+        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.is_published, False)
+        self.assertEqual(draft_obj.is_dirty, True)
+
+        publish_obj = draft_obj.publish()
+
+        self.assertEqual(publish_obj.title, "one")
+        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_dirty, False)
+
+        self.assertEqual(draft_obj.title, "one")
+        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_dirty, False)
+
+        draft_obj.title="two"
+        draft_obj.save()
+
+        self.assertEqual(publish_obj.title, "one")
+        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_dirty, False) # FIXME: Should this not be True ?!?
+
+        self.assertEqual(draft_obj.title, "two")
+        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_dirty, True)
+
+        publish_obj = draft_obj.publish()
+
+        self.assertEqual(publish_obj.title, "two")
+        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_dirty, False)
+
+        self.assertEqual(draft_obj.title, "two")
+        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_dirty, False)
