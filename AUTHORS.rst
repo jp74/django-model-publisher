@@ -16,3 +16,4 @@ Contributors
 
 * Basil Shubin
 * Chris Dobbyn
+* Jens Diemer
