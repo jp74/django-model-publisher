@@ -22,7 +22,7 @@ else:
 
 class PublisherTestModel(PublisherModel):
     title = models.CharField(max_length=100)
-    publisher_manager = PublisherManager()
+    objects = PublisherManager()
 
 
 if PARLER_INSTALLED:

@@ -38,8 +38,8 @@ if PARLER_INSTALLED:
 class PublisherTest(test.TestCase):
 
     def test_creating_model_creates_only_one_record(self):
-        PublisherTestModel.publisher_manager.create(title='Test model')
-        count = PublisherTestModel.publisher_manager.count()
+        PublisherTestModel.objects.create(title='Test model')
+        count = PublisherTestModel.objects.count()
         self.assertEqual(count, 1)
 
     def test_new_models_are_draft(self):
@@ -47,50 +47,50 @@ class PublisherTest(test.TestCase):
         self.assertTrue(instance.is_draft)
 
     def test_editing_a_record_does_not_create_a_duplicate(self):
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.title = 'Updated test model'
         instance.save()
-        count = PublisherTestModel.publisher_manager.count()
+        count = PublisherTestModel.objects.count()
         self.assertEqual(count, 1)
 
     def test_editing_a_draft_does_not_update_published_record(self):
         title = 'Test model'
-        instance = PublisherTestModel.publisher_manager.create(title=title)
+        instance = PublisherTestModel.objects.create(title=title)
         instance.publish()
         instance.title = 'Updated test model'
         instance.save()
-        published_instance = PublisherTestModel.publisher_manager.published().get()
+        published_instance = PublisherTestModel.objects.published().get()
         self.assertEqual(published_instance.title, title)
 
     def test_publishing_creates_new_record(self):
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
 
-        published = PublisherTestModel.publisher_manager.published().count()
-        drafts = PublisherTestModel.publisher_manager.drafts().count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
 
     def test_unpublishing_deletes_published_record(self):
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
         instance.unpublish()
 
-        published = PublisherTestModel.publisher_manager.published().count()
-        drafts = PublisherTestModel.publisher_manager.drafts().count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
 
     def test_unpublished_record_can_be_republished(self):
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
         instance.unpublish()
         instance.publish()
 
-        published = PublisherTestModel.publisher_manager.published().count()
-        drafts = PublisherTestModel.publisher_manager.drafts().count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 1)
         self.assertEqual(drafts, 1)
@@ -101,10 +101,10 @@ class PublisherTest(test.TestCase):
 
     def test_published_date_is_updated_when_publishing(self):
         now = timezone.now()
-        draft = PublisherTestModel.publisher_manager.create(title='Test model')
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
-        draft = PublisherTestModel.publisher_manager.drafts().get()
-        published = PublisherTestModel.publisher_manager.drafts().get()
+        draft = PublisherTestModel.objects.drafts().get()
+        published = PublisherTestModel.objects.drafts().get()
 
         self.assertGreaterEqual(draft.publisher_published_at, now)
         self.assertGreaterEqual(published.publisher_published_at, now)
@@ -112,61 +112,61 @@ class PublisherTest(test.TestCase):
 
     def test_published_date_is_not_changed_when_publishing_twice(self):
         published_date = datetime.datetime(1970, 1, 1, 0, 0, tzinfo=timezone.utc)
-        draft = PublisherTestModel.publisher_manager.create(title='Test model')
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
-        published = PublisherTestModel.publisher_manager.drafts().get()
+        published = PublisherTestModel.objects.drafts().get()
         draft.publisher_published_at = published_date
         draft.save()
         published.publisher_published_at = published_date
         published.save()
 
         draft.publish()
-        draft = PublisherTestModel.publisher_manager.drafts().get()
-        published = PublisherTestModel.publisher_manager.drafts().get()
+        draft = PublisherTestModel.objects.drafts().get()
+        published = PublisherTestModel.objects.drafts().get()
         self.assertEqual(draft.publisher_published_at, published_date)
         self.assertEqual(published.publisher_published_at, published_date)
 
     def test_published_date_is_set_to_none_when_unpublished(self):
-        draft = PublisherTestModel.publisher_manager.create(title='Test model')
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
         draft.unpublish()
         self.assertIsNone(draft.publisher_published_at)
 
     def test_published_date_is_set_when_republished(self):
         now = timezone.now()
-        draft = PublisherTestModel.publisher_manager.create(title='Test model')
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
         draft.unpublish()
         draft.publish()
         self.assertGreaterEqual(draft.publisher_published_at, now)
 
     def test_deleting_draft_also_deletes_published_record(self):
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
         instance.delete()
 
-        published = PublisherTestModel.publisher_manager.published().count()
-        drafts = PublisherTestModel.publisher_manager.drafts().count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 0)
 
     def test_delete_published_does_not_delete_draft(self):
-        obj = PublisherTestModel.publisher_manager.create(title='Test model')
+        obj = PublisherTestModel.objects.create(title='Test model')
         obj.publish()
 
-        published = PublisherTestModel.publisher_manager.published().get()
+        published = PublisherTestModel.objects.published().get()
         published.delete()
 
-        published = PublisherTestModel.publisher_manager.published().count()
-        drafts = PublisherTestModel.publisher_manager.drafts().count()
+        published = PublisherTestModel.objects.published().count()
+        drafts = PublisherTestModel.objects.drafts().count()
 
         self.assertEqual(published, 0)
         self.assertEqual(drafts, 1)
 
     def test_reverting_reverts_draft_from_published_record(self):
         title = 'Test model'
-        instance = PublisherTestModel.publisher_manager.create(title=title)
+        instance = PublisherTestModel.objects.create(title=title)
         instance.publish()
         instance.title = 'Updated test model'
         instance.save()
@@ -174,10 +174,10 @@ class PublisherTest(test.TestCase):
         self.assertEqual(title, revert_instance.title)
 
     def test_only_draft_records_can_be_published_or_reverted(self):
-        draft = PublisherTestModel.publisher_manager.create(title='Test model')
+        draft = PublisherTestModel.objects.create(title='Test model')
         draft.publish()
 
-        published = PublisherTestModel.publisher_manager.published().get()
+        published = PublisherTestModel.objects.published().get()
         self.assertRaises(NotDraftException, published.publish)
         self.assertRaises(NotDraftException, published.unpublish)
         self.assertRaises(NotDraftException, published.revert_to_public)
@@ -196,7 +196,7 @@ class PublisherTest(test.TestCase):
         publisher_post_publish.connect(handle_signal)
 
         # call the function
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
 
         self.assertTrue(self.got_signal)
@@ -217,7 +217,7 @@ class PublisherTest(test.TestCase):
         publisher_post_unpublish.connect(handle_signal)
 
         # Call the function.
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
         instance.unpublish()
 
@@ -238,7 +238,7 @@ class PublisherTest(test.TestCase):
         publisher_post_unpublish.connect(handle_signal)
 
         # Call the function.
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
         instance.delete()
 
@@ -341,7 +341,7 @@ class PublisherTest(test.TestCase):
         self.assertFalse(get_draft_status())
 
     def test_model_properties(self):
-        draft_obj = PublisherTestModel.publisher_manager.create(title="one")
+        draft_obj = PublisherTestModel.objects.create(title="one")
 
         self.assertEqual(draft_obj.is_draft, True)
         self.assertEqual(draft_obj.is_published, False)
@@ -388,12 +388,12 @@ class PublisherTest(test.TestCase):
         yesterday = timezone.now() - datetime.timedelta(days=1)
         tomorrow = timezone.now() + datetime.timedelta(days=1)
 
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
 
         # No publication_start_date set:
 
-        published = PublisherTestModel.publisher_manager.published()
+        published = PublisherTestModel.objects.published()
         self.assertEqual(published.count(), 1)
         # Check model instance
         obj = published[0]
@@ -409,12 +409,19 @@ class PublisherTest(test.TestCase):
         instance.publication_start_date = tomorrow
         instance.save()
         instance.publish()
-        published = PublisherTestModel.publisher_manager.published()
-        self.assertEqual(published.count(), 0)
-        count = PublisherTestModel.publisher_manager.all().count()
+
+        published = PublisherTestModel.objects.published()
+        self.assertEqual(published.count(), 1)
+
+        visible = PublisherTestModel.objects.visible()
+        self.assertEqual(visible.count(), 0)
+
+        count = PublisherTestModel.objects.all().count()
         self.assertEqual(count, 2) # draft + published
-        draft = PublisherTestModel.publisher_manager.drafts()[0]
+
+        draft = PublisherTestModel.objects.drafts()[0]
         self.assertEqual(draft.publication_start_date, tomorrow)
+
         # Check model instance
         obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
         self.assertEqual(obj.publication_start_date, tomorrow)
@@ -429,8 +436,13 @@ class PublisherTest(test.TestCase):
         instance.publication_start_date = yesterday
         instance.save()
         instance.publish()
-        published = PublisherTestModel.publisher_manager.published()
+
+        published = PublisherTestModel.objects.published()
         self.assertEqual(published.count(), 1)
+
+        visible = PublisherTestModel.objects.visible()
+        self.assertEqual(visible.count(), 1)
+
         # Check model instance
         obj = published[0]
         self.assertEqual(obj.publication_start_date, yesterday)
@@ -440,17 +452,20 @@ class PublisherTest(test.TestCase):
         self.assertEqual(obj.hidden_by_start_date, False)
         self.assertEqual(obj.is_visible, True)
 
-
     def test_publication_end_date(self):
         yesterday = timezone.now() - datetime.timedelta(days=1)
         tomorrow = timezone.now() + datetime.timedelta(days=1)
 
-        instance = PublisherTestModel.publisher_manager.create(title='Test model')
+        instance = PublisherTestModel.objects.create(title='Test model')
         instance.publish()
 
         # No publication_end_date set:
-        published = PublisherTestModel.publisher_manager.published()
+        published = PublisherTestModel.objects.published()
         self.assertEqual(published.count(), 1)
+
+        visible = PublisherTestModel.objects.visible()
+        self.assertEqual(visible.count(), 1)
+
         # Check model instance
         obj = published[0]
         self.assertEqual(obj.publication_start_date, None)
@@ -464,13 +479,20 @@ class PublisherTest(test.TestCase):
         instance.publication_end_date = yesterday
         instance.save()
         instance.publish()
-        published = PublisherTestModel.publisher_manager.published()
-        self.assertEqual(published.count(), 0)
-        count = PublisherTestModel.publisher_manager.all().count()
+
+        published = PublisherTestModel.objects.published()
+        self.assertEqual(published.count(), 1)
+
+        visible = PublisherTestModel.objects.visible()
+        self.assertEqual(visible.count(), 0)
+
+        count = PublisherTestModel.objects.all().count()
         self.assertEqual(count, 2) # draft + published
-        draft = PublisherTestModel.publisher_manager.drafts()[0]
+
+        draft = PublisherTestModel.objects.drafts()[0]
         self.assertEqual(draft.publication_start_date, None)
         self.assertEqual(draft.publication_end_date, yesterday)
+
         # Check model instance
         obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
         self.assertEqual(obj.publication_start_date, None)
@@ -484,8 +506,13 @@ class PublisherTest(test.TestCase):
         instance.publication_end_date = tomorrow
         instance.save()
         instance.publish()
-        published = PublisherTestModel.publisher_manager.published()
+
+        published = PublisherTestModel.objects.published()
         self.assertEqual(published.count(), 1)
+
+        visible = PublisherTestModel.objects.visible()
+        self.assertEqual(visible.count(), 1)
+
         # Check model instance
         obj = published[0]
         self.assertEqual(obj.publication_start_date, None)
@@ -494,6 +521,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(obj.hidden_by_end_date, False)
         self.assertEqual(obj.hidden_by_start_date, False)
         self.assertEqual(obj.is_visible, True)
+
 
 @unittest.skipIf(PARLER_INSTALLED != True, 'Django-Parler is not installed')
 class PublisherParlerTest(test.TestCase):
@@ -529,6 +557,9 @@ class PublisherParlerTest(test.TestCase):
         count = PublisherParlerTestModel.objects.published().count()
         self.assertEqual(count, 0)
 
+        count = PublisherParlerTestModel.objects.visible().count()
+        self.assertEqual(count, 0)
+
         count = PublisherParlerTestModel.objects.language(language_code='en').count()
         self.assertEqual(count, 1)
 
@@ -555,6 +586,9 @@ class PublisherParlerTest(test.TestCase):
         self.assertEqual(count, 1)
 
         count = PublisherParlerTestModel.objects.published().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerTestModel.objects.visible().count()
         self.assertEqual(count, 1)
 
 
@@ -600,12 +634,18 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         count = PublisherParlerAutoSlugifyTestModel.objects.published().count()
         self.assertEqual(count, 0)
 
+        count = PublisherParlerAutoSlugifyTestModel.objects.visible().count()
+        self.assertEqual(count, 0)
+
         instance.publish()
 
         count = PublisherParlerAutoSlugifyTestModel.objects.drafts().count()
         self.assertEqual(count, 1)
 
         count = PublisherParlerAutoSlugifyTestModel.objects.published().count()
+        self.assertEqual(count, 1)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.visible().count()
         self.assertEqual(count, 1)
 
         count = PublisherParlerAutoSlugifyTestModel.objects.count()
@@ -616,6 +656,7 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
 
         self.assertEqual(draft_obj.is_draft, True)
         self.assertEqual(draft_obj.is_published, False)
+        self.assertEqual(draft_obj.is_visible, False)
         self.assertEqual(draft_obj.is_dirty, True)
 
         publish_obj = draft_obj.publish()
@@ -623,11 +664,13 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         self.assertEqual(publish_obj.title, "one")
         self.assertEqual(publish_obj.is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False)
 
         self.assertEqual(draft_obj.title, "one")
         self.assertEqual(draft_obj.is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)
 
         draft_obj.title="two"
@@ -636,11 +679,13 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         self.assertEqual(publish_obj.title, "one")
         self.assertEqual(publish_obj.is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False) # FIXME: Should this not be True ?!?
 
         self.assertEqual(draft_obj.title, "two")
         self.assertEqual(draft_obj.is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, True)
 
         publish_obj = draft_obj.publish()
@@ -648,9 +693,11 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         self.assertEqual(publish_obj.title, "two")
         self.assertEqual(publish_obj.is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
+        self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False)
 
         self.assertEqual(draft_obj.title, "two")
         self.assertEqual(draft_obj.is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
+        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)

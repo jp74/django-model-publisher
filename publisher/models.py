@@ -77,6 +77,10 @@ class PublisherModelBase(models.Model):
 
     @property
     def is_published(self):
+        """
+        Note: will ignore start/end date!
+        Use self.is_visible() if you want to know if this entry should be publicly accessible.
+        """
         return self.publisher_is_draft == self.STATE_PUBLISHED
 
     @property
@@ -93,6 +97,9 @@ class PublisherModelBase(models.Model):
 
     @property
     def is_visible(self):
+        """
+        Is this entry publicly available?
+        """
         return self.is_published and (not self.hidden_by_end_date) and (not self.hidden_by_start_date)
 
     @property
@@ -312,8 +319,7 @@ class PublisherModelBase(models.Model):
 
 
 class PublisherModel(PublisherModelBase):
-    objects = models.Manager()
-    publisher_manager = PublisherManager()
+    objects = PublisherManager()
 
     class Meta:
         abstract = True

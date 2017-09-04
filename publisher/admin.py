@@ -160,7 +160,7 @@ class PublisherAdmin(ModelAdmin):
     def get_queryset(self, request):
         # hack! We need request.user to check user publish perms
         self.request = request
-        qs = self.model.publisher_manager.drafts()
+        qs = self.model.objects.drafts()
         ordering = self.get_ordering(request)
         if ordering:
             qs = qs.order_by(*ordering)
