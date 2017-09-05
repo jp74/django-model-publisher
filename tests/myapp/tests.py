@@ -701,3 +701,23 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)
+
+    def test_delete(self):
+        for no in range(10):
+            title = "%i" % no
+            instance = PublisherParlerAutoSlugifyTestModel.objects.create(title=title)
+            instance.publish()
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.drafts().count()
+        self.assertEqual(count, 10)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.published().count()
+        self.assertEqual(count, 10)
+
+        count = PublisherParlerAutoSlugifyTestModel.objects.count()
+        self.assertEqual(count, 20)
+
+        PublisherParlerAutoSlugifyTestModel.objects.all().delete()
+        count = PublisherParlerAutoSlugifyTestModel.objects.count()
+        self.assertEqual(count, 0)
+
