@@ -7,17 +7,13 @@ from publisher.models import PublisherModel
 try:
     import parler
 except ImportError:
-    PARLER_INSTALLED=False
-else:
-    PARLER_INSTALLED = True
+    parler=None
 
 
 try:
     import aldryn_translation_tools
 except ImportError as err:
-    TRANSLATION_TOOLS_INSTALLED=False
-else:
-    TRANSLATION_TOOLS_INSTALLED = True
+    aldryn_translation_tools=None
 
 
 class PublisherTestModel(PublisherModel):
@@ -25,7 +21,7 @@ class PublisherTestModel(PublisherModel):
     objects = PublisherManager()
 
 
-if PARLER_INSTALLED:
+if parler is not None:
     from parler.models import TranslatedFields
     from publisher.models import PublisherParlerModel
 
@@ -35,7 +31,7 @@ if PARLER_INSTALLED:
         )
 
 
-if TRANSLATION_TOOLS_INSTALLED:
+if aldryn_translation_tools is not None:
     from publisher.models import PublisherParlerAutoSlugifyModel
 
     class PublisherParlerAutoSlugifyTestModel(PublisherParlerAutoSlugifyModel):
