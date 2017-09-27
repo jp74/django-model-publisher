@@ -290,6 +290,7 @@ class PublisherModelBase(models.Model):
 
         try:
             from cms.models.placeholdermodel import Placeholder
+            from cms.models.fields import PlaceholderField
         except ImportError:
             return placeholder_fields
 
@@ -302,9 +303,9 @@ class PublisherModelBase(models.Model):
                 continue
 
             try:
-                if isinstance(field, Placeholder):
-                    placeholder_fields.append(field)
-            except (ObjectDoesNotExist, AttributeError):
+                if isinstance(field, (Placeholder, PlaceholderField)):
+                    placeholder_fields.append(field.name)
+            except (ObjectDoesNotExist, AttributeError) as err:
                 continue
 
         return placeholder_fields
