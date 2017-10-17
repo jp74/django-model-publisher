@@ -1,3 +1,5 @@
+import logging
+
 from django.utils import timezone
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +15,8 @@ from .signals import (
     publisher_pre_unpublish,
     publisher_post_unpublish,
 )
+
+log = logging.getLogger(__name__)
 
 
 class PublisherModelBase(models.Model):
@@ -126,10 +130,12 @@ class PublisherModelBase(models.Model):
     @assert_draft
     def publish(self):
         if not self.is_draft:
-            return
+            log.info("Don't publish %s because it's not the daft version!", self)
+            return self
 
         if not self.is_dirty:
-            return
+            log.info("Don't publish %s because it's not dirty!", self)
+            return self
 
         publisher_pre_publish.send(sender=self.__class__, instance=self)
 
