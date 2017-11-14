@@ -49,6 +49,30 @@ Django compatibility
 
 TODO: Update travis configs.
 
+---------
+run tests
+---------
+
+run tests with current python/environment:
+
+::
+
+    $ make test
+    or
+    $ ./setup.py test
+    or
+    $ python tests/manage.py test myapp
+
+run test via *tox* e.g.:
+
+::
+
+    $ make tox
+    or
+    $ ./setup.py tox
+    or
+    $ tox
+
 -------
 history
 -------

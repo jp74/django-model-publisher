@@ -29,6 +29,27 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 TODO: Update travis configs.
 
 
+== run tests
+
+run tests with current python/environment:
+{{{
+$ make test
+or
+$ ./setup.py test
+or
+$ python tests/manage.py test myapp
+}}}
+
+run test via //tox// e.g.:
+{{{
+$ make tox
+or
+$ ./setup.py tox
+or
+$ tox
+}}}
+
+
 == history
 
 * v0.4.0.dev1 - 14.11.2017
