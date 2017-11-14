@@ -3,6 +3,9 @@ mock
 coverage
 flake8
 tox
+pytest
+pytest-django
+pytest-cov
 coveralls
 docutils
 python-creole

@@ -32,6 +32,11 @@ test:
 test-all:
 	python setup.py tox
 
+dev_install: clean
+	pip install -U pip
+	pip install -r requirements/dev.txt
+	pip install -e .
+
 coverage:
 	coverage run --source django-ya-model-publisher setup.py test
 	coverage report -m

@@ -19,6 +19,6 @@ exclude_lines =
     if __name__ == .__main__.:
 
 omit =
-    */tests/*
+    */publisher_tests/*
 
 show_missing = True
