@@ -1,5 +1,10 @@
+[paths]
+source = publisher
+
 [run]
-include = */publisher/*
+source =
+    publisher
+    publisher_tests
 
 [report]
 exclude_lines =
@@ -19,6 +24,7 @@ exclude_lines =
     if __name__ == .__main__.:
 
 omit =
-    */publisher_tests/*
+    *migrations*
+    .tox/*
 
 show_missing = True

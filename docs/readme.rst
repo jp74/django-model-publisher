@@ -53,7 +53,7 @@ Note: See travis/tox config files for current test matrix
 run tests
 ---------
 
-run tests with current python/environment:
+run tests via *py.test* with current python/environment:
 
 ::
 
@@ -76,6 +76,10 @@ run test via *tox* e.g.:
 -------
 history
 -------
+
+* v0.4.1 - 14.11.2017
+
+    * Refactor test run setup
 
 * v0.4.0.dev1 - 14.11.2017
 
