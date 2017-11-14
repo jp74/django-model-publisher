@@ -2,9 +2,9 @@
 Installation
 ============
 
-Install django-model-publisher (using pip)::
+Install django-ya-model-publisher (using pip)::
 
-    pip install django-model-publisher
+    pip install django-ya-model-publisher
 
 
 Add it to installed apps in your settings::

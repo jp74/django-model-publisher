@@ -24,7 +24,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 django-model-publisher tests
+	flake8 django-ya-model-publisher tests
 
 test:
 	python setup.py test
@@ -33,15 +33,15 @@ test-all:
 	python setup.py tox
 
 coverage:
-	coverage run --source django-model-publisher setup.py test
+	coverage run --source django-ya-model-publisher setup.py test
 	coverage report -m
 	coverage html
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/django-model-publisher.rst
+	rm -f docs/django-ya-model-publisher.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ django-model-publisher
+	sphinx-apidoc -o docs/ django-ya-model-publisher
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

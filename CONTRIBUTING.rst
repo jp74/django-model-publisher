@@ -36,8 +36,8 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-django-model-publisher could always use more documentation, whether as part of the
-official django-model-publisher docs, in docstrings, or even on the web in blog posts,
+django-ya-model-publisher could always use more documentation, whether as part of the
+official django-ya-model-publisher docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
@@ -55,17 +55,17 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `django-model-publisher` for local development.
+Ready to contribute? Here's how to set up `django-ya-model-publisher` for local development.
 
-1. Fork the `django-model-publisher` repo on GitHub.
+1. Fork the `django-ya-model-publisher` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/django-model-publisher.git
+    $ git clone git@github.com:your_name_here/django-ya-model-publisher.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv django-model-publisher
-    $ cd django-model-publisher/
+    $ mkvirtualenv django-ya-model-publisher
+    $ cd django-ya-model-publisher/
     $ python setup.py develop
 
 4. Create a branch for local development::
