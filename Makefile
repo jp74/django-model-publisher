@@ -29,7 +29,7 @@ lint:
 test:
 	python setup.py test
 
-test-all:
+tox:
 	python setup.py tox
 
 dev_install: clean
