@@ -49,9 +49,9 @@ class ToxTestCommand(distutils.cmd.Command):
 
 class TestCommand(distutils.cmd.Command):
     """
-    Distutils command to run tests with 'python tests/manage.py test myapp'.
+    Distutils command to run tests via py.test.
     """
-    description = "Run tests with 'python tests/manage.py test myapp'."
+    description = "Run tests via 'py.test'."
     user_options = []
 
     def initialize_options(self):
@@ -62,7 +62,7 @@ class TestCommand(distutils.cmd.Command):
 
     def run(self):
         self.announce("Running tests...", level=distutils.log.INFO)
-        return subprocess.call(['python', 'tests/manage.py', 'test', 'myapp'])
+        return subprocess.call(['pytest', 'publisher_tests'])
 
 
 # convert creole to ReSt on-the-fly, see also:
