@@ -44,7 +44,7 @@ before_install:
 install:
     # install only the needed package to run tox
     # tox will install all needed packages
-    - travis_retry pip install tox python-creole docutils
+    - travis_retry pip install tox tox-travis coveralls python-creole docutils
 
 script:
     - travis_retry ./setup.py tox
