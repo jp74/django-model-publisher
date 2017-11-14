@@ -49,4 +49,6 @@ install:
 script:
     - travis_retry ./setup.py tox
 
-after_script: coveralls
+after_success:
+    #- coveralls
+    - bash <(curl -s https://codecov.io/bash)
