@@ -2,8 +2,13 @@
 Credits
 =======
 
-Development Lead
-----------------
+Development Lead (current)
+--------------------------
+
+* Jens Diemer
+
+Development Lead (old)
+----------------------
 
 * Lee Solway
 * Ashley Wilson
@@ -16,4 +21,3 @@ Contributors
 
 * Basil Shubin
 * Chris Dobbyn
-* Jens Diemer

@@ -366,7 +366,7 @@ else:
                 """
                 Set new slug by TranslatedAutoSlugifyMixin only on drafts
                 see also:
-                https://github.com/andersinno/django-model-publisher-ai/issues/8
+                https://github.com/andersinno/django-model-ya-publisher/issues/8
                 """
                 if self.publisher_is_draft:
                     # code from TranslatedAutoSlugifyMixin.save():

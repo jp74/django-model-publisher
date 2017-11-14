@@ -4,5 +4,9 @@ coverage
 flake8
 tox
 coveralls
+docutils
+python-creole
+wheel
+twine
 aldryn_translation_tools
 django-parler

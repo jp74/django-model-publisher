@@ -1,39 +1,48 @@
-=========================
-Django Model Publisher AI
-=========================
+= Django (yet another) Model Publisher
 
 Django model mixins and utilities for a standard publisher workflow.
 
-This is a fork of `django-model-publisher
-<https://github.com/jp74/django-model-publisher>`_.
+This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|andersinno/django-model-publisher-ai]] witch is a fork of the origin [[https://github.com/wearehoods/django-ya-model-publisher|wearehoods/django-ya-model-publisher]].
 
-``django-model-publisher-ai`` supports `Django`_ 1.8 through 1.11 (latest bugfix
-release in each series only) on Python 2.7, 3.3 (Django 1.8 only), 3.4, and 3.5.
-
-.. _Django: http://www.djangoproject.com/
-
-This app is available on `PyPI`_.
-
-.. _PyPI: https://pypi.python.org/pypi/django-model-publisher-ai/
+| {{https://travis-ci.org/wearehoods/django-ya-model-publisher.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/wearehoods/django-ya-model-publisher/|travis-ci.org/wearehoods/django-ya-model-publisher]] |
+| {{https://coveralls.io/repos/wearehoods/django-ya-model-publisher/badge.svg|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/wearehoods/django-ya-model-publisher|coveralls.io/r/wearehoods/django-ya-model-publisher]] |
+| {{https://landscape.io/github/wearehoods/django-ya-model-publisher/master/landscape.svg|Status on landscape.io}} | [[https://landscape.io/github/wearehoods/django-ya-model-publisher/master|landscape.io/github/wearehoods/django-ya-model-publisher/master]] |
 
 
-Getting Help
-============
+== Features
 
-Documentation for django-model-publisher is available at https://django-model-publisher.readthedocs.org.
-
-
-Quickstart
-==========
-
-Install django-model-publisher-ai:
-
-``pip install django-model-publisher-ai``
+* Django CMS placeholders support.
+* Hvad/Parler support.
+* Restrict user access to publish functions with user permissions.
 
 
-Features
-========
+== Roadmap
 
-- Django CMS placeholders support.
-- Hvad/Parler support.
-- Restrict user access to publish functions with user permissions.
+* Implement a "request/reject/accept publishing" workflow with a shot messages and logging
+
+
+== Django compatibility
+
+|= django-ya-model-publisher |= django version |= python         |
+| v0.0.x                     | 1.8, 1.11       | 2.7, 3.4, 3.5   |
+
+TODO: Update travis configs.
+
+
+== history
+
+* v0.0.1 - 14.11.2017
+** Just create the fork and apply all pull requests from [[https://github.com/andersinno/django-model-publisher-ai/pull/14|andersinno/django-model-publisher-ai/pull/14]]
+
+
+== links ==
+
+| Homepage   | http://github.com/wearehoods/django-ya-model-publisher
+| PyPi       | http://pypi.python.org/pypi/django-ya-model-publisher/
+
+
+== donation ==
+
+* [[https://www.paypal.me/JensDiemer|paypal.me/JensDiemer]]
+* [[https://flattr.com/submit/auto?uid=jedie&url=https%3A%2F%2Fgithub.com%2Fwearehoods%2Fdjango-ya-model-publisher%2F|Flattr This!]]
+* Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F|1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F]]
