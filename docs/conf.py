@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'django-model-ya-publisher'
+project = u'django-ya-model-publisher'
 copyright = u'2014, JP74 ; 2017, Jens Diemer'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -173,7 +173,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django-model-ya-publisherdoc'
+htmlhelp_basename = 'django-ya-model-publisherdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -194,8 +194,8 @@ latex_elements = {
 latex_documents = [
     (
         'index',
-        'django-model-ya-publisher.tex',
-        u'django-model-ya-publisher Documentation',
+        'django-ya-model-publisher.tex',
+        u'django-ya-model-publisher Documentation',
         u'see AUTHORS.rst',
         'manual'
     ),
@@ -229,8 +229,8 @@ latex_documents = [
 man_pages = [
     (
         'index',
-        'django-model-ya-publisher',
-        u'django-model-ya-publisher Documentation',
+        'django-ya-model-publisher',
+        u'django-ya-model-publisher Documentation',
         [u'see AUTHORS.rst'],
         1
     )
@@ -248,10 +248,10 @@ man_pages = [
 texinfo_documents = [
     (
         'index',
-        'django-model-ya-publisher',
-        u'django-model-ya-publisher Documentation',
+        'django-ya-model-publisher',
+        u'django-ya-model-publisher Documentation',
         u'see AUTHORS.rst',
-        'django-model-ya-publisher',
+        'django-ya-model-publisher',
         'Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.',
         'Miscellaneous'
     ),

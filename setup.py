@@ -261,7 +261,7 @@ classifiers=[
 
 # https://packaging.python.org/tutorials/distributing-packages/
 setup(
-    name='django-model-ya-publisher',
+    name='django-ya-model-publisher',
     version=__version__,
     description="""Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.""",
     long_description=long_description,
