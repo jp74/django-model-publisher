@@ -7,44 +7,46 @@ python:
 sudo: false
 
 cache:
-  directories:
-    - $HOME/.pip-accel
-    - $HOME/.cache/pip
+    directories:
+        - $HOME/.pip-accel
+        - $HOME/.cache/pip
 
 env:
-  matrix:
-    # see output from: `tox -l`
-    - TOXENV=py27-dj18
-    - TOXENV=py34-dj18
-    - TOXENV=py35-dj18
-    - TOXENV=pypy-dj18
-    - TOXENV=py27-dj19
-    - TOXENV=py27-dj110
-    - TOXENV=py27-dj111
-    - TOXENV=py34-dj19
-    - TOXENV=py34-dj110
-    - TOXENV=py34-dj111
-    - TOXENV=py35-dj19
-    - TOXENV=py35-dj110
-    - TOXENV=py35-dj111
-    - TOXENV=pypy-dj19
-    - TOXENV=pypy-dj110
-    - TOXENV=pypy-dj111
-    - TOXENV=py36-dj111
+    matrix:
+        # see output from: `tox -l`
+#        - TOXENV=py27-dj18
+#        - TOXENV=py34-dj18
+        - TOXENV=py35-dj18
+#        - TOXENV=pypy-dj18
+#        - TOXENV=py27-dj19
+#        - TOXENV=py27-dj110
+#        - TOXENV=py27-dj111
+#        - TOXENV=py34-dj19
+#        - TOXENV=py34-dj110
+#        - TOXENV=py34-dj111
+#        - TOXENV=py35-dj19
+#        - TOXENV=py35-dj110
+#        - TOXENV=py35-dj111
+#        - TOXENV=pypy-dj19
+#        - TOXENV=pypy-dj110
+#        - TOXENV=pypy-dj111
+#        - TOXENV=py36-dj111
 
 
 matrix:
-  fast_finish: true
+    fast_finish: true
 
 before_install:
-  # work around https://github.com/travis-ci/travis-ci/issues/8363
-  - pyenv global system 3.5
-  - travis_retry pip install --upgrade pip
+    # work around https://github.com/travis-ci/travis-ci/issues/8363
+    - pyenv global system 3.5
+    - travis_retry pip install --upgrade pip
 
 install:
-  - travis_retry pip install tox python-creole
+    # install only the needed package to run tox
+    # tox will install all needed packages
+    - travis_retry pip install tox python-creole docutils
 
 script:
-    - travis_retry make tox
+    - travis_retry ./setup.py tox
 
 after_script: coveralls
