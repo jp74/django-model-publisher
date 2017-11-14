@@ -24,21 +24,22 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 == Django compatibility
 
 |= django-ya-model-publisher |= django version |= python         |
-| v0.0.x                     | 1.8, 1.11       | 2.7, 3.4, 3.5   |
+| v0.4.x                     | 1.8, 1.11       | 2.7, 3.4, 3.5   |
 
 TODO: Update travis configs.
 
 
 == history
 
-* v0.0.1 - 14.11.2017
+* v0.4.0.dev1 - 14.11.2017
 ** Just create the fork and apply all pull requests from [[https://github.com/andersinno/django-model-publisher-ai/pull/14|andersinno/django-model-publisher-ai/pull/14]]
 
 
 == links ==
 
-| Homepage   | http://github.com/wearehoods/django-ya-model-publisher
-| PyPi       | http://pypi.python.org/pypi/django-ya-model-publisher/
+| Homepage      | http://github.com/wearehoods/django-ya-model-publisher
+| PyPi.org      | https://pypi.org/project/django-ya-model-publisher/
+| PyPi (legacy) | http://pypi.python.org/pypi/django-ya-model-publisher/
 
 
 == donation ==
