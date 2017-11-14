@@ -47,6 +47,24 @@ class ToxTestCommand(distutils.cmd.Command):
         return subprocess.call(['tox'])
 
 
+class TestCommand(distutils.cmd.Command):
+    """
+    Distutils command to run tests with 'python tests/manage.py test myapp'.
+    """
+    description = "Run tests with 'python tests/manage.py test myapp'."
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        self.announce("Running tests...", level=distutils.log.INFO)
+        return subprocess.call(['python tests/manage.py test myapp'])
+
+
 # convert creole to ReSt on-the-fly, see also:
 # https://code.google.com/p/python-creole/wiki/UseInSetup
 try:
@@ -255,6 +273,7 @@ setup(
     python_requires='>=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4',
     classifiers=classifiers,
     cmdclass={
-        'test': ToxTestCommand,
+        'test': TestCommand,
+        'tox': ToxTestCommand,
     }
 )

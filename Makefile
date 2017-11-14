@@ -27,10 +27,10 @@ lint:
 	flake8 django-model-publisher tests
 
 test:
-	python tests/manage.py test myapp
+	python setup.py test
 
 test-all:
-	tox
+	python setup.py tox
 
 coverage:
 	coverage run --source django-model-publisher setup.py test
@@ -46,9 +46,8 @@ docs:
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
 
-release: clean
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+publish: clean
+	python setup.py publish
 
 sdist: clean
 	python setup.py sdist
