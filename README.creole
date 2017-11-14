@@ -6,7 +6,6 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 
 | {{https://travis-ci.org/wearehoods/django-ya-model-publisher.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/wearehoods/django-ya-model-publisher/|travis-ci.org/wearehoods/django-ya-model-publisher]] |
 | {{https://codecov.io/github/wearehoods/django-ya-model-publisher/coverage.svg|Coverage Status on codecov.io}} | [[https://codecov.io/gh/wearehoods/django-ya-model-publisher|codecov.io/gh/wearehoods/django-ya-model-publisher]] |
-| {{https://landscape.io/github/wearehoods/django-ya-model-publisher/master/landscape.svg|Status on landscape.io}} | [[https://landscape.io/github/wearehoods/django-ya-model-publisher/master|landscape.io/github/wearehoods/django-ya-model-publisher/master]] |
 
 
 == Features
