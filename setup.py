@@ -62,7 +62,7 @@ class TestCommand(distutils.cmd.Command):
 
     def run(self):
         self.announce("Running tests...", level=distutils.log.INFO)
-        return subprocess.call(['python tests/manage.py test myapp'])
+        return subprocess.call(['python', 'tests/manage.py', 'test', 'myapp'])
 
 
 # convert creole to ReSt on-the-fly, see also:
