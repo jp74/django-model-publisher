@@ -42,7 +42,7 @@ before_install:
   - travis_retry pip install --upgrade pip
 
 install:
-  - travis_retry pip install tox
+  - travis_retry pip install tox python-creole
 
 script:
     - travis_retry make tox
