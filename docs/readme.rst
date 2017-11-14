@@ -6,18 +6,18 @@ Django model mixins and utilities for a standard publisher workflow.
 
 This is a fork of `andersinno/django-model-publisher-ai <https://github.com/andersinno/django-model-publisher-ai>`_ witch is a fork of the origin `wearehoods/django-ya-model-publisher <https://github.com/wearehoods/django-ya-model-publisher>`_.
 
-+-----------------------------------+--------------------------------------------------------------------+
-| |Build Status on travis-ci.org|   | `travis-ci.org/wearehoods/django-ya-model-publisher`_              |
-+-----------------------------------+--------------------------------------------------------------------+
-| |Coverage Status on coveralls.io| | `coveralls.io/r/wearehoods/django-ya-model-publisher`_             |
-+-----------------------------------+--------------------------------------------------------------------+
-| |Status on landscape.io|          | `landscape.io/github/wearehoods/django-ya-model-publisher/master`_ |
-+-----------------------------------+--------------------------------------------------------------------+
++---------------------------------+--------------------------------------------------------------------+
+| |Build Status on travis-ci.org| | `travis-ci.org/wearehoods/django-ya-model-publisher`_              |
++---------------------------------+--------------------------------------------------------------------+
+| |Coverage Status on codecov.io| | `codecov.io/gh/wearehoods/django-ya-model-publisher`_              |
++---------------------------------+--------------------------------------------------------------------+
+| |Status on landscape.io|        | `landscape.io/github/wearehoods/django-ya-model-publisher/master`_ |
++---------------------------------+--------------------------------------------------------------------+
 
 .. |Build Status on travis-ci.org| image:: https://travis-ci.org/wearehoods/django-ya-model-publisher.svg
 .. _travis-ci.org/wearehoods/django-ya-model-publisher: https://travis-ci.org/wearehoods/django-ya-model-publisher/
-.. |Coverage Status on coveralls.io| image:: https://coveralls.io/repos/wearehoods/django-ya-model-publisher/badge.svg
-.. _coveralls.io/r/wearehoods/django-ya-model-publisher: https://coveralls.io/r/wearehoods/django-ya-model-publisher
+.. |Coverage Status on codecov.io| image:: https://codecov.io/github/wearehoods/django-ya-model-publisher/coverage.svg
+.. _codecov.io/gh/wearehoods/django-ya-model-publisher: https://codecov.io/gh/wearehoods/django-ya-model-publisher
 .. |Status on landscape.io| image:: https://landscape.io/github/wearehoods/django-ya-model-publisher/master/landscape.svg
 .. _landscape.io/github/wearehoods/django-ya-model-publisher/master: https://landscape.io/github/wearehoods/django-ya-model-publisher/master
 

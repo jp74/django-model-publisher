@@ -5,7 +5,7 @@ Django model mixins and utilities for a standard publisher workflow.
 This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|andersinno/django-model-publisher-ai]] witch is a fork of the origin [[https://github.com/wearehoods/django-ya-model-publisher|wearehoods/django-ya-model-publisher]].
 
 | {{https://travis-ci.org/wearehoods/django-ya-model-publisher.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/wearehoods/django-ya-model-publisher/|travis-ci.org/wearehoods/django-ya-model-publisher]] |
-| {{https://coveralls.io/repos/wearehoods/django-ya-model-publisher/badge.svg|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/wearehoods/django-ya-model-publisher|coveralls.io/r/wearehoods/django-ya-model-publisher]] |
+| {{https://codecov.io/github/wearehoods/django-ya-model-publisher/coverage.svg|Coverage Status on codecov.io}} | [[https://codecov.io/gh/wearehoods/django-ya-model-publisher|codecov.io/gh/wearehoods/django-ya-model-publisher]] |
 | {{https://landscape.io/github/wearehoods/django-ya-model-publisher/master/landscape.svg|Status on landscape.io}} | [[https://landscape.io/github/wearehoods/django-ya-model-publisher/master|landscape.io/github/wearehoods/django-ya-model-publisher/master]] |
 
 

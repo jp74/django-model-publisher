@@ -6,7 +6,6 @@ tox
 pytest
 pytest-django
 pytest-cov
-coveralls
 docutils
 python-creole
 wheel
