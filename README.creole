@@ -31,7 +31,7 @@ Note: See travis/tox config files for current test matrix
 
 == run tests
 
-run tests with current python/environment:
+run tests via //py.test// with current python/environment:
 {{{
 $ make test
 or
@@ -52,6 +52,8 @@ $ tox
 
 == history
 
+* v0.4.1 - 14.11.2017
+** Refactor test run setup
 * v0.4.0.dev1 - 14.11.2017
 ** Just create the fork and apply all pull requests from [[https://github.com/andersinno/django-model-publisher-ai/pull/14|andersinno/django-model-publisher-ai/pull/14]]
 
