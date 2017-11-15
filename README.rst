@@ -2,6 +2,13 @@
 django-model-publisher
 =============================
 
+Note: This project is unmaintained. Please use the new fork called django-ya-model-publisher:
+
+github: https://github.com/wearehoods/django-ya-model-publisher/
+
+PyPi: https://pypi.org/project/django-ya-model-publisher/
+
+
 A handy mixin/abstract set of classes for provising a publisher workflow (draft, publish) to arbitrary Django models
 
 .. image:: https://img.shields.io/pypi/v/django-model-publisher.svg
