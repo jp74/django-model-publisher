@@ -1,9 +1,13 @@
+import logging
+
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .signals import publisher_pre_delete
 from .middleware import get_draft_status
+from .signal_handlers import publisher_post_save, publisher_pre_delete
+
+log = logging.getLogger(__name__)
 
 
 class PublisherQuerySet(models.QuerySet):
@@ -39,7 +43,13 @@ class BasePublisherManager(models.Manager):
 
     def contribute_to_class(self, model, name):
         super(BasePublisherManager, self).contribute_to_class(model, name)
+
+        log.debug("Add 'publisher_pre_delete' signal handler to %s", repr(model))
         models.signals.pre_delete.connect(publisher_pre_delete, model)
+
+        # log.debug("Add 'publisher_post_save' signal handler to %s", repr(model))
+        # models.signals.post_save.connect(publisher_post_save, model)
+
 
     def current(self):
         if get_draft_status():

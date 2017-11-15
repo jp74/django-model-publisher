@@ -1,20 +1,16 @@
 import logging
 
-from django.utils import timezone
-from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from .managers import PublisherManager
-from .utils import assert_draft
 from .signals import (
-    publisher_publish_pre_save_draft,
-    publisher_pre_publish,
-    publisher_post_publish,
-    publisher_pre_unpublish,
-    publisher_post_unpublish,
+    publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
+    publisher_publish_pre_save_draft
 )
+from .utils import assert_draft
 
 log = logging.getLogger(__name__)
 
