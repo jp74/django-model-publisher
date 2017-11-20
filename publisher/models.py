@@ -1,21 +1,26 @@
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
-from django.utils import timezone
+from django.template.defaultfilters import truncatewords
+from django.utils import timezone, six
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django_tools.permissions import ModelPermissionMixin, check_permission
 
-from .managers import PublisherManager
-from .signals import (
-    publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
-    publisher_publish_pre_save_draft
-)
+from . import constants
+from .managers import PublisherManager, PublisherChangeManager
+from .signals import (publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
+                      publisher_publish_pre_save_draft)
 from .utils import assert_draft
 
 log = logging.getLogger(__name__)
 
-
-class PublisherModelBase(models.Model):
+import cms
+class PublisherModelBase(ModelPermissionMixin, models.Model):
     STATE_PUBLISHED = False
     STATE_DRAFT = True
 
@@ -70,6 +75,16 @@ class PublisherModelBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_draft_object(self):
+        if not self.publisher_is_draft == self.STATE_DRAFT:
+            return self.publisher_draft
+        return self
+
+    def get_public_object(self):
+        if self.publisher_is_draft == self.STATE_PUBLISHED:
+            return self
+        return self.publisher_linked
 
     @property
     def is_draft(self):
@@ -376,3 +391,199 @@ else:
 
             class Meta(PublisherParlerModel.Meta):
                 abstract = True
+
+
+class PublisherStateModel(ModelPermissionMixin, models.Model):
+    """
+    Save request/response actions for a publisher model.
+    """
+    objects = PublisherChangeManager()
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    publisher_instance = GenericForeignKey('content_type', 'object_id')
+
+    #-------------------------------------------------------------------------
+
+    ACTION_CHOICES = (
+        (constants.ACTION_PUBLISH, _('publish')),
+        (constants.ACTION_UNPUBLISH,  _('unpublish')),
+    )
+    ACTION_DICT=dict(ACTION_CHOICES)
+
+    action = models.CharField(max_length=9, choices=ACTION_CHOICES, editable=False)
+
+    @property
+    def action_name(self):
+        return self.ACTION_DICT[self.action]
+
+    #-------------------------------------------------------------------------
+
+    STATE_CHOICES = (
+        (constants.STATE_REQUEST, _('request')),
+        (constants.STATE_REJECTED, _('rejected')),
+        (constants.STATE_ACCEPTED, _('accepted')),
+    )
+    STATE_DICT=dict(STATE_CHOICES)
+
+    state = models.CharField(max_length=8, choices=STATE_CHOICES, editable=False)
+
+    @property
+    def state_name(self):
+        return self.STATE_DICT[self.state]
+
+    @cached_property
+    def is_open(self):
+        """ is not a 'closed' entry. """
+        return self.state == constants.STATE_REQUEST
+
+    #-------------------------------------------------------------------------
+
+    request_timestamp = models.DateTimeField(null=True, unique=True, editable=False)
+    request_user = models.ForeignKey( # User that creates the request
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        null=True, editable=False,
+        related_name='%(app_label)s_%(class)s_request_user'
+    )
+    request_note = models.TextField(_('Request Note'),
+        help_text=_('Why create this publish/delete request?'),
+        blank=True, null=True
+    )
+
+    #-------------------------------------------------------------------------
+
+    response_timestamp = models.DateTimeField(null=True, unique=True, editable=False)
+    response_user = models.ForeignKey( # User that reject/accept the request
+        getattr(settings, 'AUTH_USER_MODEL', 'auth.User'),
+        null=True, editable=False,
+        related_name='%(app_label)s_%(class)s_response_user'
+    )
+    response_note = models.TextField(_('Response Note'),
+        help_text=_('Why accept or reject this publish/delete request?'),
+        blank=True, null=True
+    )
+
+    #-------------------------------------------------------------------------
+
+    @classmethod
+    def has_direct_permission(cls, user, raise_exception=True):
+        """ user permission to publish/unpublish a object directly """
+        permission = cls.permission_name(action=constants.PERMISSION_DIRECT_PUBLISHER)
+        return check_permission(user, permission, raise_exception)
+
+    @classmethod
+    def has_ask_request_permission(cls, user, raise_exception=True):
+        """ user permission to create a publish/unpublish request """
+        permission = cls.permission_name(action=constants.PERMISSION_ASK_REQUEST)
+        return check_permission(user, permission, raise_exception)
+
+    @classmethod
+    def has_reply_request_permission(cls, user, raise_exception=True):
+        """ user permission to accept/reject a publish/unpublish request """
+        permission = cls.permission_name(action=constants.PERMISSION_REPLY_REQUEST)
+        return check_permission(user, permission, raise_exception)
+
+    #-------------------------------------------------------------------------
+
+    def save(self, *args, **kwargs):
+        if self.publisher_instance is not None:
+            assert isinstance(self.publisher_instance, PublisherModel)
+
+        # Update timestamps
+        if self.state == constants.STATE_REQUEST:
+            self.request_timestamp = timezone.now()
+        else:
+            self.response_timestamp = timezone.now()
+
+        super(PublisherStateModel, self).save(*args, **kwargs)
+
+    #-------------------------------------------------------------------------
+
+    @cached_property
+    def short_request_note(self, max_length=30):
+        return truncatewords(self.request_note, max_length)
+
+    @cached_property
+    def short_response_note(self, max_length=30):
+        return truncatewords(self.response_note, max_length)
+
+    @cached_property
+    def status_text(self):
+        txt = [self.action_name, self.state_name]
+
+        if self.is_open:
+            if self.request_user:
+                txt.append(
+                    _('from: %(user)s') % {'user': self.request_user}
+                )
+            if self.request_note:
+                txt.append("(%s)" % self.short_request_note)
+        else:
+            txt.append(
+                _('from: %(user)s') % {'user': self.response_user}
+            )
+            txt.append("(%s)" % self.short_response_note)
+
+        return " ".join([six.text_type(s) for s in txt])
+
+    ############################################################################
+    # response methods:
+
+    def accept(self, response_user, response_note):
+        assert self.state == constants.STATE_REQUEST, "%r != %r" % (self.state, constants.STATE_REQUEST)
+        assert self.publisher_instance is not None
+        assert self.request_user is not None
+        assert self.request_timestamp is not None
+
+        self.response_user = response_user
+        self.response_note = response_note
+        self.state = constants.STATE_ACCEPTED
+
+        if self.action == constants.ACTION_PUBLISH:
+            # publish
+            assert self.publisher_instance.is_draft
+            assert self.publisher_instance.is_dirty
+            self.publisher_instance = self.publisher_instance.publish()
+        elif self.action == constants.ACTION_UNPUBLISH:
+            # unpublish
+            assert self.publisher_instance.is_published
+            draft = self.publisher_instance.get_draft_object()
+            draft.unpublish()
+            self.publisher_instance = draft
+        else:
+            raise ValidationError("Unknown action: %r !" % self.action)
+
+        # TODO: fire signal: e.g.: handler to mail user
+
+        log.info('Accept "%s" for "%s"', self.action, self.publisher_instance)
+        self.save()
+
+    def reject(self, response_user, response_note):
+        assert self.state == constants.STATE_REQUEST, "%r != %r" % (self.state, constants.STATE_REQUEST)
+        assert self.publisher_instance is not None
+        assert self.request_user is not None
+        assert self.request_timestamp is not None
+
+        self.response_user = response_user
+        self.response_note = response_note
+        self.state = constants.STATE_REJECTED
+
+        # TODO: fire signal: e.g.: handler to mail user
+
+        log.info('Reject "%s" for "%s"', self.action, self.publisher_instance)
+        self.save()
+
+    def __str__(self):
+        txt = '"%s" %s' % (self.publisher_instance, self.status_text)
+        if self.is_open:
+            txt += ' (open)'
+        return txt
+
+    class Meta:
+        get_latest_by = 'request_timestamp'
+        ordering = ['-request_timestamp']
+        permissions = (
+            (constants.PERMISSION_DIRECT_PUBLISHER, "publish/unpublish a object directly"),
+            (constants.PERMISSION_ASK_REQUEST, "create a publish/unpublish request"),
+            (constants.PERMISSION_REPLY_REQUEST, "accept/reject a publish/unpublish request"),
+        )

@@ -3,6 +3,7 @@ import logging
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from publisher import constants
 
 from .middleware import get_draft_status
 from .signal_handlers import publisher_post_save, publisher_pre_delete
@@ -72,3 +73,70 @@ else:
             return PublisherParlerQuerySet(self.model, using=self._db)
 
     PublisherParlerManager = BasePublisherParlerManager.from_queryset(PublisherParlerQuerySet)
+
+
+
+class PublisherChangeQuerySet(models.QuerySet):
+    def filter_open(self):
+        return self.filter(state=self.model.STATE_REQUEST)
+
+    def filter_closed(self):
+        return self.exclude(state=self.model.STATE_REQUEST)
+
+
+class PublisherChangeManager(models.Manager):
+
+    def get_queryset(self):
+        return PublisherChangeQuerySet(self.model, using=self._db)
+
+    def get_state(self, publisher_instance):
+        queryset = self.all()
+        queryset = queryset.filter(publisher_instance=publisher_instance)
+        instance = queryset.latest()
+        return instance
+
+    ############################################################################
+    # request methods:
+
+    def _create_request(self, action, user, publisher_instance, note):
+        assert action in (constants.ACTION_PUBLISH, constants.ACTION_UNPUBLISH)
+
+        state_instance = self.model()
+        state_instance.action = action
+        state_instance.state = constants.STATE_REQUEST
+        state_instance.publisher_instance = publisher_instance
+        state_instance.request_user = user
+        state_instance.request_note = note
+        state_instance.save()
+
+        return state_instance
+
+    def request_publishing(self, user, publisher_instance, note=None):
+        self.model.has_ask_request_permission(user, raise_exception=True)
+
+        assert publisher_instance.is_dirty
+
+        state_instance = self._create_request(
+            constants.ACTION_PUBLISH,
+            user, publisher_instance, note
+        )
+
+        # TODO: fire signal: e.g.: handler to mail user
+
+        return state_instance
+
+    def request_unpublishing(self, user, publisher_instance, note=None):
+        self.model.has_ask_request_permission(user, raise_exception=True)
+
+        assert publisher_instance.is_published
+
+        state_instance = self._create_request(
+            constants.ACTION_UNPUBLISH,
+            user, publisher_instance, note
+        )
+
+        # TODO: fire signal: e.g.: handler to mail user
+
+        return state_instance
+
+
