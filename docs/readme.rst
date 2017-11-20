@@ -4,7 +4,7 @@ Django (yet another) Model Publisher
 
 Django model mixins and utilities for a standard publisher workflow.
 
-This is a fork of `andersinno/django-model-publisher-ai <https://github.com/andersinno/django-model-publisher-ai>`_ witch is a fork of the origin `wearehoods/django-ya-model-publisher <https://github.com/wearehoods/django-ya-model-publisher>`_.
+This is a fork of `andersinno/django-model-publisher-ai <https://github.com/andersinno/django-model-publisher-ai>`_ which is a fork of the origin `jp74/django-model-publisher <https://github.com/jp74/django-model-publisher>`_.
 
 +---------------------------------+-------------------------------------------------------+
 | |Build Status on travis-ci.org| | `travis-ci.org/wearehoods/django-ya-model-publisher`_ |
@@ -26,12 +26,6 @@ Features
 * Hvad/Parler support.
 
 * Restrict user access to publish functions with user permissions.
-
--------
-Roadmap
--------
-
-* Implement a "request/reject/accept publishing" workflow with a shot messages and logging
 
 --------------------
 Django compatibility
@@ -73,13 +67,17 @@ run test via *tox* e.g.:
 history
 -------
 
-* v0.4.1 - 14.11.2017
+* **dev** - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
+
+    * Implement "request/reject/accept publishing" workflow with a shot messages and logging
+
+* v0.4.1 - 14.11.2017 - `compare v0.4.0.dev1...v0.4.1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.0.dev1...v0.4.1>`_ 
 
     * Refactor test run setup
 
     * bugfix project name
 
-* v0.4.0.dev1 - 14.11.2017
+* v0.4.0.dev1 - 14.11.2017 - `compare v0.3.1...v0.4.0.dev1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.3.1...v0.4.0.dev1>`_ 
 
     * Just create the fork and apply all pull requests from `andersinno/django-model-publisher-ai/pull/14 <https://github.com/andersinno/django-model-publisher-ai/pull/14>`_
 
