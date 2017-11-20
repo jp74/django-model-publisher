@@ -5,7 +5,7 @@ from django import test
 from django.utils import timezone
 
 from mock import MagicMock
-from publisher_test_project.myapp.models import PublisherTestModel
+from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
 from publisher.middleware import PublisherMiddleware, get_draft_status
 from publisher.signals import publisher_post_publish, publisher_post_unpublish

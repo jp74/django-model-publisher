@@ -11,7 +11,7 @@ except ImportError:
     PARLER_INSTALLED=False
 else:
     PARLER_INSTALLED = True
-    from publisher_test_project.myapp.models import PublisherParlerTestModel
+    from publisher_test_project.publisher_test_app.models import PublisherParlerTestModel
 
 
 TRANSLATION_TOOLS_INSTALLED=False
@@ -22,7 +22,7 @@ if PARLER_INSTALLED:
         pass
     else:
         TRANSLATION_TOOLS_INSTALLED = True
-        from publisher_test_project.myapp.models import PublisherParlerAutoSlugifyTestModel
+        from publisher_test_project.publisher_test_app.models import PublisherParlerAutoSlugifyTestModel
 
 
 @unittest.skipIf(PARLER_INSTALLED != True, 'Django-Parler is not installed')

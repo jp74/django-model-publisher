@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
 from django_tools.unittest_utils.user import create_user
-from publisher_test_project.myapp.models import PublisherTestModel
+from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
 from publisher.models import PublisherStateModel
 

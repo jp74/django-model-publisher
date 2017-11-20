@@ -9,7 +9,7 @@ DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase'
+        'NAME': 'publisher_test_database.sqlite3'
     }
 }
 
@@ -25,7 +25,7 @@ INSTALLED_APPS = (
     'menus', # django-cms will import menu models
 
     'publisher',
-    'publisher_test_project.myapp',
+    'publisher_test_project.publisher_test_app',
 )
 
 STATIC_URL = '/static/'
