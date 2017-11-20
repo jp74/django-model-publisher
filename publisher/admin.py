@@ -6,11 +6,11 @@ from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.template import loader
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django import forms
-from django.template import loader, Context
 
 
 def make_published(modeladmin, request, queryset):
@@ -131,10 +131,10 @@ class PublisherAdmin(ModelAdmin):
             publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
 
         t = loader.get_template(template_name)
-        c = Context({
+        context = {
             'publish_btn': publish_btn,
-        })
-        return t.render(c)
+        }
+        return t.render(context)
     publisher_status.short_description = 'Last Changes'
     publisher_status.allow_tags = True
 
@@ -146,14 +146,14 @@ class PublisherAdmin(ModelAdmin):
             is_published = True
 
         t = loader.get_template(template_name)
-        c = Context({
+        context = {
             'object': obj,
             'is_published': is_published,
             'has_publish_permission': self.has_publish_permission(self.request, obj),
             'publish_url': reverse(self.publish_reverse, args=(obj.pk, )),
             'unpublish_url': reverse(self.unpublish_reverse, args=(obj.pk, )),
-        })
-        return t.render(c)
+        }
+        return t.render(context)
     publisher_publish.short_description = 'Published'
     publisher_publish.allow_tags = True
 
