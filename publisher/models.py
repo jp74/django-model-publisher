@@ -580,6 +580,8 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         return txt
 
     class Meta:
+        verbose_name = _("Publisher State")
+        verbose_name_plural = _("Publisher States")
         get_latest_by = 'request_timestamp'
         ordering = ['-request_timestamp']
         permissions = (

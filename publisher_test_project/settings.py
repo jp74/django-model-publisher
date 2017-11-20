@@ -28,6 +28,9 @@ INSTALLED_APPS = (
     'publisher_test_project.publisher_test_app',
 )
 
+ROOT_URLCONF = 'publisher_test_project.urls'
+
+SITE_ID=1
 STATIC_URL = '/static/'
 SECRET_KEY = 'abc123'
 MIDDLEWARE = [
@@ -60,7 +63,6 @@ TEMPLATES = [
     },
 ]
 
-ROOT_URLCONF = 'urls'
 USE_TZ = True
 
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-LANGUAGE_CODE
@@ -72,7 +74,7 @@ CMS_LANGUAGES = {
         {
             "code": "de",
             "fallbacks": ["en"],
-            "hide_untranslated": True,
+            "hide_untranslated": False,
             "name": "German",
             "public": True,
             "redirect_on_fallback": False,
@@ -80,7 +82,7 @@ CMS_LANGUAGES = {
         {
             "code": "en",
             "fallbacks": ["de"],
-            "hide_untranslated": True,
+            "hide_untranslated": False,
             "name": "English",
             "public": True,
             "redirect_on_fallback": False,
@@ -90,7 +92,7 @@ CMS_LANGUAGES = {
         "fallbacks": [LANGUAGE_CODE],
         "redirect_on_fallback": False,
         "public": True,
-        "hide_untranslated": True,
+        "hide_untranslated": False,
     },
 }
 

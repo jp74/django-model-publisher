@@ -1,5 +1,6 @@
 *.py[cod]
 .cache
+*.sqlite*
 
 # coverage report:
 reports

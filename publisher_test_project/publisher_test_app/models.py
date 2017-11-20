@@ -19,8 +19,13 @@ except ImportError as err:
 class PublisherTestModel(PublisherModel):
     title = models.CharField(max_length=100)
     objects = PublisherManager()
+
     def __str__(self):
         return "<PublisherTestModel pk:%r is_draft:%r title:%r>" % (self.pk, self.is_draft, self.title)
+
+    class Meta(PublisherModel.Meta):
+        verbose_name = "Publisher Test Model"
+        verbose_name_plural = "Publisher Test Model"
 
 
 if parler is not None:

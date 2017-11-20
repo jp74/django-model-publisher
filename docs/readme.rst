@@ -63,6 +63,16 @@ run test via *tox* e.g.:
     or
     $ tox
 
+run test project
+================
+
+::
+
+    $ cd publisher_test_project
+    /publisher_test_project$ ./manage.py migrate
+    /publisher_test_project$ ./manage.py createsuperuser
+    /publisher_test_project$ ./manage.py runserver
+
 -------
 history
 -------

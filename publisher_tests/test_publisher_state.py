@@ -1,6 +1,7 @@
 
 import datetime
 import logging
+import pprint
 import time
 
 from django import test
@@ -55,13 +56,15 @@ class PublisherStateTests(test.TestCase):
     def test_environment(self):
         all_permissions = [
             "%s.%s" % (entry.content_type, entry.codename)
-            for entry in Permission.objects.all()
+            for entry in Permission.objects.all().order_by("content_type", "codename")
         ]
-        self.assertIn("publisher test model.can_publish", all_permissions)
+        pprint.pprint(all_permissions)
+        self.assertIn("Publisher Test Model.can_publish", all_permissions)
+        self.assertIn("Publisher Test Model.can_publish", all_permissions)
 
-        self.assertIn("publisher state model.direct_publisher", all_permissions)
-        self.assertIn("publisher state model.ask_publisher_request", all_permissions)
-        self.assertIn("publisher state model.reply_publisher_request", all_permissions)
+        self.assertIn("Publisher State.direct_publisher", all_permissions)
+        self.assertIn("Publisher State.ask_publisher_request", all_permissions)
+        self.assertIn("Publisher State.reply_publisher_request", all_permissions)
 
         self.assertTrue(
             self.ask_permission_user.has_perm("publisher.ask_publisher_request")

@@ -1,16 +1,20 @@
 import json
 
-from django.contrib.admin import ModelAdmin, SimpleListFilter
-from django.contrib import messages
+from django_tools.template.render import render_template_file
+
+from django import forms
 from django.conf.urls import url
+from django.contrib import admin, messages
+from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
-from django import forms
+
+from publisher.models import PublisherStateModel
 
 
 def make_published(modeladmin, request, queryset):
@@ -344,3 +348,8 @@ class PublisherPublishedFilter(SimpleListFilter):
 
         isnull = not value
         return queryset.filter(publisher_linked__isnull=isnull)
+
+
+@admin.register(PublisherStateModel)
+class PublisherStateModelAdmin(admin.ModelAdmin):
+    pass
