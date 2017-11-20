@@ -12,3 +12,4 @@ wheel
 twine
 aldryn_translation_tools
 django-parler
+django-tools

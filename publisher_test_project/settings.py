@@ -25,7 +25,7 @@ INSTALLED_APPS = (
     'menus', # django-cms will import menu models
 
     'publisher',
-    'myapp',
+    'publisher_test_project.myapp',
 )
 
 STATIC_URL = '/static/'
