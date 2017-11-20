@@ -65,16 +65,23 @@ class TestCommand(distutils.cmd.Command):
         return subprocess.call(['pytest', 'publisher_tests'])
 
 
+#_____________________________________________________________________________
 # convert creole to ReSt on-the-fly, see also:
-# https://code.google.com/p/python-creole/wiki/UseInSetup
-try:
-    from creole.setup_utils import get_long_description
-except ImportError as err:
-    if "check" in sys.argv or "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
-        raise ImportError("%s - Please install python-creole >= v0.8 - e.g.: pip install python-creole" % err)
-    long_description = None
-else:
-    long_description = get_long_description(PACKAGE_ROOT)
+# https://github.com/jedie/python-creole/wiki/Use-In-Setup
+long_description = None
+for arg in ("test", "check", "register", "sdist", "--long-description"):
+    if arg in sys.argv:
+        try:
+            from creole.setup_utils import get_long_description
+        except ImportError as err:
+            raise ImportError("%s - Please install python-creole - e.g.: pip install python-creole" % err)
+        else:
+            long_description = get_long_description(PACKAGE_ROOT)
+        break
+#-----------------------------------------------------------------------------
+
+
+if long_description is not None:
     docs_readme=os.path.join(PACKAGE_ROOT, "docs", "readme.rst")
     if os.path.isfile(docs_readme):
         with open(docs_readme, "w") as f:
