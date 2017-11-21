@@ -4,6 +4,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 
+
 class PublisherForm(forms.ModelForm):
     note = forms.CharField(
         label=_("Note"),
@@ -49,5 +50,11 @@ class PublisherForm(forms.ModelForm):
 
         return data
 
-
+try:
+    from parler.forms import TranslatableModelForm
+except ImportError:
+    pass
+else:
+    class PublisherParlerForm(TranslatableModelForm, PublisherForm):
+        pass
 

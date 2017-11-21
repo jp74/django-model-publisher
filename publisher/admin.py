@@ -2,12 +2,11 @@
 import json
 import logging
 
-from django.contrib.admin.utils import quote
-
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
-from django.core.exceptions import PermissionDenied, ValidationError, FieldError
+from django.contrib.admin.utils import quote
+from django.core.exceptions import FieldError, PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -16,7 +15,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from publisher import constants
-from publisher.forms import PublisherForm
+from publisher.forms import PublisherForm, PublisherParlerForm
 from publisher.models import PublisherStateModel
 
 log = logging.getLogger(__name__)
@@ -88,6 +87,7 @@ class PublisherAdmin(ModelAdmin):
             self.admin_site.name,
             self.url_name_prefix
         )
+        super(PublisherAdmin, self).__init__(model, admin_site)
 
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
@@ -373,7 +373,6 @@ class PublisherAdmin(ModelAdmin):
         context["publisher_states"] = publisher_states
 
         add_reply = self._add_reply_publish_request(request, obj)
-
         if add_reply:
             has_reply_request_permission = self.has_reply_request_permission(request, obj)
             context["has_reply_request_permission"] = has_reply_request_permission
@@ -423,6 +422,7 @@ except ImportError:
     pass
 else:
     class PublisherParlerAdmin(PTranslatableAdmin, PublisherAdmin):
+        form = PublisherParlerForm
         change_form_template = "publisher/parler/change_form.html"
 
         def get_queryset(self, request):
@@ -553,4 +553,3 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         StatusListFilter,
         "action", "state",
     )
-
