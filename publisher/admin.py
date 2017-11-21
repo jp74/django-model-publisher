@@ -371,13 +371,7 @@ class PublisherAdmin(ModelAdmin):
         )
         context["publisher_states"] = publisher_states
 
-        add_ask = self._add_ask_publish_request(request, obj)
         add_reply = self._add_reply_publish_request(request, obj)
-
-        if add_ask:
-            has_ask_request_permission = self.has_ask_request_permission(request, obj)
-            context["has_ask_request_permission"] = has_ask_request_permission
-            context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
 
         if add_reply:
             has_reply_request_permission = self.has_reply_request_permission(request, obj)
@@ -386,7 +380,12 @@ class PublisherAdmin(ModelAdmin):
             context["POST_REPLY_REJECT_KEY"] = constants.POST_REPLY_REJECT_KEY
             current_request = PublisherStateModel.objects.get_current_request(obj)
             context["current_request"] = current_request
-
+        else:
+            add_ask = self._add_ask_publish_request(request, obj)
+            if add_ask:
+                has_ask_request_permission = self.has_ask_request_permission(request, obj)
+                context["has_ask_request_permission"] = has_ask_request_permission
+                context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
 
         return super(PublisherAdmin, self).render_change_form(
             request, context, add, change, form_url, obj=None)
