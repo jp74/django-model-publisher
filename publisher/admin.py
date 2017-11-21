@@ -435,6 +435,27 @@ else:
             return qs
 
 
+class PublisherPublishedFilter(SimpleListFilter):
+    title = _('Published')
+    parameter_name = 'published'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', _('Yes')),
+            ('0', _('No'))
+        )
+
+    def queryset(self, request, queryset):
+        try:
+            value = int(self.value())
+        except TypeError:
+            return queryset
+
+        isnull = not value
+        return queryset.filter(publisher_linked__isnull=isnull)
+
+
+
 class StatusListFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
