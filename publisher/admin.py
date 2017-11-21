@@ -245,7 +245,7 @@ class PublisherAdmin(ModelAdmin):
 
         has_publish_permission=self.has_publish_permission(request, obj)
         if has_publish_permission:
-            # if user can publish: Don't add "ask publish request"
+            log.debug("Don't add 'ask publish request' because user has 'publish' permissions.")
             return False
 
         return self.has_ask_request_permission(request, obj)
