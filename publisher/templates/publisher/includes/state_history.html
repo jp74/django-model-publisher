@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<h2>
+    {% blocktrans %}
+    Publisher History for <a href="{{ original.get_absolute_url }}">{{ original }}</a>:
+    {% endblocktrans %}
+</h2>
+{% if publisher_states %}
+    <table id="publisher_state_history">
+        <tr>
+            <th>{% trans 'time' %}</th>
+            <th>{% trans 'user' %}</th>
+            <th>{% trans 'action/state' %}</th>
+            <th>{% trans 'note' %}</th>
+        </tr>
+    {% for state in publisher_states %}
+        {% if state.response_timestamp %}
+        <tr class="response{% if state.is_open %} open{% endif %}">
+            <td>{{ state.response_timestamp|default_if_none:"-" }}</td>
+            <td>{{ state.response_user|default_if_none:"-" }}</td>
+            <td>{{ state.state_name }}</td>
+            <td>{{ state.response_note|default_if_none:"-"|truncatewords:10 }}</td>
+        </tr>
+        {% endif %}
+        <tr class="request{% if state.is_open %} open{% endif %}">
+            <td>{{ state.request_timestamp }}</td>
+            <td>{{ state.request_user }}</td>
+            <td>{{ state.action_name }}</td>
+            <td>{{ state.request_note|default_if_none:"-"|truncatewords:10 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <p>{% trans 'No changes, yet.' %}</p>
+{% endif %}
+

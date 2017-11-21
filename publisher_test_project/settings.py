@@ -33,6 +33,7 @@ ROOT_URLCONF = 'publisher_test_project.urls'
 SITE_ID=1
 STATIC_URL = '/static/'
 SECRET_KEY = 'abc123'
+ALLOWED_HOSTS=["*"]
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

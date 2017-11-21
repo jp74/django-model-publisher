@@ -1,8 +1,8 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from publisher.managers import PublisherManager
 from publisher.models import PublisherModel
-
 
 try:
     import parler
@@ -19,6 +19,9 @@ except ImportError as err:
 class PublisherTestModel(PublisherModel):
     title = models.CharField(max_length=100)
     objects = PublisherManager()
+
+    def get_absolute_url(self):
+        return reverse("test-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return "<PublisherTestModel pk:%r is_draft:%r title:%r>" % (self.pk, self.is_draft, self.title)

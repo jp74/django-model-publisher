@@ -4,7 +4,11 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.shortcuts import redirect
 
+from publisher_test_project.publisher_test_app.views import PublisherTestDetailView
+
 urlpatterns = [
+    url(r'^test/(?P<pk>[0-9]+)/$', PublisherTestDetailView.as_view(), name='test-detail'),
+
     # redirect root view to admin page:
     url(r'^$', lambda x: redirect("admin:index")),
 ]

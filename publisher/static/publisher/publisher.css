@@ -26,3 +26,11 @@
     overflow: hidden;
     margin: 0;
 }
+
+#publisher_state_history {
+    width: 100%;
+    border: 1px solid;
+}
+#publisher_state_history .open {
+    font-weight: bold;
+}

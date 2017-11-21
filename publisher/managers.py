@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -78,10 +79,21 @@ else:
 
 class PublisherChangeQuerySet(models.QuerySet):
     def filter_open(self):
-        return self.filter(state=self.model.STATE_REQUEST)
+        return self.filter(state=constants.STATE_REQUEST)
 
     def filter_closed(self):
-        return self.exclude(state=self.model.STATE_REQUEST)
+        return self.exclude(state=constants.STATE_REQUEST)
+
+    def filter_by_instance(self, publisher_instance):
+        assert publisher_instance.is_draft
+
+        content_type = ContentType.objects.get_for_model(publisher_instance)
+
+        queryset = self.filter(
+            content_type=content_type,
+            object_id=publisher_instance.pk
+        )
+        return queryset
 
 
 class PublisherChangeManager(models.Manager):
@@ -89,14 +101,12 @@ class PublisherChangeManager(models.Manager):
     def get_queryset(self):
         return PublisherChangeQuerySet(self.model, using=self._db)
 
-    def get_state(self, publisher_instance):
-        queryset = self.all()
-        queryset = queryset.filter(publisher_instance=publisher_instance)
-        instance = queryset.latest()
-        return instance
-
-    ############################################################################
-    # request methods:
+    def get_current_request(self,  publisher_instance):
+        qs = self.all().filter_open().filter_by_instance(
+            publisher_instance=publisher_instance
+        )
+        current_request = qs.latest()
+        return current_request
 
     def _create_request(self, action, user, publisher_instance, note):
         assert action in (constants.ACTION_PUBLISH, constants.ACTION_UNPUBLISH)
@@ -114,6 +124,7 @@ class PublisherChangeManager(models.Manager):
     def request_publishing(self, user, publisher_instance, note=None):
         self.model.has_ask_request_permission(user, raise_exception=True)
 
+        assert publisher_instance.is_draft
         assert publisher_instance.is_dirty
 
         state_instance = self._create_request(
@@ -129,10 +140,11 @@ class PublisherChangeManager(models.Manager):
         self.model.has_ask_request_permission(user, raise_exception=True)
 
         assert publisher_instance.is_published
+        draft = publisher_instance.get_draft_object()
 
         state_instance = self._create_request(
             constants.ACTION_UNPUBLISH,
-            user, publisher_instance, note
+            user, draft, note
         )
 
         # TODO: fire signal: e.g.: handler to mail user

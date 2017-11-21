@@ -19,7 +19,7 @@ from .utils import assert_draft
 
 log = logging.getLogger(__name__)
 
-import cms
+
 class PublisherModelBase(ModelPermissionMixin, models.Model):
     STATE_PUBLISHED = False
     STATE_DRAFT = True
@@ -93,7 +93,12 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
     @property
     def is_published(self):
         """
-        Note: will ignore start/end date!
+        return True if this instance is the published version.
+
+        Note:
+            * It doesn't mean that this draft version has been published!
+            * It will ignore start/end date!
+
         Use self.is_visible() if you want to know if this entry should be publicly accessible.
         """
         return self.publisher_is_draft == self.STATE_PUBLISHED
@@ -331,6 +336,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
     def save(self, **kwargs):
         if self._suppress_modified is False:
+            # FIXME: Will always sets the dirty flag, no matter if really something's changed :(
             self.publisher_modified_at = timezone.now()
 
         super(PublisherModelBase, self).save(**kwargs)
@@ -401,6 +407,8 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
+
+    # Note: It's always the draft version!
     publisher_instance = GenericForeignKey('content_type', 'object_id')
 
     #-------------------------------------------------------------------------
@@ -488,6 +496,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     def save(self, *args, **kwargs):
         if self.publisher_instance is not None:
             assert isinstance(self.publisher_instance, PublisherModel)
+            assert self.publisher_instance.is_draft
 
         # Update timestamps
         if self.state == constants.STATE_REQUEST:
@@ -529,7 +538,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     ############################################################################
     # response methods:
 
-    def accept(self, response_user, response_note):
+    def accept(self, response_user, response_note=None):
         assert self.state == constants.STATE_REQUEST, "%r != %r" % (self.state, constants.STATE_REQUEST)
         assert self.publisher_instance is not None
         assert self.request_user is not None
@@ -543,10 +552,11 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
             # publish
             assert self.publisher_instance.is_draft
             assert self.publisher_instance.is_dirty
-            self.publisher_instance = self.publisher_instance.publish()
+            self.publisher_instance.publish()
         elif self.action == constants.ACTION_UNPUBLISH:
             # unpublish
-            assert self.publisher_instance.is_published
+            published = self.publisher_instance.get_public_object()
+            assert published is not None
             draft = self.publisher_instance.get_draft_object()
             draft.unpublish()
             self.publisher_instance = draft

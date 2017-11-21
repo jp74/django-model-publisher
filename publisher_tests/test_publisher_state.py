@@ -86,6 +86,38 @@ class PublisherStateTests(test.TestCase):
         self.assertGreaterEqual(timestamp, now - datetime.timedelta(seconds=diff))
         self.assertLessEqual(timestamp, now + datetime.timedelta(seconds=diff))
 
+    def test_manager_filters(self):
+        qs = PublisherStateModel.objects.all()
+        qs = qs.filter_by_instance(publisher_instance=self.draft)
+        self.assertEqual(qs.count(), 0)
+        self.assertEqual(qs.filter_open().count(), 0)
+        self.assertEqual(qs.filter_closed().count(), 0)
+
+        state_instance1 = PublisherStateModel.objects.request_publishing(
+            user=self.ask_permission_user,
+            publisher_instance=self.draft,
+        )
+        state_instance1.accept(response_user=self.reply_permission_user)
+
+        self.draft.save()
+        self.assertTrue(self.draft.is_dirty)
+        PublisherStateModel.objects.request_publishing(
+            user=self.ask_permission_user,
+            publisher_instance=self.draft,
+        )
+
+        qs = PublisherStateModel.objects.all()
+        qs = qs.filter_by_instance(publisher_instance=self.draft)
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual(qs.filter_open().count(), 1)
+        self.assertEqual(qs.filter_closed().count(), 1)
+
+        self.assertEqual(
+            repr(qs.values_list("action", "state").order_by("pk")),
+            repr([('publish', 'accepted'), ('publish', 'request')])
+        )
+
+
     def test_ask_request(self):
         self.draft.title = "test_ask_request"
         self.draft.save()
@@ -145,11 +177,14 @@ class PublisherStateTests(test.TestCase):
 
         state_instance = PublisherStateModel.objects.get(pk=state_instance.pk)
 
-        instance = state_instance.publisher_instance
-        self.assertTrue(instance.is_published)
+        draft_version = state_instance.publisher_instance
+        self.assertEqual(draft_version.pk, draft_version.pk)
+
+        published_version = draft_version.get_public_object()
+        self.assertTrue(published_version is not None, "Was not published!")
 
         draft = PublisherTestModel.objects.get(pk=self.draft.pk)
-        self.assertEqual(instance, draft.publisher_linked)
+        self.assertEqual(published_version, draft.publisher_linked)
 
         self.assertEqual(str(state_instance.state_name), "accepted")
         self.assertEqual(str(state_instance.action_name), "publish")

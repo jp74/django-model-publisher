@@ -1,8 +1,16 @@
+from django.forms import widgets
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 
 class PublisherForm(forms.ModelForm):
+    note = forms.CharField(
+        label=_("Note"),
+        widget=widgets.Textarea(),
+        required=False
+    )
+
     def clean(self):
         data = super(PublisherForm, self).clean()
         cleaned_data = self.cleaned_data
@@ -40,3 +48,6 @@ class PublisherForm(forms.ModelForm):
                         [_('This value must be unique.')])
 
         return data
+
+
+

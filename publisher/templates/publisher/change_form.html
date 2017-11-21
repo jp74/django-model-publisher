@@ -6,6 +6,11 @@
 	{% if change %}{% if not is_popup %}
 		<ul class="object-tools">
 			{% block object-tools-items %}
+				{% if has_ask_request_permission and not has_publish_permission %}
+						<li>
+							<a href="{{ publish_btn_live }}">Publish Draft</a>
+						</li>
+                {% endif %}
 				{% if has_publish_permission %}
 					{% if publish_btn_live %}
 						<li>
@@ -32,4 +37,11 @@
 			{% endblock %}
 		</ul>
 	{% endif %}{% endif %}
+{% endblock %}
+
+{% if save_on_top %}{% block submit_buttons_top %}{% include "publisher/includes/submit_row.html" %}{% endblock %}{% endif %}
+
+{% block submit_buttons_bottom %}
+    {% include "publisher/includes/submit_row.html" %}
+    {% include "publisher/includes/state_history.html" %}
 {% endblock %}
