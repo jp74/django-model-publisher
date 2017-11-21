@@ -314,14 +314,15 @@ class PublisherAdmin(ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
 
-        add_ask = self._add_ask_publish_request(request, obj)
         add_reply = self._add_reply_publish_request(request, obj)
 
         fieldset_name = None
         if add_reply:
             fieldset_name = _("reply publishing request")
-        elif add_ask:
-            fieldset_name = _("request publishing")
+        else:
+            add_ask = self._add_ask_publish_request(request, obj)
+            if add_ask:
+                fieldset_name = _("request publishing")
 
         if fieldset_name is not None:
             # made the "note" field visible
