@@ -495,7 +495,12 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.publisher_instance is not None:
-            assert isinstance(self.publisher_instance, PublisherModel)
+            instance = self.publisher_instance
+            if not isinstance(instance, PublisherModelBase):
+                raise AssertionError("%s (class: %r) is not a PublisherModel" % (
+                        repr(instance), instance.__class__.__name__
+                    )
+                )
             assert self.publisher_instance.is_draft
 
         # Update timestamps
