@@ -1,12 +1,14 @@
-from django.conf.urls.i18n import i18n_patterns
-
 import django
 from django.conf.urls import url
-
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
+from django.shortcuts import redirect
 
+urlpatterns = [
+    # redirect root view to admin page:
+    url(r'^$', lambda x: redirect("admin:index")),
+]
 
-urlpatterns = []
 
 if django.VERSION >= (1, 9):
     urlpatterns += i18n_patterns(
