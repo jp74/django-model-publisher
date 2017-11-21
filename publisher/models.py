@@ -348,7 +348,7 @@ class PublisherModel(PublisherModelBase):
     class Meta:
         abstract = True
         permissions = (
-            ('can_publish', 'Can publish'),
+            (constants.PERMISSION_MODEL_CAN_PUBLISH, 'Can publish'),
         )
 
 
