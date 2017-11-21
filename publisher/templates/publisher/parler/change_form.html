@@ -28,3 +28,10 @@
     {% endif %}
 	{{ block.super }}
 {% endblock %}
+
+{% if save_on_top %}{% block submit_buttons_top %}{% include "publisher/includes/submit_row.html" %}{% endblock %}{% endif %}
+
+{% block submit_buttons_bottom %}
+    {% include "publisher/includes/submit_row.html" %}
+    {% include "publisher/includes/state_history.html" %}
+{% endblock %}
