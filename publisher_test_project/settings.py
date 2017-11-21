@@ -103,3 +103,65 @@ LANGUAGES = tuple([(d["code"], d["name"]) for d in CMS_LANGUAGES[1]])
 # http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
 PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
 PARLER_LANGUAGES = CMS_LANGUAGES
+
+
+#_____________________________________________________________________________
+# cut 'pathname' in log output
+
+import logging
+try:
+    old_factory = logging.getLogRecordFactory()
+except AttributeError: # e.g.: Python < v3.2
+    pass
+else:
+    def cut_path(pathname, max_length):
+        if len(pathname)<=max_length:
+            return pathname
+        return "...%s" % pathname[-(max_length-3):]
+
+    def record_factory(*args, **kwargs):
+        record = old_factory(*args, **kwargs)
+        record.pathname = cut_path(record.pathname, 30)
+        return record
+
+    logging.setLogRecordFactory(record_factory)
+
+
+#-----------------------------------------------------------------------------
+
+# tip to get all existing logger names:
+#
+# ./manage.py shell
+#
+# import logging;print("\n".join(sorted(logging.Logger.manager.loggerDict.keys())))
+#
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)8s %(pathname)s:%(lineno)-3s %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'null': {'class': 'logging.NullHandler',},
+        'console': {
+            'class': 'logging.StreamHandler',
+            # 'formatter': 'simple'
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        "publisher": {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        "django_tools": {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
