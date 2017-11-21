@@ -7,7 +7,7 @@ from django.contrib.admin.utils import quote
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError, FieldError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template import loader
@@ -91,7 +91,12 @@ class PublisherAdmin(ModelAdmin):
 
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
-        return request.user.has_perm("%s.can_publish" % opts.app_label)
+        return request.user.has_perm(
+            "%s.%s" % (
+                opts.app_label,
+                constants.PERMISSION_MODEL_CAN_PUBLISH
+            )
+        )
 
     def has_ask_request_permission(self, request, obj=None):
         """

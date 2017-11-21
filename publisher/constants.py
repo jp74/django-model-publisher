@@ -10,6 +10,8 @@ STATE_REJECTED = "rejected"
 STATE_ACCEPTED = "accepted"
 STATE_DONE = "done"
 
+PERMISSION_MODEL_CAN_PUBLISH = "can_publish"
+
 # user permission to publish/unpublish a object directly:
 PERMISSION_DIRECT_PUBLISHER = "direct_publisher"
 

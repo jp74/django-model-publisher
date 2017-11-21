@@ -1,20 +1,18 @@
 import pprint
 import sys
 
+import pytest
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 
 from django_tools.unittest_utils.user import create_user
-
-from django.contrib.auth.models import Permission, Group
-
-import pytest
-from django.contrib.contenttypes.models import ContentType
-from publisher import constants
-from publisher.models import PublisherStateModel
-
-
 # can create un-/publish requests:
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
+
+from publisher import constants
+from publisher.models import PublisherStateModel
 
 REPORTER_USER="reporter"
 REPORTER_GROUP="reporters"
@@ -73,7 +71,6 @@ def create_test_data():
     ]
     pprint.pprint(all_permissions)
 
-
     superuser_qs = User.objects.all().filter(is_superuser=True, is_active=True)
     try:
         superuser = superuser_qs[0]
@@ -99,7 +96,7 @@ def create_test_data():
         username=EDITOR_USER,
         groupname=EDITOR_GROUP,
         permissions=(
-            get_permission(model=PublisherTestModel, codename="can_publish"),
+            get_permission(model=PublisherTestModel, codename=constants.PERMISSION_MODEL_CAN_PUBLISH),
             get_permission(model=PublisherTestModel, codename="add_publishertestmodel"),
             get_permission(model=PublisherTestModel, codename="change_publishertestmodel"),
             get_permission(model=PublisherTestModel, codename="delete_publishertestmodel"),
@@ -108,8 +105,3 @@ def create_test_data():
         encrypted_password=encrypted_password
     )
     return reporter_user, editor_user
-
-
-
-
-
