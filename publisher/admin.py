@@ -245,13 +245,12 @@ class PublisherAdmin(ModelAdmin):
 
     def _add_ask_publish_request(self, request, obj):
 
-        # TODO: Check if request already exists?!?
-        # if obj is not None:
-
-        has_publish_permission=self.has_publish_permission(request, obj)
-        if has_publish_permission:
-            log.debug("Don't add 'ask publish request' because user has 'publish' permissions.")
-            return False
+        if obj is not None:
+            queryset = PublisherStateModel.objects.all()
+            obj_qs = queryset.filter_by_instance(obj)
+            publish_request_qs = obj_qs.filter_open()
+            if publish_request_qs.count() != 0:
+                messages.info(request, _("An open request already exists"))
 
         return self.has_ask_request_permission(request, obj)
 
