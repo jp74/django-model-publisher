@@ -1,7 +1,5 @@
 import json
 
-from django_tools.template.render import render_template_file
-
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin, messages
