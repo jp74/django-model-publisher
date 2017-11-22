@@ -476,19 +476,19 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     @classmethod
     def has_direct_permission(cls, user, raise_exception=True):
         """ user permission to publish/unpublish a object directly """
-        permission = cls.permission_name(action=constants.PERMISSION_DIRECT_PUBLISHER)
+        permission = cls.extra_permission_name(action=constants.PERMISSION_DIRECT_PUBLISHER)
         return check_permission(user, permission, raise_exception)
 
     @classmethod
     def has_ask_request_permission(cls, user, raise_exception=True):
         """ user permission to create a publish/unpublish request """
-        permission = cls.permission_name(action=constants.PERMISSION_ASK_REQUEST)
+        permission = cls.extra_permission_name(action=constants.PERMISSION_ASK_REQUEST)
         return check_permission(user, permission, raise_exception)
 
     @classmethod
     def has_reply_request_permission(cls, user, raise_exception=True):
         """ user permission to accept/reject a publish/unpublish request """
-        permission = cls.permission_name(action=constants.PERMISSION_REPLY_REQUEST)
+        permission = cls.extra_permission_name(action=constants.PERMISSION_REPLY_REQUEST)
         return check_permission(user, permission, raise_exception)
 
     #-------------------------------------------------------------------------
