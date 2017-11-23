@@ -101,7 +101,7 @@ class PublisherChangeManager(models.Manager):
     def get_queryset(self):
         return PublisherChangeQuerySet(self.model, using=self._db)
 
-    def get_current_request(self,  publisher_instance):
+    def get_current_request(self, publisher_instance):
         qs = self.all().filter_open().filter_by_instance(
             publisher_instance=publisher_instance
         )
