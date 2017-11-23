@@ -2,6 +2,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
@@ -516,7 +517,14 @@ class StatusListFilter(admin.SimpleListFilter):
 class PublisherStateModelAdmin(admin.ModelAdmin):
     def view_on_page_link(self, obj):
         publisher_instance = obj.publisher_instance
-        url = publisher_instance.get_absolute_url()
+        try:
+            url = publisher_instance.get_absolute_url()
+        except AttributeError as err:
+            log.error("Can't add 'view on page' link: %s", err)
+            if settings.DEBUG:
+                return '<span title="%s">-</span>' % err
+            else:
+                return "-"
         html = '<a href="{url}">{url}</a>'.format(url=url)
         return html
     view_on_page_link.allow_tags = True
