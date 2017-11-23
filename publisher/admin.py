@@ -517,15 +517,16 @@ class StatusListFilter(admin.SimpleListFilter):
 class PublisherStateModelAdmin(admin.ModelAdmin):
     def view_on_page_link(self, obj):
         publisher_instance = obj.publisher_instance
+        txt = str(publisher_instance)
         try:
             url = publisher_instance.get_absolute_url()
         except AttributeError as err:
             log.error("Can't add 'view on page' link: %s", err)
             if settings.DEBUG:
-                return '<span title="%s">-</span>' % err
+                return '<span title="{err}">{txt}</span>'.format(err=err, txt=txt)
             else:
                 return "-"
-        html = '<a href="{url}">{url}</a>'.format(url=url)
+        html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
         return html
     view_on_page_link.allow_tags = True
     view_on_page_link.short_description = _("view on page")
@@ -553,9 +554,9 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
     list_display = (
         "request_timestamp",
         "change_link",
-        "request_user", "action_name",
-        "response_user", "state_name",
-        "publisher_instance", "view_on_page_link",
+        "request_user",
+        # "action_name", "response_user", "state_name",
+        "view_on_page_link",
     )
     list_filter = (
         StatusListFilter,
