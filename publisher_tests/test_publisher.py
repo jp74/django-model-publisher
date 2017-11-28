@@ -7,7 +7,6 @@ from django.utils import timezone
 from mock import MagicMock
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
-from publisher.middleware import PublisherMiddleware, get_draft_status
 from publisher.signals import publisher_post_publish, publisher_post_unpublish
 from publisher.utils import NotDraftException
 
@@ -21,7 +20,7 @@ class PublisherTest(test.TestCase):
 
     def test_new_models_are_draft(self):
         instance = PublisherTestModel(title='Test model')
-        self.assertTrue(instance.is_draft)
+        self.assertTrue(instance.publisher_is_draft)
 
     def test_editing_a_record_does_not_create_a_duplicate(self):
         instance = PublisherTestModel.objects.create(title='Test model')
@@ -223,104 +222,10 @@ class PublisherTest(test.TestCase):
         self.assertEqual(self.signal_sender, PublisherTestModel)
         self.assertEqual(self.signal_instance, instance)
 
-    def test_middleware_detects_published_when_logged_out(self):
-
-        class MockUser(object):
-            is_staff = False
-
-            def is_authenticated(self):
-                return False
-
-        class MockRequest(object):
-            user = MockUser()
-            GET = {'edit': '1'}
-
-        mock_request = MockRequest()
-        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
-
-    def test_middleware_detects_published_when_user_edit_parameter_is_missing(self):
-
-        class MockUser(object):
-            is_staff = True
-
-            def is_authenticated(self):
-                return True
-
-        class MockRequest(object):
-            user = MockUser()
-            GET = {}
-
-        mock_request = MockRequest()
-        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
-
-    def test_middleware_detects_published_when_user_is_not_staff(self):
-
-        class MockUser(object):
-            is_staff = False
-
-            def is_authenticated(self):
-                return True
-
-        class MockRequest(object):
-            user = MockUser()
-            GET = {'edit': '1'}
-
-        mock_request = MockRequest()
-        self.assertFalse(PublisherMiddleware.is_draft(mock_request))
-
-    def test_middleware_detects_draft_when_user_is_staff_and_edit_parameter_is_present(self):
-
-        class MockUser(object):
-            is_staff = True
-
-            def is_authenticated(self):
-                return True
-
-        class MockRequest(object):
-            user = MockUser()
-            GET = {'edit': '1'}
-
-        mock_request = MockRequest()
-        self.assertTrue(PublisherMiddleware.is_draft(mock_request))
-
-    def test_middleware_get_draft_status_shortcut_defaults_to_false(self):
-        self.assertFalse(get_draft_status())
-
-    def test_middleware_get_draft_status_shortcut_returns_true_in_draft_mode(self):
-        # Mock the request process to initialise the middleware, but force the middleware to go in
-        # draft mode.
-        middleware = PublisherMiddleware()
-        middleware.is_draft = MagicMock(return_value=True)
-        middleware.process_request(None)
-        draft_status = get_draft_status()
-        PublisherMiddleware.process_response(None, None)
-
-        self.assertTrue(draft_status)
-
-    def test_middleware_get_draft_status_shortcut_does_not_change_draft_status(self):
-        # The get_draft_status() shortcut shouldn't change the value returned by
-        # PublisherMiddleware.get_draft_status().
-        middleware = PublisherMiddleware()
-        middleware.is_draft = MagicMock(return_value=True)
-        middleware.process_request(None)
-        expected_draft_status = PublisherMiddleware.get_draft_status()
-        draft_status = get_draft_status()
-        PublisherMiddleware.process_response(None, None)
-
-        self.assertTrue(expected_draft_status, draft_status)
-
-    def test_middleware_forgets_current_draft_status_after_request(self):
-        middleware = PublisherMiddleware()
-        middleware.is_draft = MagicMock(return_value=True)
-        middleware.process_request(None)
-        PublisherMiddleware.process_response(None, None)
-
-        self.assertFalse(get_draft_status())
-
     def test_model_properties(self):
         draft_obj = PublisherTestModel.objects.create(title="one")
 
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False)
         self.assertEqual(draft_obj.is_dirty, True)
         self.assertEqual(draft_obj.get_draft_object(), draft_obj)
@@ -329,7 +234,7 @@ class PublisherTest(test.TestCase):
         publish_obj = draft_obj.publish()
 
         self.assertEqual(publish_obj.title, "one")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_dirty, False)
         self.assertEqual(publish_obj.get_draft_object(), draft_obj)
@@ -339,7 +244,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(draft_obj.get_public_object(), publish_obj)
 
         self.assertEqual(draft_obj.title, "one")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)
 
@@ -347,24 +252,24 @@ class PublisherTest(test.TestCase):
         draft_obj.save()
 
         self.assertEqual(publish_obj.title, "one")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_dirty, False) # FIXME: Should this not be True ?!?
 
         self.assertEqual(draft_obj.title, "two")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, True)
 
         publish_obj = draft_obj.publish()
 
         self.assertEqual(publish_obj.title, "two")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_dirty, False)
 
         self.assertEqual(draft_obj.title, "two")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)
 
@@ -407,7 +312,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(draft.publication_start_date, tomorrow)
 
         # Check model instance
-        obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
+        obj = PublisherTestModel.objects.filter(publisher_is_draft=False)[0]
         self.assertEqual(obj.publication_start_date, tomorrow)
         self.assertEqual(obj.publication_end_date, None)
         self.assertEqual(obj.is_published, True)
@@ -478,7 +383,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(draft.publication_end_date, yesterday)
 
         # Check model instance
-        obj = PublisherTestModel.objects.filter(publisher_is_draft=PublisherTestModel.STATE_PUBLISHED)[0]
+        obj = PublisherTestModel.objects.filter(publisher_is_draft=False)[0]
         self.assertEqual(obj.publication_start_date, None)
         self.assertEqual(obj.publication_end_date, yesterday)
         self.assertEqual(obj.is_published, True)

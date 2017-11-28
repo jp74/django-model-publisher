@@ -5,8 +5,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from publisher import constants
+from rest_framework.reverse import reverse
 
-from .middleware import get_draft_status
 from .signal_handlers import publisher_post_save, publisher_pre_delete
 
 log = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 class PublisherQuerySet(models.QuerySet):
     def drafts(self):
         from .models import PublisherModelBase
-        return self.filter(publisher_is_draft=PublisherModelBase.STATE_DRAFT)
+        return self.filter(publisher_is_draft=True)
 
     def published(self):
         """
@@ -24,7 +24,7 @@ class PublisherQuerySet(models.QuerySet):
         """
         from .models import PublisherModelBase
         return self.filter(
-            publisher_is_draft=PublisherModelBase.STATE_PUBLISHED,
+            publisher_is_draft=False,
         )
 
     def visible(self):
@@ -35,7 +35,7 @@ class PublisherQuerySet(models.QuerySet):
         return self.filter(
             Q(publication_start_date__isnull=True) | Q(publication_start_date__lte=timezone.now()),
             Q(publication_end_date__isnull=True) | Q(publication_end_date__gt=timezone.now()),
-            publisher_is_draft=PublisherModelBase.STATE_PUBLISHED,
+            publisher_is_draft=False,
         )
 
 
@@ -51,12 +51,6 @@ class BasePublisherManager(models.Manager):
 
         # log.debug("Add 'publisher_post_save' signal handler to %s", repr(model))
         # models.signals.post_save.connect(publisher_post_save, model)
-
-
-    def current(self):
-        if get_draft_status():
-            return self.drafts()
-        return self.published()
 
 
 PublisherManager = BasePublisherManager.from_queryset(PublisherQuerySet)
@@ -85,7 +79,7 @@ class PublisherChangeQuerySet(models.QuerySet):
         return self.exclude(state=constants.STATE_REQUEST)
 
     def filter_by_instance(self, publisher_instance):
-        assert publisher_instance.is_draft
+        assert publisher_instance.publisher_is_draft
 
         content_type = ContentType.objects.get_for_model(publisher_instance)
 
@@ -101,10 +95,16 @@ class PublisherChangeManager(models.Manager):
     def get_queryset(self):
         return PublisherChangeQuerySet(self.model, using=self._db)
 
-    def get_current_request(self, publisher_instance):
-        qs = self.all().filter_open().filter_by_instance(
+    def get_open_requests(self, publisher_instance):
+        return self.all().filter_open().filter_by_instance(
             publisher_instance=publisher_instance
         )
+
+    def has_open_requests(self, publisher_instance):
+        return self.get_open_requests(publisher_instance).exists()
+
+    def get_current_request(self, publisher_instance):
+        qs = self.get_open_requests(publisher_instance)
         current_request = qs.latest()
         return current_request
 
@@ -124,7 +124,7 @@ class PublisherChangeManager(models.Manager):
     def request_publishing(self, user, publisher_instance, note=None):
         self.model.has_ask_request_permission(user, raise_exception=True)
 
-        assert publisher_instance.is_draft
+        assert publisher_instance.publisher_is_draft
         assert publisher_instance.is_dirty
 
         state_instance = self._create_request(
@@ -151,4 +151,59 @@ class PublisherChangeManager(models.Manager):
 
         return state_instance
 
+    def _admin_url(self, obj, viewname):
+        object_id = obj.pk
+        content_type = ContentType.objects.get_for_model(obj)
+        content_type_id = content_type.pk
+        url = reverse(viewname,
+            kwargs={
+                "content_type_id": content_type_id,
+                "object_id": object_id,
+            }
+        )
+        return url
 
+    def admin_request_publish_url(self, obj):
+        return self._admin_url(obj=obj,
+            # publisher.admin.PublisherStateModelAdmin.get_urls()
+            viewname="admin:publisher_publisherstatemodel_request_publish",
+        )
+
+    def admin_request_unpublish_url(self, obj):
+        return self._admin_url(obj=obj,
+            # publisher.admin.PublisherStateModelAdmin.get_urls()
+            viewname="admin:publisher_publisherstatemodel_request_unpublish",
+        )
+
+
+
+class PageProxyManager(PublisherManager):
+    def request_publishing(self, user, page, note=None):
+        assert page.publisher_is_draft==True
+
+        proxy_instance = self.model()
+        proxy_instance.page = page
+        proxy_instance.save()
+
+        from publisher.models import PublisherStateModel
+        state_instance = PublisherStateModel.objects.request_publishing(
+            user=user,
+            publisher_instance=proxy_instance,
+            note=note
+        )
+        return state_instance
+
+    def request_unpublishing(self, user, page, note=None):
+        assert page.publisher_is_draft==True
+
+        proxy_instance = self.model()
+        proxy_instance.page = page
+        proxy_instance.save()
+
+        from publisher.models import PublisherStateModel
+        state_instance = PublisherStateModel.objects.request_unpublishing(
+            user=user,
+            publisher_instance=proxy_instance,
+            note=note
+        )
+        return state_instance

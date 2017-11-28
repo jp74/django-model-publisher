@@ -141,7 +141,7 @@ class PublisherStateTests(test.TestCase):
         self.assertTrue(state_instance.is_open)
 
         self.assertEqual(state_instance.publisher_instance, self.draft)
-        self.assertTrue(state_instance.publisher_instance.is_draft)
+        self.assertTrue(state_instance.publisher_instance.publisher_is_draft)
 
         self.assert_timestamp(state_instance.request_timestamp)
         self.assertEqual(state_instance.request_user, self.ask_permission_user)
@@ -283,7 +283,7 @@ class PublisherStateTests(test.TestCase):
         state_instance = PublisherStateModel.objects.get(pk=state_instance.pk)
 
         instance = state_instance.publisher_instance
-        self.assertTrue(instance.is_draft)
+        self.assertTrue(instance.publisher_is_draft)
 
         draft = PublisherTestModel.objects.get(pk=self.draft.pk)
         self.assertEqual(draft.publisher_linked, None)

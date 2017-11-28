@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}{{ block.super}}
+    <li><a href="{{ original.get_absolute_url }}" class="viewsitelink">{% trans "View Product on site" %}</a></li>
+    <li><a href="{{ original.change_url }}" class="viewsitelink">{% trans "Edit Product" %}</a></li>
+{% endblock %}
+
+{% block field_sets %}
+    {{ form }}
+{% endblock field_sets %}
+
+{% block submit_buttons_bottom %}
+    {% include "publisher/includes/submit_row.html" %}
+    {% include "publisher/includes/state_history.html" %}
+{% endblock %}

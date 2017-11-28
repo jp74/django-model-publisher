@@ -17,12 +17,14 @@ PERMISSION_DIRECT_PUBLISHER = "direct_publisher"
 
 # user permission to create a publish/unpublish request:
 PERMISSION_ASK_REQUEST = "ask_publisher_request"
-POST_ASK_PUBLISH_KEY = "_ask_publishing" # request form submit name
 
 # user permission to accept/reject a publish/unpublish request:
 PERMISSION_REPLY_REQUEST = "reply_publisher_request"
 
-# request form submit names:
+# request publish/unpublish submit names:
+POST_ASK_KEY = "_ask"
+
+# reply publish/unpublish submit names:
 POST_REPLY_REJECT_KEY = "_reply_reject"
 POST_REPLY_ACCEPT_KEY = "_reply_accept"
 

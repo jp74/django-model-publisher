@@ -1,0 +1,14 @@
+{% extends "admin/publisher_cms/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}{{ block.super}}
+{% endblock %}
+
+{% block field_sets %}
+    <h1>{% trans "Request Publishing" %}</h1>
+    {{ block.super}}
+{% endblock field_sets %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super}}
+{% endblock %}

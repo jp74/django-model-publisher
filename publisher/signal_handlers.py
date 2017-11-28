@@ -11,7 +11,7 @@ def publisher_pre_delete(sender, **kwargs):
         return
 
     # If the draft record is deleted, the published object should be as well
-    if instance.is_draft and instance.publisher_linked:
+    if instance.publisher_is_draft and instance.publisher_linked:
         instance.unpublish()
 
 
@@ -49,7 +49,7 @@ def publisher_post_save(sender, **kwargs):
             if not isinstance(publisher_instance, PublisherModelBase):
                 continue
 
-            if not publisher_instance.is_draft:
+            if not publisher_instance.publisher_is_draft:
                 # log.debug("Skip: not draft")
                 continue
 

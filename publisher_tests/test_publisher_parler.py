@@ -156,7 +156,7 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
     def test_model_properties(self):
         draft_obj = PublisherParlerAutoSlugifyTestModel.objects.create(title="one")
 
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False)
         self.assertEqual(draft_obj.is_visible, False)
         self.assertEqual(draft_obj.is_dirty, True)
@@ -164,13 +164,13 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         publish_obj = draft_obj.publish()
 
         self.assertEqual(publish_obj.title, "one")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False)
 
         self.assertEqual(draft_obj.title, "one")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)
@@ -179,13 +179,13 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         draft_obj.save()
 
         self.assertEqual(publish_obj.title, "one")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False) # FIXME: Should this not be True ?!?
 
         self.assertEqual(draft_obj.title, "two")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, True)
@@ -193,13 +193,13 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
         publish_obj = draft_obj.publish()
 
         self.assertEqual(publish_obj.title, "two")
-        self.assertEqual(publish_obj.is_draft, False)
+        self.assertEqual(publish_obj.publisher_is_draft, False)
         self.assertEqual(publish_obj.is_published, True)
         self.assertEqual(publish_obj.is_visible, True)
         self.assertEqual(publish_obj.is_dirty, False)
 
         self.assertEqual(draft_obj.title, "two")
-        self.assertEqual(draft_obj.is_draft, True)
+        self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_dirty, False)

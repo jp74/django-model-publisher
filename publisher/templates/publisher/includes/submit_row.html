@@ -1,22 +1,33 @@
 {% load i18n admin_static admin_modify admin_urls %}
 
 {% if has_ask_request_permission or has_reply_request_permission %}
-{% if current_request %}
-    <p>
-        {% with action=current_request.action_name user=current_request.request_user.username time=current_request.request_timestamp %}
-        {% blocktrans %}
-            {{ action }} request from user '{{ user }}' ({{ time }})
-        {% endblocktrans %}
-        {% endwith %}
-    </p>
-    <p>{% trans 'Note:' %}</p>
-    <pre>{{ current_request.request_note|default_if_none:"-" }}</pre>
-{% endif %}
-<div class="submit-row">
-    {% if POST_ASK_PUBLISH_KEY %}<input type="submit" value="{% trans 'Request Publishing' %}" class="default" name="{{ POST_ASK_PUBLISH_KEY }}" />{% endif %}
-    {% if POST_REPLY_ACCEPT_KEY %}<input type="submit" value="{% trans 'Accept and Publish' %}" class="default" name="{{ POST_REPLY_ACCEPT_KEY }}" />{% endif %}
-    {% if POST_REPLY_REJECT_KEY %}<input type="submit" value="{% trans 'Reject publish request' %}" class="default" name="{{ POST_REPLY_REJECT_KEY }}" />{% endif %}
-</div>
-{% endif %}
+    {% if current_request %}
+        <p>{{ current_request }}</p>
+        <p>{% trans "Request time:" %} {{ current_request.request_timestamp }}</p>
+        <p>{% trans 'Note:' %}
+            <pre>{{ current_request.request_note|default_if_none:"-" }}</pre>
+        </p>
+    {% endif %}
 
-{% submit_row %}
+    <div class="submit-row">
+    {% if POST_ASK_KEY %}
+
+        {% if action == "publish" %}{# see publisher/constants.ACTION_PUBLISH #}
+            <input type="submit" value="{% trans 'Request Publishing' %}" class="default" name="{{ POST_ASK_KEY }}" />
+        {% elif action == "unpublish" %}{# see publisher/constants.ACTION_UNPUBLISH #}
+            <input type="submit" value="{% trans 'Request Unpublishing' %}" class="default" name="{{ POST_ASK_KEY }}" />
+        {% endif %}
+
+    {% elif POST_REPLY_ACCEPT_KEY and POST_REPLY_REJECT_KEY %}
+
+        {% if action == "publish" %}{# see publisher/constants.ACTION_PUBLISH #}
+            <input type="submit" value="{% trans 'Accept and Publish' %}" class="default" name="{{ POST_REPLY_ACCEPT_KEY }}" />
+            <input type="submit" value="{% trans 'Reject Publish request' %}" class="default" name="{{ POST_REPLY_REJECT_KEY }}" />
+        {% elif action == "unpublish" %}{# see publisher/constants.ACTION_UNPUBLISH #}
+            <input type="submit" value="{% trans 'Accept and Unpublish' %}" class="default" name="{{ POST_REPLY_ACCEPT_KEY }}" />
+            <input type="submit" value="{% trans 'Reject Unpublish request' %}" class="default" name="{{ POST_REPLY_REJECT_KEY }}" />
+        {% endif %}
+
+    {% endif %}
+    </div>
+{% endif %}

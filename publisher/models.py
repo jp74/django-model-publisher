@@ -4,40 +4,43 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import truncatewords
-from django.utils import timezone, six
+from django.utils import six, timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
+
+# https://github.com/jedie/django-tools
 from django_tools.permissions import ModelPermissionMixin, check_permission
 
 from . import constants
-from .managers import PublisherManager, PublisherChangeManager
-from .signals import (publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
-                      publisher_publish_pre_save_draft)
+from .managers import PageProxyManager, PublisherChangeManager, PublisherManager
+from .signals import (
+    publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
+    publisher_publish_pre_save_draft
+)
 from .utils import assert_draft
 
 log = logging.getLogger(__name__)
 
+try:
+    from cms.models import Page
+except ImportError:
+    Page=None
+
 
 class PublisherModelBase(ModelPermissionMixin, models.Model):
-    STATE_PUBLISHED = False
-    STATE_DRAFT = True
-
     publisher_linked = models.OneToOneField(
         'self',
         related_name='publisher_draft',
         null=True,
         editable=False,
         on_delete=models.SET_NULL)
-    publisher_is_draft = models.BooleanField(
-        default=STATE_DRAFT,
-        editable=False,
-        db_index=True)
-    publisher_modified_at = models.DateTimeField(
-        default=timezone.now,
-        editable=False)
+    publisher_is_draft = models.BooleanField(default=True, editable=False, db_index=True)
 
+    publisher_modified_at = models.DateTimeField(default=timezone.now, editable=False)
     publisher_published_at = models.DateTimeField(null=True, editable=False)
 
     publication_start_date = models.DateTimeField(
@@ -77,18 +80,14 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
         abstract = True
 
     def get_draft_object(self):
-        if not self.publisher_is_draft == self.STATE_DRAFT:
+        if not self.publisher_is_draft == True:
             return self.publisher_draft
         return self
 
     def get_public_object(self):
-        if self.publisher_is_draft == self.STATE_PUBLISHED:
+        if self.publisher_is_draft == False:
             return self
         return self.publisher_linked
-
-    @property
-    def is_draft(self):
-        return self.publisher_is_draft == self.STATE_DRAFT
 
     @property
     def is_published(self):
@@ -101,7 +100,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
         Use self.is_visible() if you want to know if this entry should be publicly accessible.
         """
-        return self.publisher_is_draft == self.STATE_PUBLISHED
+        return self.publisher_is_draft == False
 
     @property
     def hidden_by_end_date(self):
@@ -124,7 +123,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
     @property
     def is_dirty(self):
-        if not self.is_draft:
+        if self.publisher_is_draft == False: # published versions are never dirty
             return False
 
         # If the record has not been published assume dirty
@@ -145,7 +144,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
     @assert_draft
     def publish(self):
-        if not self.is_draft:
+        if self.publisher_is_draft == False:
             log.info("Don't publish %s because it's not the daft version!", self)
             return self
 
@@ -175,7 +174,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
         publish_obj = self.__class__.objects.get(pk=self.pk)
         for fld in self.publisher_publish_empty_fields:
             setattr(publish_obj, fld, None)
-        publish_obj.publisher_is_draft = self.STATE_PUBLISHED
+        publish_obj.publisher_is_draft = False
         publish_obj.publisher_published_at = draft_obj.publisher_published_at
 
         # Link the published obj to the draft version
@@ -223,7 +222,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
     @assert_draft
     def unpublish(self):
-        if not self.is_draft or not self.publisher_linked:
+        if self.publisher_is_draft == False or not self.publisher_linked:
             return
 
         publisher_pre_unpublish.send(sender=self.__class__, instance=self)
@@ -256,7 +255,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
         draft_obj = publish_obj
         publish_obj = None
 
-        draft_obj.publisher_is_draft = draft_obj.STATE_DRAFT
+        draft_obj.publisher_is_draft = True
         draft_obj.save()
         draft_obj.publish()
 
@@ -376,7 +375,7 @@ else:
                 The slug must be only unique for drafts
                 """
                 qs = super(PublisherParlerAutoSlugifyModel, self)._get_slug_queryset()
-                qs = qs.filter(publisher_is_draft=PublisherModelBase.STATE_DRAFT)
+                qs = qs.filter(publisher_is_draft=True)
                 return qs
 
             def save(self, **kwargs):
@@ -496,12 +495,13 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     def save(self, *args, **kwargs):
         if self.publisher_instance is not None:
             instance = self.publisher_instance
-            if not isinstance(instance, PublisherModelBase):
-                raise AssertionError("%s (class: %r) is not a PublisherModel" % (
-                        repr(instance), instance.__class__.__name__
+            try:
+                assert instance.publisher_is_draft == True
+            except AttributeError as err:
+                raise AssertionError("%s: %s (class: %r) is not a PublisherModel" % (
+                        err, repr(instance), instance.__class__.__name__
                     )
                 )
-            assert self.publisher_instance.is_draft
 
         # Update timestamps
         if self.state == constants.STATE_REQUEST:
@@ -540,6 +540,13 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
         return " ".join([six.text_type(s) for s in txt])
 
+    def admin_reply_url(self):
+        url = reverse(
+            "admin:publisher_publisherstatemodel_reply_request",
+            kwargs={'pk': self.pk}
+        )
+        return url
+
     ############################################################################
     # response methods:
 
@@ -555,16 +562,35 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
         if self.action == constants.ACTION_PUBLISH:
             # publish
-            assert self.publisher_instance.is_draft
+            assert self.publisher_instance.publisher_is_draft==True
             assert self.publisher_instance.is_dirty
-            self.publisher_instance.publish()
+
+            if Page is not None and isinstance(self.publisher_instance, Page):
+                log.debug("Publish cms page %s", self.publisher_instance)
+
+                languages = self.publisher_instance.title_set.values_list("language", flat=True)
+                for language in languages:
+                    log.debug("Publish cms page in language %s", language)
+                    self.publisher_instance.publish(language=language)
+            else:
+                self.publisher_instance.publish()
+
         elif self.action == constants.ACTION_UNPUBLISH:
             # unpublish
-            published = self.publisher_instance.get_public_object()
-            assert published is not None
-            draft = self.publisher_instance.get_draft_object()
-            draft.unpublish()
-            self.publisher_instance = draft
+
+            if Page is not None and isinstance(self.publisher_instance, Page):
+                log.debug("Unpublish cms page %s", self.publisher_instance)
+
+                languages = self.publisher_instance.title_set.values_list("language", flat=True)
+                for language in languages:
+                    log.debug("Unpublish cms page in language %s", language)
+                    self.publisher_instance.unpublish(language=language)
+            else:
+
+                published = self.publisher_instance.get_public_object()
+                assert published is not None
+                draft = self.publisher_instance.get_draft_object()
+                draft.unpublish()
         else:
             raise ValidationError("Unknown action: %r !" % self.action)
 

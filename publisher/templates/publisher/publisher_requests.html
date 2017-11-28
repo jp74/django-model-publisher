@@ -1,0 +1,32 @@
+{% extends "admin/publisher_cms/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}{{ block.super}}
+{% endblock %}
+
+{% block field_sets %}
+    {% if POST_ASK_KEY %}
+
+        {% if action == "publish" %}{# see publisher/constants.ACTION_PUBLISH #}
+            <h1>{% trans 'Request Publishing' %}</h1>
+        {% elif action == "unpublish" %}{# see publisher/constants.ACTION_UNPUBLISH #}
+            <h1>{% trans 'Request Unpublishing' %}</h1>
+        {% endif %}
+
+    {% elif POST_REPLY_ACCEPT_KEY and POST_REPLY_REJECT_KEY %}
+
+        {% if action == "publish" %}{# see publisher/constants.ACTION_PUBLISH #}
+            <h1>{% trans 'Accept/Reject Publish Request' %}</h1>
+        {% elif action == "unpublish" %}{# see publisher/constants.ACTION_UNPUBLISH #}
+            <h1>{% trans 'Accept/Reject Unpublish Pequest' %}</h1>
+        {% endif %}
+
+    {% endif %}
+    {{ current_state.publisher_instance }}
+    {{ current_state.publisher_instance.get_absolute_url }}
+    {{ block.super}}
+{% endblock field_sets %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super}}
+{% endblock %}

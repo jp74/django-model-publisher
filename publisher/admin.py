@@ -7,19 +7,26 @@ from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.contrib.admin.utils import quote
-from django.core.exceptions import FieldError, PermissionDenied, ValidationError
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldError, PermissionDenied, ValidationError, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import loader
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from publisher import constants
-from publisher.forms import PublisherForm, PublisherParlerForm
+from publisher.forms import PublisherForm, PublisherParlerForm, PublisherNoteForm
 from publisher.models import PublisherStateModel
 
 log = logging.getLogger(__name__)
+
+try:
+    import cms
+except ImportError:
+    cms = None
 
 
 def make_published(modeladmin, request, queryset):
@@ -42,6 +49,13 @@ def http_json_response(data):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 
+class PendingPublishRequest(PermissionError):
+    """
+    User without publish permission will edit a object with open publish requests
+    """
+    pass
+
+
 class PublisherAdmin(ModelAdmin):
     form = PublisherForm
     change_form_template = "publisher/change_form.html"
@@ -50,7 +64,7 @@ class PublisherAdmin(ModelAdmin):
     # actions = (make_published, make_unpublished, )
     list_display = (
         "publisher_object_title",
-        "is_dirty", "is_draft",
+        "is_dirty",
         "publisher_publish", "publisher_status",
     )
     url_name_prefix = None
@@ -89,6 +103,19 @@ class PublisherAdmin(ModelAdmin):
             self.url_name_prefix
         )
         super(PublisherAdmin, self).__init__(model, admin_site)
+
+    def changeform_view(self, request, *args, **kwargs):
+        try:
+            return super(PublisherAdmin, self).changeform_view(request, *args, **kwargs)
+        except PendingPublishRequest:
+            messages.error(request, _("You can't edit this, because a publish request is pending!"))
+            return HttpResponseRedirect(reverse(self.changelist_reverse))
+
+    def has_change_permission(self, request, obj=None):
+        has_change_permission = super(PublisherAdmin, self).has_change_permission(request, obj=obj)
+        if has_change_permission and obj is not None:
+            log.debug("+++ edit %s", obj)
+        return has_change_permission
 
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
@@ -145,7 +172,7 @@ class PublisherAdmin(ModelAdmin):
         template_name = "publisher/change_list_publish.html"
 
         is_published = False
-        if obj.publisher_linked and obj.is_draft:
+        if obj.publisher_linked and obj.publisher_is_draft:
             is_published = True
 
         t = loader.get_template(template_name)
@@ -244,24 +271,19 @@ class PublisherAdmin(ModelAdmin):
 
         return http_json_response({"success": True})
 
-    def _add_ask_publish_request(self, request, obj):
-
+    def _add_ask_publish_publisher_request(self, request, obj):
         if obj is not None:
-            queryset = PublisherStateModel.objects.all()
-            obj_qs = queryset.filter_by_instance(obj)
-            publish_request_qs = obj_qs.filter_open()
-            if publish_request_qs.count() != 0:
-                messages.info(request, _("An open request already exists"))
+            has_open_requests = PublisherStateModel.objects.has_open_requests(obj)
+            if has_open_requests:
+                raise PendingPublishRequest
 
         return self.has_ask_request_permission(request, obj)
 
-    def _add_reply_publish_request(self, request, obj):
+    def _add_reply_publish_publisher_request(self, request, obj):
 
         if obj is not None:
-            queryset = PublisherStateModel.objects.all()
-            obj_qs = queryset.filter_by_instance(obj)
-            publish_request_qs = obj_qs.filter_open()
-            if publish_request_qs.count() == 0:
+            has_open_requests = PublisherStateModel.objects.has_open_requests(obj)
+            if not has_open_requests:
                 log.debug("Hide 'reply publish request' because there is no request!")
                 return False
 
@@ -284,7 +306,7 @@ class PublisherAdmin(ModelAdmin):
 
     def post_reply_reject(self, request, obj, form):
         note = form.cleaned_data["note"]
-        current_state = PublisherStateModel.objects.get_current_request(obj)
+        current_state = PublisherStateModel.objects.get_current_publisher_request(obj)
         current_state.reject(
             response_user=request.user,
             response_note=note,
@@ -294,7 +316,7 @@ class PublisherAdmin(ModelAdmin):
 
     def post_reply_accept(self, request, obj, form):
         note = form.cleaned_data["note"]
-        current_state = PublisherStateModel.objects.get_current_request(obj)
+        current_state = PublisherStateModel.objects.get_current_publisher_request(obj)
         current_state.accept(
             response_user=request.user,
             response_note=note,
@@ -315,13 +337,13 @@ class PublisherAdmin(ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
 
-        add_reply = self._add_reply_publish_request(request, obj)
+        add_reply = self._add_reply_publish_publisher_request(request, obj)
 
         fieldset_name = None
         if add_reply:
             fieldset_name = _("reply publishing request")
         else:
-            add_ask = self._add_ask_publish_request(request, obj)
+            add_ask = self._add_ask_publish_publisher_request(request, obj)
             if add_ask:
                 fieldset_name = _("request publishing")
 
@@ -352,7 +374,7 @@ class PublisherAdmin(ModelAdmin):
                 preview_draft_btn = True
 
             unpublish_btn = None
-            if obj.is_draft and obj.publisher_linked:
+            if obj.publisher_is_draft and obj.publisher_linked:
                 unpublish_btn = reverse(self.unpublish_reverse, args=(obj.pk, ))
 
             revert_btn = None
@@ -373,16 +395,16 @@ class PublisherAdmin(ModelAdmin):
         )
         context["publisher_states"] = publisher_states
 
-        add_reply = self._add_reply_publish_request(request, obj)
+        add_reply = self._add_reply_publish_publisher_request(request, obj)
         if add_reply:
             has_reply_request_permission = self.has_reply_request_permission(request, obj)
             context["has_reply_request_permission"] = has_reply_request_permission
             context["POST_REPLY_ACCEPT_KEY"] = constants.POST_REPLY_ACCEPT_KEY
             context["POST_REPLY_REJECT_KEY"] = constants.POST_REPLY_REJECT_KEY
-            current_request = PublisherStateModel.objects.get_current_request(obj)
+            current_request = PublisherStateModel.objects.get_current_publisher_request(obj)
             context["current_request"] = current_request
         else:
-            add_ask = self._add_ask_publish_request(request, obj)
+            add_ask = self._add_ask_publish_publisher_request(request, obj)
             if add_ask:
                 has_ask_request_permission = self.has_ask_request_permission(request, obj)
                 context["has_ask_request_permission"] = has_ask_request_permission
@@ -515,6 +537,179 @@ class StatusListFilter(admin.SimpleListFilter):
 
 @admin.register(PublisherStateModel)
 class PublisherStateModelAdmin(admin.ModelAdmin):
+    request_publish_page_template = "publisher/publisher_requests.html"
+
+    def get_urls(self):
+        info = "%s_%s" % (self.model._meta.app_label, self.model._meta.model_name) # => "publisher_publisherstatemodel"
+
+        pat = lambda regex, fn: url(regex, self.admin_site.admin_view(fn), name='%s_%s' % (info, fn.__name__))
+
+        url_patterns = [
+            # "publisher_publisherstatemodel_reply_request"
+            pat(r'^(?P<pk>[0-9]+)/reply_request/$', self.reply_request),
+
+            # "publisher_publisherstatemodel_request_publish"
+            pat(r'^(?P<content_type_id>[0-9]+)/(?P<object_id>[0-9]+)/request_publish/$', self.request_publish),
+
+            # "publisher_publisherstatemodel_request_unpublish"
+            pat(r'^(?P<content_type_id>[0-9]+)/(?P<object_id>[0-9]+)/request_unpublish/$', self.request_unpublish),
+        ]
+        url_patterns += super(PublisherStateModelAdmin, self).get_urls()
+        return url_patterns
+
+    def reply_request(self, request, pk):
+        user = request.user
+        has_reply_request_permission = PublisherStateModel.has_reply_request_permission(
+            user,
+            raise_exception=True
+        )
+
+        current_request = get_object_or_404(
+            PublisherStateModel,
+            pk=pk,
+            state=constants.STATE_REQUEST # only open requests
+        )
+        publisher_instance = current_request.publisher_instance
+
+        if request.method == "POST":
+            form = PublisherNoteForm(request.POST)
+            if form.is_valid():
+                note = form.cleaned_data["note"]
+
+                # opts = self.model._meta
+                # url = reverse('admin:%s_%s_changelist' % (
+                #     opts.app_label, opts.model_name),
+                #     current_app=self.admin_site.name
+                # )
+                url = publisher_instance.get_absolute_url()
+
+                if constants.POST_REPLY_REJECT_KEY in request.POST:
+                    current_request.reject(
+                        response_user=request.user,
+                        response_note=note,
+                    )
+                    log.debug("reject: %s", current_request)
+                    messages.success(request, _("%s has been rejected.") % current_request)
+
+                elif constants.POST_REPLY_ACCEPT_KEY in request.POST:
+                    current_request.accept(
+                        response_user=request.user,
+                        response_note=note,
+                    )
+                    log.debug("accept: %s", current_request)
+                    messages.success(request, _("%s has been accept.") % current_request)
+
+                    if current_request.action == constants.ACTION_UNPUBLISH:
+                        # We should not redirect to a unpublished page/object ;)
+                        # otherwise we get a 404
+                        if cms is not None:
+                            # turn on Django CMS edit mode
+                            url += "?edit"
+                        else:
+                            url = "/" # FIXME
+                    
+                else:
+                    raise SuspiciousOperation
+
+                return redirect(url)
+        else:
+            form = PublisherNoteForm()
+
+        publisher_states = PublisherStateModel.objects.all().filter_by_instance(
+            publisher_instance=publisher_instance
+        )
+
+        context = {
+            "form": form,
+            "original": publisher_instance,
+            # "original": current_state,
+            "publisher_states": publisher_states,
+
+            "current_request": current_request,
+            "action": current_request.action,
+
+            "has_reply_request_permission": has_reply_request_permission,
+            "POST_REPLY_ACCEPT_KEY": constants.POST_REPLY_ACCEPT_KEY,
+            "POST_REPLY_REJECT_KEY": constants.POST_REPLY_REJECT_KEY,
+
+            # For origin django admin templates:
+            "opts": self.opts,
+        }
+        request.current_app = self.admin_site.name
+        return render(request,
+            template_name=self.request_publish_page_template,
+            context=context
+        )
+
+    def _publisher_request(self, request, content_type_id, object_id, action):
+        assert action in PublisherStateModel.ACTION_DICT
+
+        user = request.user
+        has_ask_request_permission = PublisherStateModel.has_ask_request_permission(
+            user,
+            raise_exception=True
+        )
+        content_type = get_object_or_404(ContentType, pk=content_type_id)
+        publisher_instance = content_type.get_object_for_this_type(pk=object_id)
+
+        if request.method != 'POST':
+            form = PublisherNoteForm()
+        else:
+            form = PublisherNoteForm(request.POST)
+            if form.is_valid():
+                note = form.cleaned_data["note"]
+
+                if action == constants.ACTION_PUBLISH:
+                    action_func = PublisherStateModel.objects.request_publishing
+
+                elif action == constants.ACTION_UNPUBLISH:
+                    action_func = PublisherStateModel.objects.request_unpublishing
+                else:
+                    raise RuntimeError
+
+                state_instance = action_func(
+                    user=user,
+                    publisher_instance=publisher_instance,
+                    note=note
+                )
+
+                url = publisher_instance.get_absolute_url()
+                url = "%s?edit_off" % url
+                return redirect(url)
+
+        publisher_states = PublisherStateModel.objects.all().filter_by_instance(
+            publisher_instance=publisher_instance
+        )
+
+        context = {
+            "form": form,
+            "original": publisher_instance,
+            # "original": current_state,
+            "publisher_states": publisher_states,
+
+            "action": action,
+            "has_ask_request_permission": has_ask_request_permission,
+            "POST_ASK_KEY": constants.POST_ASK_KEY,
+
+            # For origin django admin templates:
+            "opts": self.opts,
+        }
+        request.current_app = self.admin_site.name
+        return render(request,
+            template_name=self.request_publish_page_template,
+            context=context
+        )
+
+    def request_publish(self, request, content_type_id, object_id):
+        return self._publisher_request(request, content_type_id, object_id,
+            action=constants.ACTION_PUBLISH
+        )
+
+    def request_unpublish(self, request, content_type_id, object_id):
+        return self._publisher_request(request, content_type_id, object_id,
+            action=constants.ACTION_UNPUBLISH
+        )
+
     def view_on_page_link(self, obj):
         publisher_instance = obj.publisher_instance
         txt = str(publisher_instance)
@@ -526,7 +721,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                 return '<span title="{err}">{txt}</span>'.format(err=err, txt=txt)
             else:
                 return "-"
-        html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
+        html = '<a href="{url}?edit">{txt}</a>'.format(url=url, txt=txt)
         return html
     view_on_page_link.allow_tags = True
     view_on_page_link.short_description = _("view on page")
@@ -535,18 +730,15 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         if not obj.is_open:
             return "-"
         else:
-            publisher_instance = obj.publisher_instance
-            pk_value = publisher_instance.pk
-            opts = publisher_instance._meta
-            url = reverse('admin:%s_%s_change' % (
-                opts.app_label, opts.model_name),
-                args=(quote(pk_value),),
-                current_app=self.admin_site.name
-            )
-            html = '<a href="{url}">{txt}</a>'.format(
-                url=url,
-                txt=_("Reply Request"),
-            )
+            url = obj.admin_reply_url()
+            if obj.action == constants.ACTION_PUBLISH:
+                txt=_("reply publish request")
+            elif obj.action == constants.ACTION_UNPUBLISH:
+                txt=_("reply unpublish request")
+            else:
+                raise RuntimeError
+
+            html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
             return html
     change_link.allow_tags = True
     change_link.short_description = _("Reply Link")
@@ -562,3 +754,5 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         StatusListFilter,
         "action", "state",
     )
+
+

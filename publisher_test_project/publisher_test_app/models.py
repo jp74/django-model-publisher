@@ -24,7 +24,7 @@ class PublisherTestModel(PublisherModel):
         return reverse("test-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
-        return "<PublisherTestModel pk:%r is_draft:%r title:%r>" % (self.pk, self.is_draft, self.title)
+        return "<PublisherTestModel pk:%r is_draft:%r title:%r>" % (self.pk, self.publisher_is_draft, self.title)
 
     class Meta(PublisherModel.Meta):
         verbose_name = "Publisher Test Model"
