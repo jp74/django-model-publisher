@@ -14,16 +14,8 @@ cache:
 env:
     matrix:
         # see output from: `tox -l`
-        - TOXENV=py27-dj18
-        - TOXENV=py34-dj18
         - TOXENV=py35-dj18
         - TOXENV=pypy-dj18
-        - TOXENV=py27-dj19
-        - TOXENV=py27-dj110
-        - TOXENV=py27-dj111
-        - TOXENV=py34-dj19
-        - TOXENV=py34-dj110
-        - TOXENV=py34-dj111
         - TOXENV=py35-dj19
         - TOXENV=py35-dj110
         - TOXENV=py35-dj111

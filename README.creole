@@ -18,6 +18,7 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 == Django compatibility
 
 |= django-ya-model-publisher |= django version      |= python            |
+| v0.5.x **dev**             | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
 | v0.4.x                     | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 
 Note: See travis/tox config files for current test matrix
@@ -53,7 +54,8 @@ $ cd publisher_test_project
 
 == history
 
-* **dev** - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop|compare v0.4.1...develop]]
+* v0.5.0 **dev** - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop|compare v0.4.1...develop]]
+** Skip official support for python v2.7 and v3.4 (remove from text matrix)
 ** Implement "request/reject/accept publishing" workflow with a shot messages and logging
 * v0.4.1 - 14.11.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.0.dev1...v0.4.1|compare v0.4.0.dev1...v0.4.1]]
 ** Refactor test run setup
