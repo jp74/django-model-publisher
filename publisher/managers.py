@@ -3,9 +3,10 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
+
 from publisher import constants
-from rest_framework.reverse import reverse
 
 from .signal_handlers import publisher_post_save, publisher_pre_delete
 
