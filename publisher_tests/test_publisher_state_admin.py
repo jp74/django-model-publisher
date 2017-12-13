@@ -4,19 +4,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import pytest
 
-# https://github.com/jedie/django-tools
-from django_tools.unittest_utils.unittest_base import BaseTestCase
+from publisher_tests.base import ClientBaseTestCase
 
 
 @pytest.mark.django_db
-class AdminLoggedinTests(BaseTestCase):
+class AdminLoggedinTests(ClientBaseTestCase):
     """
     Some basics test with the django admin
     """
-    def setUp(self):
-        super(AdminLoggedinTests, self).setUp()
-        self.create_testusers()
-
     def test_superuser_publisherstatemodel_index(self):
         self.login(usertype='superuser')
         response = self.client.get('/en/admin/publisher/publisherstatemodel/', HTTP_ACCEPT_LANGUAGE='en')
