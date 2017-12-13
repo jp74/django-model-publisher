@@ -304,6 +304,16 @@ class PublisherAdmin(ModelAdmin):
         log.debug("Create: %s", state_instance)
         messages.success(request, _("Publish request has been created."))
 
+    def post_ask_unpublish(self, request, obj, form):
+        note = form.cleaned_data["note"]
+        state_instance = PublisherStateModel.objects.request_unpublishing(
+            user=request.user,
+            publisher_instance=obj,
+            note=note,
+        )
+        log.debug("Create: %s", state_instance)
+        messages.success(request, _("Unpublish request has been created."))
+
     def post_reply_reject(self, request, obj, form):
         note = form.cleaned_data["note"]
         current_state = PublisherStateModel.objects.get_current_publisher_request(obj)
