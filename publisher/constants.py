@@ -22,7 +22,8 @@ PERMISSION_ASK_REQUEST = "ask_publisher_request"
 PERMISSION_REPLY_REQUEST = "reply_publisher_request"
 
 # request publish/unpublish submit names:
-POST_ASK_KEY = "_ask"
+POST_ASK_PUBLISH_KEY = "_ask_publish"
+POST_ASK_UNPUBLISH_KEY = "_ask_unpublish"
 
 # reply publish/unpublish submit names:
 POST_REPLY_REJECT_KEY = "_reply_reject"

@@ -327,8 +327,10 @@ class PublisherAdmin(ModelAdmin):
     def save_model(self, request, obj, form, change):
         super(PublisherAdmin, self).save_model(request, obj, form, change)
 
-        if constants.POST_ASK_KEY in request.POST:
+        if constants.POST_ASK_PUBLISH_KEY in request.POST:
             self.post_ask_publish(request, obj, form)
+        elif constants.POST_ASK_UNPUBLISH_KEY in request.POST:
+            self.post_ask_unpublish(request, obj, form)
         elif constants.POST_REPLY_REJECT_KEY in request.POST:
             self.post_reply_reject(request, obj, form)
         elif constants.POST_REPLY_ACCEPT_KEY in request.POST:
@@ -408,7 +410,8 @@ class PublisherAdmin(ModelAdmin):
             if add_ask:
                 has_ask_request_permission = self.has_ask_request_permission(request, obj)
                 context["has_ask_request_permission"] = has_ask_request_permission
-                context["POST_ASK_KEY"] = constants.POST_ASK_KEY
+                context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+                context["POST_ASK_UNPUBLISH_KEY"] = constants.POST_ASK_UNPUBLISH_KEY
 
         return super(PublisherAdmin, self).render_change_form(
             request, context, add, change, form_url, obj=None)
@@ -689,11 +692,18 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
             "action": action,
             "has_ask_request_permission": has_ask_request_permission,
-            "POST_ASK_KEY": constants.POST_ASK_KEY,
 
             # For origin django admin templates:
             "opts": self.opts,
         }
+
+        if action == constants.ACTION_PUBLISH:
+            context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+        elif action == constants.ACTION_UNPUBLISH:
+            context["POST_ASK_UNPUBLISH_KEY"] = constants.POST_ASK_UNPUBLISH_KEY
+        else:
+            raise RuntimeError
+
         request.current_app = self.admin_site.name
         return render(request,
             template_name=self.request_publish_page_template,
