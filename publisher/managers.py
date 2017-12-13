@@ -112,6 +112,9 @@ class PublisherChangeManager(models.Manager):
     def _create_request(self, action, user, publisher_instance, note):
         assert action in (constants.ACTION_PUBLISH, constants.ACTION_UNPUBLISH)
 
+        assert not self.has_open_requests(publisher_instance), \
+            "Can't create new request, because there are pending requests!"
+
         state_instance = self.model()
         state_instance.action = action
         state_instance.state = constants.STATE_REQUEST
@@ -140,8 +143,9 @@ class PublisherChangeManager(models.Manager):
     def request_unpublishing(self, user, publisher_instance, note=None):
         self.model.has_ask_request_permission(user, raise_exception=True)
 
-        assert publisher_instance.is_published
         draft = publisher_instance.get_draft_object()
+        assert draft.publisher_linked is not None, \
+            "Can't unpublish a not published instance!"
 
         state_instance = self._create_request(
             constants.ACTION_UNPUBLISH,
