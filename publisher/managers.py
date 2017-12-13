@@ -1,10 +1,12 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
-from django.core.urlresolvers import reverse
 from django.utils import timezone
+
+from cms.models import Page
 
 from publisher import constants
 
@@ -144,8 +146,14 @@ class PublisherChangeManager(models.Manager):
         self.model.has_ask_request_permission(user, raise_exception=True)
 
         draft = publisher_instance.get_draft_object()
-        assert draft.publisher_linked is not None, \
-            "Can't unpublish a not published instance!"
+        if isinstance(draft, Page):
+            # It's a Django CMS Page
+            assert publisher_instance.get_public_url(language=None, fallback=True), \
+                "Can't unpublish a not published instance!"
+        else:
+            # It's a PublisherModel:
+            assert draft.publisher_linked is not None, \
+                "Can't unpublish a not published instance!"
 
         state_instance = self._create_request(
             constants.ACTION_UNPUBLISH,
