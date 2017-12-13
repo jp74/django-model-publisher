@@ -7,9 +7,9 @@
 		<ul class="object-tools">
 			{% block object-tools-items %}
 				{% if has_ask_request_permission and not has_publish_permission %}
-						<li>
-							<a href="{{ publish_btn_live }}">Publish Draft</a>
-						</li>
+                    <li>
+                        <a href="{{ publish_btn_live }}">Publish Draft</a>
+                    </li>
                 {% endif %}
 				{% if has_publish_permission %}
 					{% if publish_btn_live %}
