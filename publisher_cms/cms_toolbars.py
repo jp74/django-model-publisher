@@ -84,7 +84,7 @@ class PublisherPageToolbar(PageToolbar):
         self.has_ask_request_permission = PublisherStateModel.has_ask_request_permission(user, raise_exception=False)
 
         log.debug(
-            "User '%s' publisher permissions: reply: %r ask: %r: %r",
+            "User '%s' publisher permissions: reply: %r ask: %r",
             user.username,
             self.has_reply_request_permission,
             self.has_ask_request_permission,
