@@ -21,6 +21,9 @@ PERMISSION_ASK_REQUEST = "ask_publisher_request"
 # user permission to accept/reject a publish/unpublish request:
 PERMISSION_REPLY_REQUEST = "reply_publisher_request"
 
+# A User with 'can_publish' permission can save&publish in one step:
+POST_SAVE_AND_PUBLISH_KEY = "_save_published"
+
 # request publish/unpublish submit names:
 POST_ASK_PUBLISH_KEY = "_ask_publish"
 POST_ASK_UNPUBLISH_KEY = "_ask_unpublish"

@@ -119,12 +119,13 @@ class PublisherAdmin(ModelAdmin):
 
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
-        return request.user.has_perm(
-            "%s.%s" % (
-                opts.app_label,
-                constants.PERMISSION_MODEL_CAN_PUBLISH
-            )
+        perm_name = "%s.%s" % (
+            opts.app_label,
+            constants.PERMISSION_MODEL_CAN_PUBLISH
         )
+        has_perm = request.user.has_perm(perm_name)
+        log.debug("User '%s' has permission '%s': %s", request.user, perm_name, has_perm)
+        return has_perm
 
     def has_ask_request_permission(self, request, obj=None):
         """
@@ -334,6 +335,18 @@ class PublisherAdmin(ModelAdmin):
         log.debug("accept: %s", current_state)
         messages.success(request, _("Publish request has been accepted."))
 
+    def post_save_and_publish(self, request, obj, form):
+        if not self.has_publish_permission(request, obj):
+            raise PermissionDenied
+
+        obj.publish()
+
+        if not request.is_ajax():
+            messages.success(request, _("Draft version has been published."))
+            return HttpResponseRedirect(reverse(self.changelist_reverse))
+
+        return http_json_response({"success": True})
+
     def save_model(self, request, obj, form, change):
         super(PublisherAdmin, self).save_model(request, obj, form, change)
 
@@ -345,6 +358,8 @@ class PublisherAdmin(ModelAdmin):
             self.post_reply_reject(request, obj, form)
         elif constants.POST_REPLY_ACCEPT_KEY in request.POST:
             self.post_reply_accept(request, obj, form)
+        elif constants.POST_SAVE_AND_PUBLISH_KEY in request.POST:
+            self.post_save_and_publish(request, obj, form)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
@@ -394,6 +409,7 @@ class PublisherAdmin(ModelAdmin):
                 revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
 
             context.update({
+                "POST_SAVE_AND_PUBLISH_KEY": constants.POST_SAVE_AND_PUBLISH_KEY,
                 "publish_btn_live": publish_btn,
                 "preview_draft_btn": preview_draft_btn,
                 "unpublish_btn": unpublish_btn,

@@ -1,12 +1,14 @@
-{% load i18n admin_static admin_modify admin_urls %}
+{% load i18n admin_static admin_urls %}
 
-{% if has_ask_request_permission or has_reply_request_permission %}
+{% if has_ask_request_permission or has_reply_request_permission or has_publish_permission %}
     {% if current_request %}
         <p>{{ current_request }}</p>
         <p>{% trans "Request time:" %} {{ current_request.request_timestamp }}</p>
         <p>{% trans 'Note:' %}
             <pre>{{ current_request.request_note|default_if_none:"-" }}</pre>
         </p>
+    {% else %}
+        <p>{% trans "(No pending publisher request)" %}</p>
     {% endif %}
 
     <div class="submit-row">
@@ -31,6 +33,13 @@
             <h1>ERROR: No 'action' in context!</h1>
         {% endif %}
 
+    {% elif POST_SAVE_AND_PUBLISH_KEY %}
+
+        <input type="submit" value="{% trans 'Save and Publish' %}" class="default" name="{{ POST_SAVE_AND_PUBLISH_KEY }}" />
+        <input type="submit" value="{% trans 'Save draft' %}" class="default" name="_save" />
+
     {% endif %}
     </div>
+{% else %}
+    <h1>ERROR: No publisher permissions?!?</h1>
 {% endif %}

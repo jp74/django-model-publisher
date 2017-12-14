@@ -42,7 +42,5 @@
 {% if save_on_top %}{% block submit_buttons_top %}{% include "publisher/includes/submit_row.html" %}{% endblock %}{% endif %}
 
 {% block submit_buttons_bottom %}
-    {% include "publisher/includes/submit_row.html" %}
-    {% submit_row %}
-    {% include "publisher/includes/state_history.html" %}
+    {% include "publisher/includes/submit_buttons_bottom.html" %}
 {% endblock %}
