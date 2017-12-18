@@ -119,6 +119,10 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
         """
         Is this entry publicly available?
         """
+        if self.publisher_linked:
+            # This is the draft: return visible bool from the published version
+            return self.publisher_linked.is_visible
+
         return self.is_published and (not self.hidden_by_end_date) and (not self.hidden_by_start_date)
 
     @property
