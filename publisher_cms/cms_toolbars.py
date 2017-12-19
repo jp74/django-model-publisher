@@ -94,7 +94,6 @@ class PublisherPageToolbar(PageToolbar):
         """
         redirect to "?edit_off" if request is pending and user has only "ask publishing" permissions
         """
-        print("publisher_cms.cms_toolbars.PublisherPageToolbar#request_hook")
         response = super(PublisherPageToolbar, self).request_hook()
 
         if self.request.user.is_superuser:
@@ -139,7 +138,6 @@ class PublisherPageToolbar(PageToolbar):
             # Users with only "ask publish" permission should not edit a page with pending requests
             url = "?%s" % self.toolbar.edit_mode_url_off
             log.debug("Redirect to 'edit off': '%s'" % url)
-            print("redirct:", url)
             return HttpResponseRedirect(url)
         else:
             raise RuntimeError
@@ -163,8 +161,6 @@ class PublisherPageToolbar(PageToolbar):
         return button_list
 
     def add_publish_button(self, classes=('cms-btn-action', 'cms-btn-publish',)):
-        print("publisher_cms.cms_toolbars.PublisherPageToolbar#add_publish_button")
-
         log.debug("Edit mode: %r - has_publish_permission: %r",
             self.toolbar.edit_mode,
             self.has_publish_permission(),
