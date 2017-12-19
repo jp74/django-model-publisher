@@ -2,7 +2,7 @@
 Django (yet another) Model Publisher
 ====================================
 
-Django model mixins and utilities for a standard publisher workflow.
+Publisher workflow for django models and Django CMS pages.
 
 This is a fork of `andersinno/django-model-publisher-ai <https://github.com/andersinno/django-model-publisher-ai>`_ which is a fork of the origin `jp74/django-model-publisher <https://github.com/jp74/django-model-publisher>`_.
 
@@ -14,12 +14,16 @@ This is a fork of `andersinno/django-model-publisher-ai <https://github.com/ande
 
 .. |Build Status on travis-ci.org| image:: https://travis-ci.org/wearehoods/django-ya-model-publisher.svg
 .. _travis-ci.org/wearehoods/django-ya-model-publisher: https://travis-ci.org/wearehoods/django-ya-model-publisher/
-.. |Coverage Status on codecov.io| image:: https://codecov.io/github/wearehoods/django-ya-model-publisher/coverage.svg
+.. |Coverage Status on codecov.io| image:: https://codecov.io/gh/wearehoods/django-ya-model-publisher/branch/develop/graph/badge.svg
 .. _codecov.io/gh/wearehoods/django-ya-model-publisher: https://codecov.io/gh/wearehoods/django-ya-model-publisher
 
 --------
 Features
 --------
+
+* Django CMS page support.
+
+* Add request/reject buttons in Django CMS toolbar.
 
 * Django CMS placeholders support.
 
@@ -34,7 +38,7 @@ Django compatibility
 +---------------------------+----------------------+--------------------+
 | django-ya-model-publisher | django version       | python             |
 +===========================+======================+====================+
-| v0.5.x **dev**            | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
+| v0.5.x                    | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
 +---------------------------+----------------------+--------------------+
 | v0.4.x                    | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 +---------------------------+----------------------+--------------------+
@@ -68,22 +72,77 @@ run test via *tox* e.g.:
 run test project
 ================
 
+You can run the test environment by:
+
 ::
 
-    $ cd publisher_test_project
-    /publisher_test_project$ ./manage.py migrate
-    /publisher_test_project$ ./manage.py createsuperuser
-    /publisher_test_project$ ./manage.py runserver
+    $ ./run_test_project_dev_server.sh
+
+or:
+
+::
+
+    $ ./publisher_test_project/manage.py run_test_project_dev_server
+
+The following steps will be executed:
+
+* Create django users if not exists:
+
+    * A django **'superuser'**
+
+    * The user **editor**: He can accept/reject un-/publish requests
+
+    * The user **reporter**: He can create un-/publish requests
+
+    * note: Both users will used the same password as the 'superuser' !
+
+* run migration
+
+* insert test fixtures (Create Django CMS pages)
+
+* collect static files
+
+* run the django development server on localhost
+
+You can pass arguments to the helper script, e.g.:
+
+::
+
+    $ ./run_test_project_dev_server.sh --help
+    ...
+    usage: manage.py run_test_project_dev_server [-h] [--version] [-v {0,1,2,3}]
+                                                 [--settings SETTINGS]
+                                                 [--pythonpath PYTHONPATH]
+                                                 [--traceback] [--no-color]
+                                                 [--ipv6] [--nothreading]
+                                                 [--noreload] [--nostatic]
+                                                 [--insecure]
+                                                 [addrport]
+    ...
+
+To 'reset' the test fixtures, run this:
+
+::
+
+    $ ./publisher_test_project/manage.py create_test_data --fresh
+
+For a complete fresh database, just remove the sqlite file, e.g.:
+
+::
+
+    $ rm publisher_test_project/publisher_test_database.sqlite3
 
 -------
 history
 -------
 
-* v0.5.0 **dev** - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
+* v0.5.0 - 19.12.2017 - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
 
     * Skip official support for python v2.7 and v3.4 (remove from text matrix)
 
     * Implement "request/reject/accept publishing" workflow with a shot messages and logging
+
+    * Add "request/reject/accept publishing" buttons to Django CMS toolbar for cms pages.
 
 * v0.4.1 - 14.11.2017 - `compare v0.4.0.dev1...v0.4.1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.0.dev1...v0.4.1>`_ 
 
