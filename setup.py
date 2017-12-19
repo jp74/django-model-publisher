@@ -44,7 +44,8 @@ class ToxTestCommand(distutils.cmd.Command):
 
     def run(self):
         self.announce("Running tests with 'tox'...", level=distutils.log.INFO)
-        return subprocess.call(['tox'])
+        returncode = subprocess.call(['tox'])
+        sys.exit(returncode)
 
 
 class TestCommand(distutils.cmd.Command):
@@ -62,8 +63,9 @@ class TestCommand(distutils.cmd.Command):
 
     def run(self):
         self.announce("Running tests...", level=distutils.log.INFO)
-        return subprocess.call(['pytest', 'publisher_tests'])
-
+        returncode = subprocess.call(['pytest', 'publisher_tests'])
+        sys.exit(returncode)
+        
 
 #_____________________________________________________________________________
 # convert creole to ReSt on-the-fly, see also:
