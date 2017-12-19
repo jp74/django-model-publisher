@@ -5,7 +5,7 @@ Publisher workflow for django models and Django CMS pages.
 This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|andersinno/django-model-publisher-ai]] which is a fork of the origin [[https://github.com/jp74/django-model-publisher|jp74/django-model-publisher]].
 
 | {{https://travis-ci.org/wearehoods/django-ya-model-publisher.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/wearehoods/django-ya-model-publisher/|travis-ci.org/wearehoods/django-ya-model-publisher]] |
-| {{https://codecov.io/github/wearehoods/django-ya-model-publisher/coverage.svg|Coverage Status on codecov.io}} | [[https://codecov.io/gh/wearehoods/django-ya-model-publisher|codecov.io/gh/wearehoods/django-ya-model-publisher]] |
+| {{https://codecov.io/gh/wearehoods/django-ya-model-publisher/branch/develop/graph/badge.svg|Coverage Status on codecov.io}} | [[https://codecov.io/gh/wearehoods/django-ya-model-publisher|codecov.io/gh/wearehoods/django-ya-model-publisher]] |
 
 
 == Features
