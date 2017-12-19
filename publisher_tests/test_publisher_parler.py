@@ -171,8 +171,8 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
 
         self.assertEqual(draft_obj.title, "one")
         self.assertEqual(draft_obj.publisher_is_draft, True)
-        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_published, False) # It's the draft, not the published object!
+        self.assertEqual(draft_obj.is_visible, True)
         self.assertEqual(draft_obj.is_dirty, False)
 
         draft_obj.title="two"
@@ -186,8 +186,8 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
 
         self.assertEqual(draft_obj.title, "two")
         self.assertEqual(draft_obj.publisher_is_draft, True)
-        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_published, False) # It's the draft, not the published object!
+        self.assertEqual(draft_obj.is_visible, True)
         self.assertEqual(draft_obj.is_dirty, True)
 
         publish_obj = draft_obj.publish()
@@ -200,8 +200,8 @@ class PublisherParlerAutoSlugifyTest(test.TestCase):
 
         self.assertEqual(draft_obj.title, "two")
         self.assertEqual(draft_obj.publisher_is_draft, True)
-        self.assertEqual(draft_obj.is_visible, False) # FIXME: Should this not be True ?!?
         self.assertEqual(draft_obj.is_published, False) # It's the draft, not the published object!
+        self.assertEqual(draft_obj.is_visible, True)
         self.assertEqual(draft_obj.is_dirty, False)
 
     def test_delete(self):
