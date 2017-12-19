@@ -113,8 +113,8 @@ class PublisherStateTests(test.TestCase):
         self.assertEqual(qs.filter_closed().count(), 1)
 
         self.assertEqual(
-            repr(qs.values_list("action", "state").order_by("pk")),
-            repr([('publish', 'accepted'), ('publish', 'request')])
+            list(qs.values_list("action", "state").order_by("pk")),
+            [('publish', 'accepted'), ('publish', 'request')]
         )
 
 
