@@ -12,5 +12,5 @@ wheel
 twine
 aldryn_translation_tools
 django-parler
-django-tools
-django-cms-tools
+django-tools>=0.38.0
+django-cms-tools>=0.5.0
