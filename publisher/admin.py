@@ -119,12 +119,13 @@ class PublisherAdmin(ModelAdmin):
 
     def has_publish_permission(self, request, obj=None):
         opts = self.opts
-        return request.user.has_perm(
-            "%s.%s" % (
-                opts.app_label,
-                constants.PERMISSION_MODEL_CAN_PUBLISH
-            )
+        perm_name = "%s.%s" % (
+            opts.app_label,
+            constants.PERMISSION_MODEL_CAN_PUBLISH
         )
+        has_perm = request.user.has_perm(perm_name)
+        log.debug("User '%s' has permission '%s': %s", request.user, perm_name, has_perm)
+        return has_perm
 
     def has_ask_request_permission(self, request, obj=None):
         """
@@ -304,6 +305,16 @@ class PublisherAdmin(ModelAdmin):
         log.debug("Create: %s", state_instance)
         messages.success(request, _("Publish request has been created."))
 
+    def post_ask_unpublish(self, request, obj, form):
+        note = form.cleaned_data["note"]
+        state_instance = PublisherStateModel.objects.request_unpublishing(
+            user=request.user,
+            publisher_instance=obj,
+            note=note,
+        )
+        log.debug("Create: %s", state_instance)
+        messages.success(request, _("Unpublish request has been created."))
+
     def post_reply_reject(self, request, obj, form):
         note = form.cleaned_data["note"]
         current_state = PublisherStateModel.objects.get_current_publisher_request(obj)
@@ -324,15 +335,31 @@ class PublisherAdmin(ModelAdmin):
         log.debug("accept: %s", current_state)
         messages.success(request, _("Publish request has been accepted."))
 
+    def post_save_and_publish(self, request, obj, form):
+        if not self.has_publish_permission(request, obj):
+            raise PermissionDenied
+
+        obj.publish()
+
+        if not request.is_ajax():
+            messages.success(request, _("Draft version has been published."))
+            return HttpResponseRedirect(reverse(self.changelist_reverse))
+
+        return http_json_response({"success": True})
+
     def save_model(self, request, obj, form, change):
         super(PublisherAdmin, self).save_model(request, obj, form, change)
 
         if constants.POST_ASK_PUBLISH_KEY in request.POST:
             self.post_ask_publish(request, obj, form)
+        elif constants.POST_ASK_UNPUBLISH_KEY in request.POST:
+            self.post_ask_unpublish(request, obj, form)
         elif constants.POST_REPLY_REJECT_KEY in request.POST:
             self.post_reply_reject(request, obj, form)
         elif constants.POST_REPLY_ACCEPT_KEY in request.POST:
             self.post_reply_accept(request, obj, form)
+        elif constants.POST_SAVE_AND_PUBLISH_KEY in request.POST:
+            self.post_save_and_publish(request, obj, form)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
@@ -382,6 +409,7 @@ class PublisherAdmin(ModelAdmin):
                 revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
 
             context.update({
+                "POST_SAVE_AND_PUBLISH_KEY": constants.POST_SAVE_AND_PUBLISH_KEY,
                 "publish_btn_live": publish_btn,
                 "preview_draft_btn": preview_draft_btn,
                 "unpublish_btn": unpublish_btn,
@@ -409,6 +437,7 @@ class PublisherAdmin(ModelAdmin):
                 has_ask_request_permission = self.has_ask_request_permission(request, obj)
                 context["has_ask_request_permission"] = has_ask_request_permission
                 context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+                context["POST_ASK_UNPUBLISH_KEY"] = constants.POST_ASK_UNPUBLISH_KEY
 
         return super(PublisherAdmin, self).render_change_form(
             request, context, add, change, form_url, obj=None)
@@ -607,7 +636,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                             url += "?edit"
                         else:
                             url = "/" # FIXME
-                    
+
                 else:
                     raise SuspiciousOperation
 
@@ -689,11 +718,18 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
             "action": action,
             "has_ask_request_permission": has_ask_request_permission,
-            "POST_ASK_KEY": constants.POST_ASK_KEY,
 
             # For origin django admin templates:
             "opts": self.opts,
         }
+
+        if action == constants.ACTION_PUBLISH:
+            context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+        elif action == constants.ACTION_UNPUBLISH:
+            context["POST_ASK_UNPUBLISH_KEY"] = constants.POST_ASK_UNPUBLISH_KEY
+        else:
+            raise RuntimeError
+
         request.current_app = self.admin_site.name
         return render(request,
             template_name=self.request_publish_page_template,

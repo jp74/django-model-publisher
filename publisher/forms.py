@@ -21,8 +21,6 @@ class PublisherForm(forms.ModelForm):
     def clean(self):
         data = super(PublisherForm, self).clean()
         cleaned_data = self.cleaned_data
-        print("data:", repr(data))
-        print("cleaned_data:", repr(cleaned_data))
         instance = self.instance
 
         # work out which fields are unique_together
