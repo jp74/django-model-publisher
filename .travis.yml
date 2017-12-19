@@ -39,7 +39,7 @@ install:
     - travis_retry pip install tox tox-travis python-creole docutils
 
 script:
-    - travis_retry ./setup.py tox
+    - ./setup.py tox
 
 after_success:
     # https://github.com/codecov/codecov-bash
