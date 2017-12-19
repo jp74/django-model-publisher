@@ -28,7 +28,7 @@ known_external=pytest
 known_django=django
 known_cms=cms
 
-known_first_party=publisher
+known_first_party=publisher,publisher_cms,publisher_tests,publisher_test_project
 
 default_section=THIRDPARTY
 sections=FUTURE,STDLIB,EXTERNAL,DJANGO,CMS,THIRDPARTY,FIRSTPARTY,LOCALFOLDER
