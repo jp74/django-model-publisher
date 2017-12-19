@@ -2,7 +2,7 @@
 import os
 
 from django.core.management import call_command
-from django.test import SimpleTestCase, TestCase
+from django.test import TestCase
 
 import publisher_test_project
 from django_tools.unittest_utils.django_command import DjangoCommandMixin
@@ -35,7 +35,7 @@ class ManageCommandTests(DjangoCommandMixin, TestCase):
         self.assertNotIn("ERRORS", output)
 
 
-class ManageCheckTests(SimpleTestCase):
+class ManageCheckTests(TestCase):
 
     def test_django_check(self):
         """
