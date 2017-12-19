@@ -1,6 +1,6 @@
 = Django (yet another) Model Publisher
 
-Django model mixins and utilities for a standard publisher workflow.
+Publisher workflow for django models and Django CMS pages.
 
 This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|andersinno/django-model-publisher-ai]] which is a fork of the origin [[https://github.com/jp74/django-model-publisher|jp74/django-model-publisher]].
 
@@ -10,6 +10,8 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 
 == Features
 
+* Django CMS page support.
+* Add request/reject buttons in Django CMS toolbar.
 * Django CMS placeholders support.
 * Hvad/Parler support.
 * Restrict user access to publish functions with user permissions.
@@ -18,7 +20,7 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 == Django compatibility
 
 |= django-ya-model-publisher |= django version      |= python            |
-| v0.5.x **dev**             | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
+| v0.5.x                     | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
 | v0.4.x                     | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 
 Note: See travis/tox config files for current test matrix
@@ -101,9 +103,10 @@ $ rm publisher_test_project/publisher_test_database.sqlite3
 
 == history
 
-* v0.5.0 **dev** - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop|compare v0.4.1...develop]]
+* v0.5.0 - 19.12.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop|compare v0.4.1...develop]]
 ** Skip official support for python v2.7 and v3.4 (remove from text matrix)
 ** Implement "request/reject/accept publishing" workflow with a shot messages and logging
+** Add "request/reject/accept publishing" buttons to Django CMS toolbar for cms pages.
 * v0.4.1 - 14.11.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.0.dev1...v0.4.1|compare v0.4.0.dev1...v0.4.1]]
 ** Refactor test run setup
 ** bugfix project name
