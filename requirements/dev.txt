@@ -13,3 +13,4 @@ twine
 aldryn_translation_tools
 django-parler
 django-tools
+django-cms-tools

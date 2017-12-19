@@ -97,10 +97,8 @@ class PublisherPageToolbar(PageToolbar):
         print("publisher_cms.cms_toolbars.PublisherPageToolbar#request_hook")
         response = super(PublisherPageToolbar, self).request_hook()
 
-        if not self.toolbar.edit_mode:
-            return response
-
         if self.request.user.is_superuser:
+            # Don't modify cms toolbar for superusers
             return response
 
         page = get_page_draft(self.request.current_page)
@@ -119,7 +117,6 @@ class PublisherPageToolbar(PageToolbar):
             if open_requests.count() > 0:
                 self.current_request = open_requests.latest()
                 messages.info(self.request, _("This page '%s' has pending publish request.") % page)
-                print("jojojo")
             else:
                 log.debug("Current page has no open publishing requests.")
 
@@ -131,6 +128,9 @@ class PublisherPageToolbar(PageToolbar):
             #     log.debug("Current page is not dirty")
 
         if self.current_request is None:
+            return response
+
+        if not self.toolbar.edit_mode:
             return response
 
         # If user has only "ask publishing" permissions: redirect to "edit off" mode
@@ -181,39 +181,50 @@ class PublisherPageToolbar(PageToolbar):
             button_list = self.get_publish_button(classes=classes)
 
         else:
+            log.debug("User has not CMS publish permissions, ok.")
+
             if self.has_reply_request_permission:
+                log.debug("User has reply permissions, ok.")
                 if self.current_request is not None:
                     log.error("User with reply permission tries to edit a pending page!")
                     raise SuspiciousOperation()
 
-                button_list = self.make_button_list(
-                    title=_("reply open request"),
-                    url = self.current_request.admin_reply_url(), # publisher.models.PublisherStateModel.admin_reply_url(),
-                    disabled=False
-                )
-
             elif self.has_ask_request_permission:
+                log.debug("User has ask permissions")
+
                 if self.current_request is not None:
                     log.error("User with ask permission tries to edit a pending page!")
                     raise SuspiciousOperation()
 
                 dirty = self.has_dirty_objects()
+                log.debug("has_dirty_objects: %r", dirty)
+
                 has_public_version = self.page.publisher_public is not None
+                log.debug(
+                    "page.publisher_public: %r (has_public_version: %r)",
+                    self.page.publisher_public, has_public_version
+                )
 
                 button_list = self.create_button_list()
                 if dirty:
+                    log.debug("Dirty: Add request button")
                     self.add_button(button_list,
                         title=_("Request publishing"),
                         url = PublisherStateModel.objects.admin_request_publish_url(obj=self.page),
                         disabled=False
                     )
+                else:
+                    log.debug("Not dirty: Don't add request button")
 
                 if has_public_version:
+                    log.debug("has public version: Add request unpublish button")
                     self.add_button(button_list,
                         title=_("Request unpublishing"),
                         url = PublisherStateModel.objects.admin_request_unpublish_url(obj=self.page),
                         disabled=False
                     )
+                else:
+                    log.debug("page hasn't public version: Don't add request unpublish button")
 
         if button_list is not None:
             self.toolbar.add_item(button_list)

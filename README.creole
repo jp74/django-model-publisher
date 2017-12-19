@@ -44,13 +44,60 @@ or
 $ tox
 }}}
 
+
 === run test project
+
+
+You can run the test environment by:
+
 {{{
-$ cd publisher_test_project
-/publisher_test_project$ ./manage.py migrate
-/publisher_test_project$ ./manage.py createsuperuser
-/publisher_test_project$ ./manage.py runserver
+$ ./run_test_project_dev_server.sh
 }}}
+or:
+{{{
+$ ./publisher_test_project/manage.py run_test_project_dev_server
+}}}
+
+
+The following steps will be executed:
+
+* Create django users if not exists:
+** A django **'superuser'**
+** The user **editor**: He can accept/reject un-/publish requests
+** The user **reporter**: He can create un-/publish requests
+** note: Both users will used the same password as the 'superuser' !
+* run migration
+* insert test fixtures (Create Django CMS pages)
+* collect static files
+* run the django development server on localhost
+
+
+You can pass arguments to the helper script, e.g.:
+{{{
+$ ./run_test_project_dev_server.sh --help
+...
+usage: manage.py run_test_project_dev_server [-h] [--version] [-v {0,1,2,3}]
+                                             [--settings SETTINGS]
+                                             [--pythonpath PYTHONPATH]
+                                             [--traceback] [--no-color]
+                                             [--ipv6] [--nothreading]
+                                             [--noreload] [--nostatic]
+                                             [--insecure]
+                                             [addrport]
+...
+}}}
+
+
+To 'reset' the test fixtures, run this:
+{{{
+$ ./publisher_test_project/manage.py create_test_data --fresh
+}}}
+
+For a complete fresh database, just remove the sqlite file, e.g.:
+{{{
+$ rm publisher_test_project/publisher_test_database.sqlite3
+}}}
+
 
 == history
 

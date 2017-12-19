@@ -13,7 +13,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
     Some basics test with the django admin
     """
     def test_superuser_admin_index(self):
-        self.login(usertype='superuser')
+        self.login_superuser()
         response = self.client.get('/en/admin/', HTTP_ACCEPT_LANGUAGE='en')
         self.assertResponse(response,
             must_contain=(
@@ -30,7 +30,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
         )
 
     def test_superuser_publishertestmodel_index(self):
-        self.login(usertype='superuser')
+        self.login_superuser()
         response = self.client.get('/en/admin/publisher_test_app/publishertestmodel/', HTTP_ACCEPT_LANGUAGE='en')
         self.assertResponse(response,
             must_contain=(
@@ -44,7 +44,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
         )
 
     def test_superuser_publishertestmodel_add(self):
-        self.login(usertype='superuser')
+        self.login_superuser()
         response = self.client.get('/en/admin/publisher_test_app/publishertestmodel/add/', HTTP_ACCEPT_LANGUAGE='en')
         self.assertResponse(response,
             must_contain=(

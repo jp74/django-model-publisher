@@ -1,8 +1,11 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from publisher_cms.cms_toolbars import PublisherPageToolbar
+
 from publisher.managers import PublisherManager
 from publisher.models import PublisherModel
+
 
 try:
     import parler
@@ -51,3 +54,6 @@ if aldryn_translation_tools is not None:
             title=models.CharField(max_length=100),
             slug=models.SlugField(max_length=255, db_index=True, blank=True),
         )
+
+
+PublisherPageToolbar.replace_toolbar()

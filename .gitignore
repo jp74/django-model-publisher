@@ -1,3 +1,5 @@
+publisher_test_project/static
+
 *.py[cod]
 .cache
 *.sqlite*

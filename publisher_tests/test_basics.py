@@ -45,3 +45,14 @@ class ManageCheckTests(SimpleTestCase):
             call_command('check')
         output = buff.get_output()
         self.assertIn('System check identified no issues (0 silenced).', output)
+
+    def test_django_cms_check(self):
+        """
+        call './manage.py cms check' directly via 'call_command'
+        """
+        with StdoutStderrBuffer() as buff:
+            call_command('cms', 'check')
+        output = buff.get_output()
+        print(output)
+        self.assertIn('Installation okay', output)
+        self.assertNotIn('ERROR', output)

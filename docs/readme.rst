@@ -34,6 +34,8 @@ Django compatibility
 +---------------------------+----------------------+--------------------+
 | django-ya-model-publisher | django version       | python             |
 +===========================+======================+====================+
+| v0.5.x **dev**            | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
++---------------------------+----------------------+--------------------+
 | v0.4.x                    | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 +---------------------------+----------------------+--------------------+
 
@@ -77,7 +79,9 @@ run test project
 history
 -------
 
-* **dev** - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
+* v0.5.0 **dev** - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
+
+    * Skip official support for python v2.7 and v3.4 (remove from text matrix)
 
     * Implement "request/reject/accept publishing" workflow with a shot messages and logging
 

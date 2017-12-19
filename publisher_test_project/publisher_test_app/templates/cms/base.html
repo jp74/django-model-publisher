@@ -1,0 +1,35 @@
+{% load i18n staticfiles cms_tags cms_static sekizai_tags %}
+
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="utf-8">
+    <title>{% page_attribute "page_title" %}</title>
+    {% render_block "css" %}
+    <link rel="stylesheet" href="{% static_with_version 'cms/css/cms.base.css' %}">
+    <link rel="stylesheet" href="{% static_with_version 'cms/css/cms.welcome.css' %}">
+</head>
+<body class="cms-welcome-bg">
+    {% cms_toolbar %}
+    <div class="cms-reset cms-welcome">
+        <header class="cms-welcome-header">
+            <h1 class="cms-welcome-heading">
+                <span class="cms-icon cms-icon-check"></span>
+                django-ya-model-publisher
+            </h1>
+        </header>
+        <section class="cms-welcome-section">
+            <h1>{% page_attribute "page_title" %}</h1>
+        </section>
+        <footer class="cms-welcome-footer">
+            <p class="cms-welcome-links">
+                Links:
+                <a href="https://github.com/wearehoods/django-ya-model-publisher" target="_blank">github</a>
+                <a href="https://pypi.org/project/django-ya-model-publisher/" target="_blank">pypi</a>
+                <a href="https://django-cms.org/" target="_blank">django CMS <strong>v{{ cms_version }}</strong></a>
+            </p>
+        </footer>
+    </div>
+    {% render_block "js" %}
+</body>
+</html>
