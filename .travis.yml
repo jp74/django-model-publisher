@@ -15,13 +15,13 @@ env:
     matrix:
         # see output from: `tox -l`
         - TOXENV=py35-dj18
-        - TOXENV=pypy-dj18
+        #- TOXENV=pypy-dj18
         - TOXENV=py35-dj19
         - TOXENV=py35-dj110
         - TOXENV=py35-dj111
-        - TOXENV=pypy-dj19
-        - TOXENV=pypy-dj110
-        - TOXENV=pypy-dj111
+        #- TOXENV=pypy-dj19
+        #- TOXENV=pypy-dj110
+        #- TOXENV=pypy-dj111
         - TOXENV=py36-dj111
 
 
