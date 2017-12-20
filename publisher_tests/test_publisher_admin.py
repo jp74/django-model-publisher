@@ -37,7 +37,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
                 'Django administration',
                 'superuser',
                 'Select Publisher Test Model to change',
-                '0 Publisher Test Model',
+                '4 Publisher Test Model',
             ),
             must_not_contain=('error', 'traceback'),
             template_name='admin/change_list.html',
