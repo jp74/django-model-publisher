@@ -20,6 +20,12 @@
         </header>
         <section class="cms-welcome-section">
             <h1>{% page_attribute "page_title" %}</h1>
+
+            <ul>
+                <h2>Some information about this current cms page:</h2>
+                <li>is draft: {{ current_page.publisher_is_draft|yesno:"true,false,none" }}</li>
+                <li>is dirty: {{ current_page.is_dirty|yesno:"true,false,none" }}</li>
+            </ul>
         </section>
         <footer class="cms-welcome-footer">
             <p class="cms-welcome-links">
