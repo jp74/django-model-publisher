@@ -6,9 +6,8 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
-from django.contrib.admin.utils import quote
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldError, PermissionDenied, ValidationError, SuspiciousOperation
+from django.core.exceptions import PermissionDenied, ValidationError, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
@@ -49,7 +48,7 @@ def http_json_response(data):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 
-class PendingPublishRequest(PermissionError):
+class PendingPublishRequest(PermissionDenied):
     """
     User without publish permission will edit a object with open publish requests
     """
