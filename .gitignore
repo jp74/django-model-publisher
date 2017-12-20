@@ -4,9 +4,6 @@ publisher_test_project/static
 .cache
 *.sqlite*
 
-# coverage report:
-reports
-
 # C extensions
 *.so
 
@@ -15,6 +12,7 @@ reports
 *.egg-info
 dist
 build
+build.log
 eggs
 parts
 bin
@@ -31,8 +29,8 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
-nosetests.xml
-htmlcov
+coverage.xml
+coverage_html
 
 # Translations
 *.mo
