@@ -118,7 +118,10 @@ def create_test_model_entries(delete_first=False):
         qs.delete()
 
     for no in range(1,5):
-        instance, created = PublisherTestModel.objects.get_or_create(title="Test entry %i" % no)
+        instance, created = PublisherTestModel.objects.get_or_create(
+            title="Test entry %i" % no,
+            publisher_is_draft=True
+        )
         if created:
             print("Test model entry: '%s'" % instance)
         else:
