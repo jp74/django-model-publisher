@@ -42,8 +42,7 @@ class TestPageCreator(CmsPageCreator):
         pass # Don't add any plugins
 
 
-
-def create_test_data(delete_first=False):
+def create_test_user(delete_first=False):
     User=get_user_model()
 
     if delete_first:
@@ -101,11 +100,38 @@ def create_test_data(delete_first=False):
         ),
         encrypted_password=encrypted_password
     )
+    return reporter_user, editor_user
 
+
+def create_test_page(delete_first=False):
     page, created = TestPageCreator(delete_first=delete_first).create()
     if created:
         print("Test page created: '%s'" % page)
     else:
         print("Test page already exists: '%s'" % page)
+
+
+def create_test_model_entries(delete_first=False):
+    if delete_first:
+        qs = PublisherTestModel.objects.all()
+        print("Delete %i test model entries..." % qs.count())
+        qs.delete()
+
+    for no in range(1,5):
+        instance, created = PublisherTestModel.objects.get_or_create(title="Test entry %i" % no)
+        if created:
+            print("Test model entry: '%s'" % instance)
+        else:
+            print("Test model entry already exists: '%s'" % instance)
+        instance.publish()
+
+
+def create_test_data(delete_first=False):
+
+    reporter_user, editor_user = create_test_user(delete_first=delete_first)
+
+    create_test_page(delete_first=delete_first)
+
+    create_test_model_entries(delete_first=delete_first)
 
     return reporter_user, editor_user
