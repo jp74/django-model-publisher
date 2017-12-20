@@ -65,7 +65,7 @@ class TestCommand(distutils.cmd.Command):
         self.announce("Running tests...", level=distutils.log.INFO)
         returncode = subprocess.call(['pytest', 'publisher_tests'])
         sys.exit(returncode)
-        
+
 
 #_____________________________________________________________________________
 # convert creole to ReSt on-the-fly, see also:
@@ -250,7 +250,7 @@ classifiers=[
     #   3 - Alpha
     #   4 - Beta
     #   5 - Production/Stable
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 4 - Beta',
 
     'Environment :: Web Environment',
     'Framework :: Django',
@@ -258,11 +258,9 @@ classifiers=[
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.6',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Content Management System',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
@@ -272,7 +270,7 @@ classifiers=[
 setup(
     name='django-ya-model-publisher',
     version=__version__,
-    description="""Handy mixin/abstract class for providing a "publisher workflow" to arbitrary Django models.""",
+    description="Publisher workflow for django models and Django CMS pages.",
     long_description=long_description,
     author='Jens Diemer',
     author_email='model-ya-publisher@jensdiemer.de',
@@ -287,7 +285,7 @@ setup(
     license="BSD",
     zip_safe=False,
     keywords='publisher django cms parler workflow model-publisher',
-    python_requires='>=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4',
+    python_requires='>=2.7',
     classifiers=classifiers,
     cmdclass={
         'test': TestCommand,
