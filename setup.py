@@ -23,24 +23,15 @@ __version__="<unknown>"
 exec(read('publisher', 'version.py'))
 
 
-class ToxTestCommand(distutils.cmd.Command):
-    """Distutils command to run tests via tox with 'python setup.py test'.
-
-    Please note that in this package configuration tox uses the dependencies in
-    ``requirements/dev.txt``, the list of dependencies in ``tests_require`` in
-    ``setup.py`` is ignored!
-
-    See https://docs.python.org/3/distutils/apiref.html#creating-a-new-distutils-command
-    for more documentation on custom distutils commands.
-    """
-    description = "Run tests via 'tox'."
+class BaseCommand(distutils.cmd.Command):
     user_options = []
+    def initialize_options(self): pass
+    def finalize_options(self): pass
 
-    def initialize_options(self):
-        pass
 
-    def finalize_options(self):
-        pass
+class ToxTestCommand(BaseCommand):
+    """Distutils command to run tests via tox: 'python setup.py tox'."""
+    description = "Run tests via 'tox'."
 
     def run(self):
         self.announce("Running tests with 'tox'...", level=distutils.log.INFO)
@@ -48,22 +39,13 @@ class ToxTestCommand(distutils.cmd.Command):
         sys.exit(returncode)
 
 
-class TestCommand(distutils.cmd.Command):
-    """
-    Distutils command to run tests via py.test.
-    """
+class TestCommand(BaseCommand):
+    """Distutils command to run tests via py.test: 'python setup.py test'."""
     description = "Run tests via 'py.test'."
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
 
     def run(self):
         self.announce("Running tests...", level=distutils.log.INFO)
-        returncode = subprocess.call(['pytest', 'publisher_tests'])
+        returncode = subprocess.call(['pytest'])
         sys.exit(returncode)
 
 

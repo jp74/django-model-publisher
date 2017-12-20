@@ -1,4 +1,3 @@
--r base.txt
 mock
 coverage
 flake8

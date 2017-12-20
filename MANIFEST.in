@@ -3,6 +3,6 @@ include CONTRIBUTING.rst
 include LICENSE
 include README.creole
 recursive-include publisher *.html *.png *.js *.css *.py
-recursive-include publisher_cms *.py
+recursive-include publisher_cms *.py *.html
 recursive-include publisher_test_project *.py *.html
 recursive-include publisher_tests *.py

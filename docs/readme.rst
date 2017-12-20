@@ -136,7 +136,15 @@ For a complete fresh database, just remove the sqlite file, e.g.:
 history
 -------
 
-* v0.5.0 - 19.12.2017 - `compare v0.4.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...develop>`_ 
+* v0.5.1 - 20.12.2017 - `compare v0.5.0...v0.5.1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.0...v0.5.1>`_ 
+
+    * fix python package (add missing parts)
+
+    * change travis/tox/pytest configuration
+
+    * minor code update
+
+* v0.5.0 - 19.12.2017 - `compare v0.4.1...v0.5.0 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.4.1...v0.5.0>`_ 
 
     * Skip official support for python v2.7 and v3.4 (remove from text matrix)
 
