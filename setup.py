@@ -279,6 +279,9 @@ setup(
     url='https://github.com/wearehoods/django-ya-model-publisher',
     packages=[
         'publisher',
+        'publisher_cms',
+        'publisher_test_project',
+        'publisher_tests',
     ],
     include_package_data=True,
     license="BSD",
