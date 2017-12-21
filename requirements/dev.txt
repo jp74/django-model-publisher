@@ -10,6 +10,10 @@ python-creole
 wheel
 twine
 aldryn_translation_tools
+
 django-parler
 django-tools>=0.38.0
 django-cms-tools>=0.5.0
+
+# http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
+django-debug-toolbar

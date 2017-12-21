@@ -1,14 +1,21 @@
 
+import logging
 import os
 
 import django
 
-from publisher.utils import parler_exists
+from django_tools.settings_utils import FnMatchIps
 
+from publisher.utils import parler_exists
 
 DIRNAME = os.path.dirname(__file__)
 
 DEBUG = True
+
+# Required for the debug toolbar to be displayed:
+INTERNAL_IPS = FnMatchIps(["localhost", "127.0.0.1", "::1", "172.*.*.*", "192.168.*.*", "10.0.*.*"])
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -32,6 +39,8 @@ INSTALLED_APPS = (
 
     'django_tools', # https://github.com/jedie/django-tools/
 
+    'debug_toolbar', # https://github.com/jazzband/django-debug-toolbar/
+
     'publisher',
     'publisher_cms',
     'publisher_test_project.publisher_test_app',
@@ -51,6 +60,8 @@ STATIC_ROOT = os.path.join(os.path.abspath(DIRNAME), "static")
 SECRET_KEY = 'abc123'
 ALLOWED_HOSTS=["*"]
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -140,7 +151,6 @@ CMS_TEMPLATES = (
 #_____________________________________________________________________________
 # cut 'pathname' in log output
 
-import logging
 try:
     old_factory = logging.getLogRecordFactory()
 except AttributeError: # e.g.: Python < v3.2
