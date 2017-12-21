@@ -21,14 +21,16 @@ from .signals import (
     publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
     publisher_publish_pre_save_draft
 )
-from .utils import assert_draft
+from .utils import assert_draft, django_cms_exists, parler_exists, aldryn_translation_tools_exists
 
 log = logging.getLogger(__name__)
 
-try:
+if django_cms_exists:
     from cms.models import Page
-except ImportError:
-    Page=None
+    from cms.models.placeholdermodel import Placeholder
+    from cms.models.fields import PlaceholderField
+    from cms.utils.copy_plugins import copy_plugins_to
+
 
 
 class PublisherModelBase(ModelPermissionMixin, models.Model):
@@ -209,9 +211,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
     @assert_draft
     def patch_placeholders(self, draft_obj):
-        try:
-            from cms.utils.copy_plugins import copy_plugins_to  # noqa
-        except ImportError:
+        if not django_cms_exists:
             return
 
         published_obj = draft_obj.publisher_linked
@@ -284,9 +284,7 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
                 translation.save()
 
     def clone_placeholder(self, src_obj, dst_obj):
-        try:
-            from cms.utils.copy_plugins import copy_plugins_to
-        except ImportError:
+        if not django_cms_exists:
             return
 
         for field in self.get_placeholder_fields(src_obj):
@@ -311,13 +309,10 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
         pass
 
     def get_placeholder_fields(self, obj=None):
-        placeholder_fields = []
+        if not django_cms_exists:
+            return []
 
-        try:
-            from cms.models.placeholdermodel import Placeholder
-            from cms.models.fields import PlaceholderField
-        except ImportError:
-            return placeholder_fields
+        placeholder_fields = []
 
         if obj is None:
             obj = self
@@ -355,23 +350,19 @@ class PublisherModel(PublisherModelBase):
         )
 
 
-try:
+if parler_exists:
     from .managers import PublisherParlerManager
     from parler.models import TranslatableModelMixin
-except ImportError:
-    pass
-else:
+
     class PublisherParlerModel(TranslatableModelMixin, PublisherModelBase):
         objects = PublisherParlerManager()
 
         class Meta(PublisherModel.Meta):
             abstract = True
 
-    try:
+    if aldryn_translation_tools_exists:
         from aldryn_translation_tools.models import TranslatedAutoSlugifyMixin
-    except ImportError:
-        pass
-    else:
+
         class PublisherParlerAutoSlugifyModel(TranslatedAutoSlugifyMixin, PublisherParlerModel):
 
             def _get_slug_queryset(self, *args, **kwargs):

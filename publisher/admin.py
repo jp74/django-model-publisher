@@ -19,13 +19,9 @@ from django.utils.translation import ugettext_lazy as _
 from publisher import constants
 from publisher.forms import PublisherForm, PublisherParlerForm, PublisherNoteForm
 from publisher.models import PublisherStateModel
+from publisher.utils import django_cms_exists, hvad_exists, parler_exists
 
 log = logging.getLogger(__name__)
-
-try:
-    import cms
-except ImportError:
-    cms = None
 
 
 def make_published(modeladmin, request, queryset):
@@ -442,12 +438,10 @@ class PublisherAdmin(ModelAdmin):
             request, context, add, change, form_url, obj=None)
 
 
-try:
+if hvad_exists:
     from hvad.admin import TranslatableAdmin
     from hvad.manager import FALLBACK_LANGUAGES
-except ImportError:
-    pass
-else:
+
     class PublisherHvadAdmin(TranslatableAdmin, PublisherAdmin):
         change_form_template = "publisher/hvad/change_form.html"
 
@@ -467,11 +461,9 @@ else:
             return qs
 
 
-try:
+if parler_exists:
     from parler.admin import TranslatableAdmin as PTranslatableAdmin
-except ImportError:
-    pass
-else:
+
     class PublisherParlerAdmin(PTranslatableAdmin, PublisherAdmin):
         form = PublisherParlerForm
         change_form_template = "publisher/parler/change_form.html"
@@ -630,7 +622,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     if current_request.action == constants.ACTION_UNPUBLISH:
                         # We should not redirect to a unpublished page/object ;)
                         # otherwise we get a 404
-                        if cms is not None:
+                        if django_cms_exists:
                             # turn on Django CMS edit mode
                             url += "?edit"
                         else:

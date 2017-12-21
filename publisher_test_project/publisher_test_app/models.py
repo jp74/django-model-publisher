@@ -1,22 +1,11 @@
+
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from publisher_cms.cms_toolbars import PublisherPageToolbar
-
 from publisher.managers import PublisherManager
 from publisher.models import PublisherModel
-
-
-try:
-    import parler
-except ImportError:
-    parler=None
-
-
-try:
-    import aldryn_translation_tools
-except ImportError as err:
-    aldryn_translation_tools=None
+from publisher.utils import aldryn_translation_tools_exists, parler_exists
+from publisher_cms.cms_toolbars import PublisherPageToolbar
 
 
 class PublisherTestModel(PublisherModel):
@@ -34,7 +23,7 @@ class PublisherTestModel(PublisherModel):
         verbose_name_plural = "Publisher Test Model"
 
 
-if parler is not None:
+if parler_exists:
     from parler.models import TranslatedFields
     from publisher.models import PublisherParlerModel
 
@@ -44,7 +33,7 @@ if parler is not None:
         )
 
 
-if aldryn_translation_tools is not None:
+if aldryn_translation_tools_exists:
     from publisher.models import PublisherParlerAutoSlugifyModel
 
     class PublisherParlerAutoSlugifyTestModel(PublisherParlerAutoSlugifyModel):

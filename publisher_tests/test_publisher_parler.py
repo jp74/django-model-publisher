@@ -4,28 +4,18 @@ import unittest
 from django import test
 from django.core.cache import cache
 
-try:
-    import parler
+from publisher.utils import aldryn_translation_tools_exists, parler_exists
+
+if parler_exists:
     from parler.managers import TranslatableQuerySet
-except ImportError:
-    PARLER_INSTALLED=False
-else:
-    PARLER_INSTALLED = True
+
     from publisher_test_project.publisher_test_app.models import PublisherParlerTestModel
 
-
-TRANSLATION_TOOLS_INSTALLED=False
-if PARLER_INSTALLED:
-    try:
-        import aldryn_translation_tools
-    except ImportError as err:
-        pass
-    else:
-        TRANSLATION_TOOLS_INSTALLED = True
+    if aldryn_translation_tools_exists:
         from publisher_test_project.publisher_test_app.models import PublisherParlerAutoSlugifyTestModel
 
 
-@unittest.skipIf(PARLER_INSTALLED != True, 'Django-Parler is not installed')
+@unittest.skipIf(parler_exists != True, 'Django-Parler is not installed')
 class PublisherParlerTest(test.TestCase):
 
     def test_queryset_subclass(self):
@@ -95,7 +85,7 @@ class PublisherParlerTest(test.TestCase):
 
 
 
-@unittest.skipIf(TRANSLATION_TOOLS_INSTALLED != True, 'aldryn_translation_tools is not installed')
+@unittest.skipIf(aldryn_translation_tools_exists != True, 'aldryn_translation_tools is not installed')
 class PublisherParlerAutoSlugifyTest(test.TestCase):
     def tearDown(self):
         # Parler cache must be cleared, otherwise some test failed.

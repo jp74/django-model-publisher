@@ -9,6 +9,7 @@ from django.utils import timezone
 from cms.models import Page
 
 from publisher import constants
+from publisher.utils import parler_exists
 
 from .signal_handlers import publisher_post_save, publisher_pre_delete
 
@@ -58,11 +59,9 @@ class BasePublisherManager(models.Manager):
 
 PublisherManager = BasePublisherManager.from_queryset(PublisherQuerySet)
 
-try:
+if parler_exists:
     from parler.managers import TranslatableManager, TranslatableQuerySet
-except ImportError:
-    pass
-else:
+
     class PublisherParlerQuerySet(PublisherQuerySet, TranslatableQuerySet):
         pass
 
