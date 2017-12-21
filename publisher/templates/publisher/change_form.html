@@ -1,42 +1,9 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_static admin_modify admin_urls %}
 
-{% block object-tools %}
+{% block object-tools-items %}
+    {% include "publisher/includes/object_tools_buttons.html" %}
     {{ block.super }}
-	{% if change and not is_popup %}
-		<ul class="object-tools">
-			{% block object-tools-items %}
-				{% if has_ask_request_permission and not has_publish_permission %}
-                    <li>
-                        <a href="{{ publish_btn_live }}">Publish Draft</a>
-                    </li>
-                {% endif %}
-				{% if has_publish_permission %}
-					{% if publish_btn_live %}
-						<li>
-							<a href="{{ publish_btn_live }}">Publish Draft</a>
-						</li>
-					{% endif %}
-					{% if unpublish_btn %}
-						<li>
-							<a href="{{ unpublish_btn }}">Unpublish</a>
-						</li>
-					{% endif %}
-					{% if revert_btn %}
-						<li>
-							<a href="{{ revert_btn }}">Revert to Published</a>
-						</li>
-					{% endif %}
-					{% if preview_draft_btn %}
-						<li>
-							<a href="{{ original.get_absolute_url }}?edit">Preview Draft</a>
-						</li>
-					{% endif %}
-				{% endif %}
-				{{ block.super }}
-			{% endblock %}
-		</ul>
-	{% endif %}
 {% endblock %}
 
 {% if save_on_top %}{% block submit_buttons_top %}{% include "publisher/includes/submit_row.html" %}{% endblock %}{% endif %}
