@@ -3,7 +3,7 @@
 
 {% block object-tools %}
     {{ block.super }}
-	{% if change %}{% if not is_popup %}
+	{% if change and not is_popup %}
 		<ul class="object-tools">
 			{% block object-tools-items %}
 				{% if has_ask_request_permission and not has_publish_permission %}
@@ -36,7 +36,7 @@
 				{{ block.super }}
 			{% endblock %}
 		</ul>
-	{% endif %}{% endif %}
+	{% endif %}
 {% endblock %}
 
 {% if save_on_top %}{% block submit_buttons_top %}{% include "publisher/includes/submit_row.html" %}{% endblock %}{% endif %}
