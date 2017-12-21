@@ -1,7 +1,10 @@
-from __future__ import unicode_literals
+
 import os
 
 import django
+
+from publisher.utils import parler_exists
+
 
 DIRNAME = os.path.dirname(__file__)
 
@@ -33,6 +36,10 @@ INSTALLED_APPS = (
     'publisher_cms',
     'publisher_test_project.publisher_test_app',
 )
+if parler_exists:
+    INSTALLED_APPS += (
+        'parler',
+    )
 
 ROOT_URLCONF = 'publisher_test_project.urls'
 
