@@ -9,6 +9,7 @@ do
 (
     clear
     echo "====================================================================="
+    set +e
     (
         set -x
         ./manage.py run_test_project_dev_server $*
