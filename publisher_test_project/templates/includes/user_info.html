@@ -1,0 +1,10 @@
+<ul>
+    <h2>user '{{ user.username }}' has these permissions:</h2>
+    {% if user.is_superuser %}
+        <li>**all permissions** (you are 'super user')</li>
+    {% else %}
+        <li>publisher 'ask': {{ has_ask_request_permission|yesno:"yes,no,-" }}</li>
+        <li>publisher 'reply': {{ has_reply_request_permission|yesno:"yes,no,-" }}</li>
+        <li>cms.publish_page: {{ cms_publish_page|yesno:"yes,no,-" }}</li>
+    {% endif %}
+</ul>

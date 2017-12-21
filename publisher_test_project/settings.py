@@ -84,7 +84,9 @@ if django.VERSION < (1, 10):
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(os.path.abspath(DIRNAME), "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,6 +96,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'sekizai.context_processors.sekizai',
                 'cms.context_processors.cms_settings',
+
+                'publisher_test_app.context_processors.debug_info',
             ],
         },
     },
