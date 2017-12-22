@@ -85,7 +85,7 @@ Permissions for **'editor'** who can //accept/reject (un-)publish requests//:
 ...
 }}}
 
-**Important**: To prevent a privilege escalation, both users must not have access to these models:
+**Important**: To prevent a privilege escalation, both users must **not** have access to these models:
 
 * django.contrib.auth.models.Permission
 * django.contrib.auth.models.Group
@@ -101,7 +101,7 @@ See user permission tests in:
 == Django compatibility
 
 |= django-ya-model-publisher |= django version      |= python            |
-| v0.5.x                     | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
+| >=v0.5.x                   | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
 | v0.4.x                     | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 
 Note: See travis/tox config files for current test matrix
@@ -188,6 +188,12 @@ $ rm publisher_test_project/publisher_test_database.sqlite3
 
 The permission names changed! Please update your django user permissions, too.
 
+These permissions are removed:
+* direct_publisher
+* ask_publisher_request
+* reply_publisher_request
+
+Please read the information above.
 
 == history
 
