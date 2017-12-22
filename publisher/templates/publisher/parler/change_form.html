@@ -10,4 +10,5 @@
 
 {% block submit_buttons_bottom %}
     {% include "publisher/includes/submit_buttons_bottom.html" %}
+    {{ block.super }}{# <- adds buttons from django.contrib.admin.templatetags.admin_modify.submit_row #}
 {% endblock %}

@@ -15,63 +15,46 @@ from django_tools.unittest_utils.user import create_user
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
 from publisher.models import PublisherStateModel
+from publisher_tests.base import ClientBaseTestCase
+
+from publisher_test_project.fixtures import REPORTER_USER, EDITOR_USER
 
 log = logging.getLogger(__name__)
-User = get_user_model()
 
 
-class PublisherStateTests(test.TestCase):
+
+class PublisherStateTests(ClientBaseTestCase):
 
     @classmethod
     def setUpTestData(cls):
         super(PublisherStateTests, cls).setUpTestData()
 
+        PublisherTestModel.objects.all().delete() # FIXME
         cls.draft = PublisherTestModel.objects.create(title="publisher test")
 
+        User = get_user_model()
         cls.user_no_permissions = User.objects.create(username="user_with_no_permissions")
 
-        def create_test_user(username, permission):
-            content_type = ContentType.objects.get_for_model(PublisherStateModel)
-            permission = Permission.objects.get(content_type=content_type, codename=permission)
-
-            group = Group.objects.create(name="%s_group" % username)
-            group.permissions.add(permission)
-
-            user = create_user(
-                username=username,
-                password="unittest",
-                groups=(group,),
-            )
-            return user
-
-        cls.ask_permission_user = create_test_user(
-            username="ask_permission_user",
-            permission="ask_publisher_request",
-        )
-        cls.reply_permission_user = create_test_user(
-            username="reply_permission_user",
-            permission="reply_publisher_request",
-        )
+        cls.ask_permission_user = User.objects.get(username=REPORTER_USER)
+        cls.reply_permission_user = User.objects.get(username=EDITOR_USER)
 
     def test_environment(self):
+        qs = Permission.objects.all().order_by("content_type__app_label", "content_type__model", "codename")
         all_permissions = [
-            "%s.%s" % (entry.content_type, entry.codename)
-            for entry in Permission.objects.all().order_by("content_type", "codename")
+            "%s.%s" % (entry.content_type.app_label, entry.codename)
+            for entry in qs
         ]
         pprint.pprint(all_permissions)
-        self.assertIn("Publisher Test Model.can_publish", all_permissions)
-        self.assertIn("Publisher Test Model.can_publish", all_permissions)
+        self.assertIn("publisher_test_app.can_publish_publisherparlertestmodel", all_permissions)
 
-        self.assertIn("Publisher State.direct_publisher", all_permissions)
-        self.assertIn("Publisher State.ask_publisher_request", all_permissions)
-        self.assertIn("Publisher State.reply_publisher_request", all_permissions)
+        self.assertIn("publisher.change_publisherstatemodel", all_permissions)
 
         self.assertTrue(
-            self.ask_permission_user.has_perm("publisher.ask_publisher_request")
+            self.ask_permission_user.has_perm("publisher.change_publisherstatemodel")
         )
-
-        permissions = self.ask_permission_user.get_all_permissions()
-        self.assertIn("publisher.ask_publisher_request", permissions)
+        self.assertTrue(
+            self.reply_permission_user.has_perm("publisher_test_app.can_publish_publisherparlertestmodel")
+        )
 
     def test_no_ask_request_permission(self):
         self.assertRaises(

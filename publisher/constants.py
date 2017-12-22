@@ -10,25 +10,30 @@ STATE_REJECTED = "rejected"
 STATE_ACCEPTED = "accepted"
 STATE_DONE = "done"
 
-PERMISSION_MODEL_CAN_PUBLISH = "can_publish"
 
-# user permission to publish/unpublish a object directly:
-PERMISSION_DIRECT_PUBLISHER = "direct_publisher"
+##############################################################################
+# permissions
 
-# user permission to create a publish/unpublish request:
-PERMISSION_ASK_REQUEST = "ask_publisher_request"
 
-# user permission to accept/reject a publish/unpublish request:
-PERMISSION_REPLY_REQUEST = "reply_publisher_request"
+# used in <publisher-model>.Meta.default_permissions:
+
+# user permission to (un-)publish a object directly & accept/reject a (un-)publish request:
+PERMISSION_CAN_PUBLISH = "can_publish"
+
+
+##############################################################################
+# request.POST keys:
+
 
 # A User with 'can_publish' permission can save&publish in one step:
 POST_SAVE_AND_PUBLISH_KEY = "_save_published"
 
-# request publish/unpublish submit names:
+
+# request (un-)publish submit names:
 POST_ASK_PUBLISH_KEY = "_ask_publish"
 POST_ASK_UNPUBLISH_KEY = "_ask_unpublish"
 
-# reply publish/unpublish submit names:
+
+# reply (un-)publish submit names:
 POST_REPLY_REJECT_KEY = "_reply_reject"
 POST_REPLY_ACCEPT_KEY = "_reply_accept"
-

@@ -1,13 +1,8 @@
 # coding: utf-8
 
-from __future__ import absolute_import, print_function, unicode_literals
-
-import pytest
-
 from publisher_tests.base import ClientBaseTestCase
 
 
-@pytest.mark.django_db
 class AdminLoggedinTests(ClientBaseTestCase):
     """
     Some basics test with the django admin
@@ -54,6 +49,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
                 'Title:',
                 'Publication start date:',
                 'Publication end date:',
+                # 'XXX'
             ),
             must_not_contain=('error', 'traceback'),
             template_name='publisher/change_form.html',

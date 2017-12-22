@@ -6,19 +6,22 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
+from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied, ValidationError, SuspiciousOperation
+from django.core.exceptions import PermissionDenied, SuspiciousOperation, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
+from django_tools.permissions import check_permission
 
 from publisher import constants
-from publisher.forms import PublisherForm, PublisherParlerForm, PublisherNoteForm
+from publisher.forms import PublisherForm, PublisherNoteForm, PublisherParlerForm
 from publisher.models import PublisherStateModel
+from publisher.permissions import has_object_permission, can_publish_object
 from publisher.utils import django_cms_exists, hvad_exists, parler_exists
 
 log = logging.getLogger(__name__)
@@ -97,9 +100,35 @@ class PublisherAdmin(ModelAdmin):
             self.admin_site.name,
             self.url_name_prefix
         )
-        super(PublisherAdmin, self).__init__(model, admin_site)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Use get_form() as an early executed hook where we can collect
+        information about the current object, used in:
+         * self.get_fieldsets()
+         * self.render_change_form()
+        """
+        print("publisher.admin.PublisherAdmin#get_form")
+
+        # Current user can direct publish the current object:
+        self.user_can_publish = self.has_publish_permission(request, obj=obj, raise_exception=False)
+
+        self.current_request = None # Open PublisherStateModel instance, if exists.
+        self.publisher_states = None # PublisherStateModel entries for current object, if exists.
+
+        if obj is not None:
+            self.publisher_states = PublisherStateModel.objects.all().filter_by_instance(
+                publisher_instance=obj
+            )
+            try:
+                self.current_request = self.publisher_states.latest()
+            except PublisherStateModel.DoesNotExist:
+                pass
+
+        return super(PublisherAdmin, self).get_form(request, obj=obj, **kwargs)
 
     def changeform_view(self, request, *args, **kwargs):
+        print("publisher.admin.PublisherAdmin#changeform_view")
         try:
             return super(PublisherAdmin, self).changeform_view(request, *args, **kwargs)
         except PendingPublishRequest:
@@ -107,47 +136,47 @@ class PublisherAdmin(ModelAdmin):
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
     def has_change_permission(self, request, obj=None):
+        print("publisher.admin.PublisherAdmin#has_change_permission")
         has_change_permission = super(PublisherAdmin, self).has_change_permission(request, obj=obj)
         if has_change_permission and obj is not None:
             log.debug("+++ edit %s", obj)
         return has_change_permission
 
-    def has_publish_permission(self, request, obj=None):
-        opts = self.opts
+    def has_publish_permission(self, request, obj=None, raise_exception=True):
+        if obj is None:
+            opts = self.opts
+        else:
+            opts = obj._meta
+
+        codename = get_permission_codename(constants.PERMISSION_CAN_PUBLISH, opts)
         perm_name = "%s.%s" % (
             opts.app_label,
-            constants.PERMISSION_MODEL_CAN_PUBLISH
+            codename
         )
-        has_perm = request.user.has_perm(perm_name)
-        log.debug("User '%s' has permission '%s': %s", request.user, perm_name, has_perm)
-        return has_perm
+        log.debug("Check %r", perm_name)
+        return check_permission(request.user, perm_name, raise_exception)
 
     def has_ask_request_permission(self, request, obj=None):
         """
-        has the current user permission to create a publish/unpublish request?
+        has the current user permission to create a (un-)publish request?
         """
-        user = request.user
-        has_ask_request_permission = PublisherStateModel.has_ask_request_permission(user, raise_exception=False)
-        if not has_ask_request_permission:
-            log.debug("Hide 'ask publish request' because current user has not the permission for it!")
-        return has_ask_request_permission
+        return PublisherStateModel.has_change_permission(request.user, raise_exception=False)
 
-    def has_reply_request_permission(self, request, obj=None):
-        """
-        has the current user permission to accept/reject a publish/unpublish request?
-        """
-        user = request.user
-        has_reply_request_permission = PublisherStateModel.has_reply_request_permission(user, raise_exception=False)
-        if not has_reply_request_permission:
-            log.debug("Hide 'reply publish request' because current user has not the permission for it!")
-        return has_reply_request_permission
+    def has_delete_permission(self, request, obj=None):
+        has_delete_permission = super(PublisherAdmin, self).has_delete_permission(request, obj=obj)
+        if has_delete_permission:
+            if not self.has_publish_permission(request, obj=obj, raise_exception=False):
+                # If a user can't publish -> he should not delete the object!
+                has_delete_permission = False
+
+        return has_delete_permission
 
     def publisher_object_title(self, obj):
         return u"%s" % obj
     publisher_object_title.short_description = "Title"
 
     def publisher_status(self, obj):
-        if not self.has_publish_permission(self.request, obj):
+        if not self.has_publish_permission(self.request, obj, raise_exception=False):
             return ""
 
         template_name = "publisher/change_list_publish_status.html"
@@ -175,7 +204,7 @@ class PublisherAdmin(ModelAdmin):
         context = {
             "object": obj,
             "is_published": is_published,
-            "has_publish_permission": self.has_publish_permission(self.request, obj),
+            "has_publish_permission": self.has_publish_permission(self.request, obj, raise_exception=False),
             "publish_url": reverse(self.publish_reverse, args=(obj.pk, )),
             "unpublish_url": reverse(self.unpublish_reverse, args=(obj.pk, )),
         }
@@ -209,6 +238,7 @@ class PublisherAdmin(ModelAdmin):
         return publish_urls + urls
 
     def get_model_object(self, request, object_id):
+        print("publisher.admin.PublisherAdmin#get_model_object")
         obj = self.model.objects.get(pk=object_id)
 
         if not self.has_change_permission(request, obj):
@@ -228,8 +258,7 @@ class PublisherAdmin(ModelAdmin):
     def revert_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not self.has_publish_permission(request, obj):
-            raise PermissionDenied
+        self.has_publish_permission(request, obj, raise_exception=True)
 
         obj.revert_to_public()
 
@@ -242,8 +271,7 @@ class PublisherAdmin(ModelAdmin):
     def unpublish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not self.has_publish_permission(request, obj):
-            raise PermissionDenied
+        self.has_publish_permission(request, obj, raise_exception=True)
 
         obj.unpublish()
 
@@ -256,8 +284,7 @@ class PublisherAdmin(ModelAdmin):
     def publish_view(self, request, object_id):
         obj = self.get_model_object(request, object_id)
 
-        if not self.has_publish_permission(request, obj):
-            raise PermissionDenied
+        self.has_publish_permission(request, obj, raise_exception=True)
 
         obj.publish()
 
@@ -274,16 +301,6 @@ class PublisherAdmin(ModelAdmin):
                 raise PendingPublishRequest
 
         return self.has_ask_request_permission(request, obj)
-
-    def _add_reply_publish_publisher_request(self, request, obj):
-
-        if obj is not None:
-            has_open_requests = PublisherStateModel.objects.has_open_requests(obj)
-            if not has_open_requests:
-                log.debug("Hide 'reply publish request' because there is no request!")
-                return False
-
-        return self.has_reply_request_permission(request, obj)
 
     def post_ask_publish(self, request, obj, form):
         if not obj.is_dirty:
@@ -331,8 +348,7 @@ class PublisherAdmin(ModelAdmin):
         messages.success(request, _("Publish request has been accepted."))
 
     def post_save_and_publish(self, request, obj, form):
-        if not self.has_publish_permission(request, obj):
-            raise PermissionDenied
+        self.has_publish_permission(request, obj, raise_exception=True)
 
         obj.publish()
 
@@ -357,81 +373,81 @@ class PublisherAdmin(ModelAdmin):
             self.post_save_and_publish(request, obj, form)
 
     def get_fieldsets(self, request, obj=None):
+        """
+        Add 'node' fieldset.
+        """
+        print("publisher.admin.PublisherAdmin#get_fieldsets")
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
 
-        add_reply = self._add_reply_publish_publisher_request(request, obj)
-
         fieldset_name = None
-        if add_reply:
-            fieldset_name = _("reply publishing request")
+
+        if self.user_can_publish:
+            if self.current_request is not None:
+                fieldset_name = _("reply open publish request")
         else:
-            add_ask = self._add_ask_publish_publisher_request(request, obj)
-            if add_ask:
-                fieldset_name = _("request publishing")
+            fieldset_name = _("send publish request")
 
         if fieldset_name is not None:
-            # made the "note" field visible
+            log.debug("made the 'note' fieldset visible as %s", fieldset_name)
             fieldsets += (
                 (fieldset_name, {"fields": ("note",)}),
             )
+        else:
+            log.debug("Don't display 'note' fieldset.")
 
         return fieldsets
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        print("publisher.admin.PublisherAdmin#render_change_form")
+        user = request.user
+
+        print("obj", repr(obj))
+        print("original", repr(context.get("original", None)))
+
         obj = context.get("original", None)
-        if not obj:
-            return super(PublisherAdmin, self).render_change_form(
-                request, context, add, change, form_url, obj=None)
 
-        has_publish_permission=self.has_publish_permission(request, obj)
-        context["has_publish_permission"] = has_publish_permission
+        current_request = None
 
-        if has_publish_permission:
-            publish_btn = None
-            if obj.is_dirty:
-                publish_btn = reverse(self.publish_reverse, args=(obj.pk, ))
-
-            preview_draft_btn = None
-            if callable(getattr(obj, "get_absolute_url", None)):
-                preview_draft_btn = True
-
-            unpublish_btn = None
-            if obj.publisher_is_draft and obj.publisher_linked:
-                unpublish_btn = reverse(self.unpublish_reverse, args=(obj.pk, ))
-
-            revert_btn = None
-            if obj.is_dirty and obj.publisher_linked:
-                revert_btn = reverse(self.revert_reverse, args=(obj.pk, ))
-
-            context.update({
-                "POST_SAVE_AND_PUBLISH_KEY": constants.POST_SAVE_AND_PUBLISH_KEY,
-                "publish_btn_live": publish_btn,
-                "preview_draft_btn": preview_draft_btn,
-                "unpublish_btn": unpublish_btn,
-                "revert_btn": revert_btn,
-            })
-
-        context["original"] = obj
-
-        publisher_states = PublisherStateModel.objects.all().filter_by_instance(
-            publisher_instance=obj
-        )
-        context["publisher_states"] = publisher_states
-
-        add_reply = self._add_reply_publish_publisher_request(request, obj)
-        if add_reply:
-            has_reply_request_permission = self.has_reply_request_permission(request, obj)
-            context["has_reply_request_permission"] = has_reply_request_permission
-            context["POST_REPLY_ACCEPT_KEY"] = constants.POST_REPLY_ACCEPT_KEY
-            context["POST_REPLY_REJECT_KEY"] = constants.POST_REPLY_REJECT_KEY
-            current_request = PublisherStateModel.objects.get_current_publisher_request(obj)
-            context["current_request"] = current_request
+        if obj is None:
+            add_publish = False
+            add_unpublish = False
+            add_revert = False
         else:
-            add_ask = self._add_ask_publish_publisher_request(request, obj)
-            if add_ask:
-                has_ask_request_permission = self.has_ask_request_permission(request, obj)
-                context["has_ask_request_permission"] = has_ask_request_permission
-                context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+            add_publish = obj.is_dirty
+            add_unpublish = obj.publisher_is_draft and obj.publisher_linked
+            add_revert = obj.is_dirty and obj.publisher_linked
+
+            context["add_current_request_info"] = True
+            if self.publisher_states is not None:
+                context["publisher_states"] = self.publisher_states
+                context["current_request"] = self.current_request
+                if obj.is_dirty and callable(getattr(obj, "get_absolute_url", None)):
+                    context["preview_draft_btn"] = True
+
+        if self.user_can_publish:
+            if current_request is None:
+                context["POST_SAVE_AND_PUBLISH_KEY"] = constants.POST_SAVE_AND_PUBLISH_KEY
+            else:
+
+                context["action"]= current_request.action
+                context["POST_REPLY_ACCEPT_KEY"] = constants.POST_REPLY_ACCEPT_KEY
+                context["POST_REPLY_REJECT_KEY"] = constants.POST_REPLY_REJECT_KEY
+
+            if add_publish:
+                context["publish_btn"] = reverse(self.publish_reverse, args=(obj.pk, ))
+
+            if add_unpublish:
+                context["unpublish_btn"] = reverse(self.unpublish_reverse, args=(obj.pk, ))
+
+            if add_revert:
+                context["revert_btn"] = reverse(self.revert_reverse, args=(obj.pk, ))
+        else:
+            # User can't publish
+            if current_request is not None:
+                raise SuspiciousOperation("Pending request!")
+
+            context["POST_ASK_PUBLISH_KEY"] = constants.POST_ASK_PUBLISH_KEY
+            if add_unpublish:
                 context["POST_ASK_UNPUBLISH_KEY"] = constants.POST_ASK_UNPUBLISH_KEY
 
         return super(PublisherAdmin, self).render_change_form(
@@ -579,7 +595,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
     def reply_request(self, request, pk):
         user = request.user
-        has_reply_request_permission = PublisherStateModel.has_reply_request_permission(
+        PublisherStateModel.has_change_permission(
             user,
             raise_exception=True
         )
@@ -645,10 +661,12 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             # "original": current_state,
             "publisher_states": publisher_states,
 
+            "add_publisher_submit": True, # Add publisher submit buttons
+            "add_current_request_info": True,
             "current_request": current_request,
+
             "action": current_request.action,
 
-            "has_reply_request_permission": has_reply_request_permission,
             "POST_REPLY_ACCEPT_KEY": constants.POST_REPLY_ACCEPT_KEY,
             "POST_REPLY_REJECT_KEY": constants.POST_REPLY_REJECT_KEY,
 
@@ -665,12 +683,19 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         assert action in PublisherStateModel.ACTION_DICT
 
         user = request.user
-        has_ask_request_permission = PublisherStateModel.has_ask_request_permission(
+        has_change_permission = PublisherStateModel.has_change_permission(
             user,
             raise_exception=True
         )
         content_type = get_object_or_404(ContentType, pk=content_type_id)
         publisher_instance = content_type.get_object_for_this_type(pk=object_id)
+
+        # raise PermissionDenied if user can't change object
+        has_object_permission(user,
+            obj=publisher_instance,
+            action="change",
+            raise_exception=True
+        )
 
         if request.method != 'POST':
             form = PublisherNoteForm()
@@ -705,10 +730,13 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             "form": form,
             "original": publisher_instance,
             # "original": current_state,
+
+            "add_publisher_submit": True, # Add publisher submit buttons
+
             "publisher_states": publisher_states,
 
             "action": action,
-            "has_ask_request_permission": has_ask_request_permission,
+            "has_ask_request_permission": has_change_permission,
 
             # For origin django admin templates:
             "opts": self.opts,
@@ -781,5 +809,3 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         StatusListFilter,
         "action", "state",
     )
-
-

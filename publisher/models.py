@@ -10,13 +10,12 @@ from django.template.defaultfilters import truncatewords
 from django.utils import six, timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import get_language
 
 # https://github.com/jedie/django-tools
 from django_tools.permissions import ModelPermissionMixin, check_permission
 
 from . import constants
-from .managers import PageProxyManager, PublisherChangeManager, PublisherManager
+from .managers import PublisherChangeManager, PublisherManager
 from .signals import (
     publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
     publisher_publish_pre_save_draft
@@ -30,7 +29,6 @@ if django_cms_exists:
     from cms.models.placeholdermodel import Placeholder
     from cms.models.fields import PlaceholderField
     from cms.utils.copy_plugins import copy_plugins_to
-
 
 
 class PublisherModelBase(ModelPermissionMixin, models.Model):
@@ -345,8 +343,14 @@ class PublisherModel(PublisherModelBase):
 
     class Meta:
         abstract = True
-        permissions = (
-            (constants.PERMISSION_MODEL_CAN_PUBLISH, 'Can publish'),
+
+        # https://docs.djangoproject.com/en/1.11/ref/models/options/#default-permissions
+        default_permissions = (
+            # Django default permissions:
+            'add', 'change', 'delete',
+
+            # (un-)publish a object directly & accept/reject a (un-)publish request:
+            constants.PERMISSION_CAN_PUBLISH,
         )
 
 
@@ -468,21 +472,13 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     #-------------------------------------------------------------------------
 
     @classmethod
-    def has_direct_permission(cls, user, raise_exception=True):
-        """ user permission to publish/unpublish a object directly """
-        permission = cls.extra_permission_name(action=constants.PERMISSION_DIRECT_PUBLISHER)
-        return check_permission(user, permission, raise_exception)
-
-    @classmethod
-    def has_ask_request_permission(cls, user, raise_exception=True):
-        """ user permission to create a publish/unpublish request """
-        permission = cls.extra_permission_name(action=constants.PERMISSION_ASK_REQUEST)
-        return check_permission(user, permission, raise_exception)
-
-    @classmethod
-    def has_reply_request_permission(cls, user, raise_exception=True):
-        """ user permission to accept/reject a publish/unpublish request """
-        permission = cls.extra_permission_name(action=constants.PERMISSION_REPLY_REQUEST)
+    def has_can_publish_permission(cls, user, raise_exception=True):
+        """
+        user permission to:
+         * (un-)publish a object directly
+         * accept/reject a (un-)publish request
+        """
+        permission = cls.extra_permission_name(action=constants.PERMISSION_CAN_PUBLISH)
         return check_permission(user, permission, raise_exception)
 
     #-------------------------------------------------------------------------
@@ -620,8 +616,3 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         verbose_name_plural = _("Publisher States")
         get_latest_by = 'request_timestamp'
         ordering = ['-request_timestamp']
-        permissions = (
-            (constants.PERMISSION_DIRECT_PUBLISHER, "publish/unpublish a object directly"),
-            (constants.PERMISSION_ASK_REQUEST, "create a publish/unpublish request"),
-            (constants.PERMISSION_REPLY_REQUEST, "accept/reject a publish/unpublish request"),
-        )

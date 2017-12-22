@@ -9,6 +9,7 @@ from django.utils import timezone
 from cms.models import Page
 
 from publisher import constants
+from publisher.permissions import has_object_permission
 from publisher.utils import parler_exists
 
 from .signal_handlers import publisher_post_save, publisher_pre_delete
@@ -126,8 +127,22 @@ class PublisherChangeManager(models.Manager):
 
         return state_instance
 
+    def _assert_permissions(self, user, publisher_instance):
+        # raise PermissionDenied if user can't change object
+        has_object_permission(user,
+            obj=publisher_instance,
+            action="change",
+            raise_exception=True
+        )
+
+        # raise PermissionDenied if user can't change PublisherStateModel
+        self.model.has_change_permission(
+            user,
+            raise_exception=True
+        )
+
     def request_publishing(self, user, publisher_instance, note=None):
-        self.model.has_ask_request_permission(user, raise_exception=True)
+        self._assert_permissions(user, publisher_instance)
 
         assert publisher_instance.publisher_is_draft
         assert publisher_instance.is_dirty
@@ -142,7 +157,7 @@ class PublisherChangeManager(models.Manager):
         return state_instance
 
     def request_unpublishing(self, user, publisher_instance, note=None):
-        self.model.has_ask_request_permission(user, raise_exception=True)
+        self._assert_permissions(user, publisher_instance)
 
         draft = publisher_instance.get_draft_object()
         if isinstance(draft, Page):
@@ -187,35 +202,3 @@ class PublisherChangeManager(models.Manager):
             viewname="admin:publisher_publisherstatemodel_request_unpublish",
         )
 
-
-
-class PageProxyManager(PublisherManager):
-    def request_publishing(self, user, page, note=None):
-        assert page.publisher_is_draft==True
-
-        proxy_instance = self.model()
-        proxy_instance.page = page
-        proxy_instance.save()
-
-        from publisher.models import PublisherStateModel
-        state_instance = PublisherStateModel.objects.request_publishing(
-            user=user,
-            publisher_instance=proxy_instance,
-            note=note
-        )
-        return state_instance
-
-    def request_unpublishing(self, user, page, note=None):
-        assert page.publisher_is_draft==True
-
-        proxy_instance = self.model()
-        proxy_instance.page = page
-        proxy_instance.save()
-
-        from publisher.models import PublisherStateModel
-        state_instance = PublisherStateModel.objects.request_unpublishing(
-            user=user,
-            publisher_instance=proxy_instance,
-            note=note
-        )
-        return state_instance

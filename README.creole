@@ -17,6 +17,87 @@ This is a fork of [[https://github.com/andersinno/django-model-publisher-ai|ande
 * Restrict user access to publish functions with user permissions.
 
 
+== base info
+
+We have these three user types:
+
+* A user with only a few rights (we call it **'reporter'**)
+* A user with more rights (We call it **'editor'**)
+* The superuser with all rights
+
+The user case is following:
+
+* **'reporter'**:
+** can only change draft content
+** can't change public content
+** can't delete publisher model entries or CMS pages.
+** can send a //(un-)publish request// to the 'editor' with a text node.
+
+* **'editor'**:
+** can response open publishing request from 'reporter'.
+** can change drafts and public content, but only if there is no pending request.
+** can delete publisher model entries or CMS pages.
+** can't delete/manipulate publisher state model entries.
+
+
+== permissions
+
+Permissions for **'reporter'** who can only create //(un-)publish requests//:
+{{{
+...
+[ ] cms.publish_page
+...
+[*] cms.add_page
+[*] cms.change_page
+[ ] cms.delete_page
+...
+[ ] publisher.add_publisherstatemodel
+[*] publisher.change_publisherstatemodel
+[ ] publisher.delete_publisherstatemodel
+...
+[ ] <app_name>.can_publish_<model_name>
+...
+[*] <app_name>.add_<model_name>
+[*] <app_name>.change_<model_name>
+[ ] <app_name>.delete_<model_name>
+...
+}}}
+
+
+Permissions for **'editor'** who can //accept/reject (un-)publish requests//:
+{{{
+...
+[*] cms.publish_page
+...
+[*] cms.add_page
+[*] cms.change_page
+[*] cms.delete_page
+...
+[ ] publisher.add_publisherstatemodel
+[*] publisher.change_publisherstatemodel
+[ ] publisher.delete_publisherstatemodel
+...
+[*] <app_name>.can_publish_<model_name>
+...
+[*] <app_name>.add_<model_name>
+[*] <app_name>.change_<model_name>
+[*] <app_name>.delete_<model_name>
+...
+}}}
+
+**Important**: To prevent a privilege escalation, both users must not have access to these models:
+
+* django.contrib.auth.models.Permission
+* django.contrib.auth.models.Group
+* cms.models.PagePermission
+
+== Test users:
+
+See user permission tests in:
+
+* [[https://github.com/wearehoods/django-ya-model-publisher/blob/master/publisher_tests/test_basics.py|publisher_tests.test_basics.PermissionTestCase]]
+
+
 == Django compatibility
 
 |= django-ya-model-publisher |= django version      |= python            |

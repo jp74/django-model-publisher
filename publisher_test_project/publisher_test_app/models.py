@@ -2,6 +2,8 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from cms.models.pluginmodel import CMSPlugin
+
 from publisher.managers import PublisherManager
 from publisher.models import PublisherModel
 from publisher.utils import aldryn_translation_tools_exists, parler_exists
@@ -21,6 +23,10 @@ class PublisherTestModel(PublisherModel):
     class Meta(PublisherModel.Meta):
         verbose_name = "Publisher Test Model"
         verbose_name_plural = "Publisher Test Model"
+
+
+class PlainTextPluginModel(CMSPlugin):
+    text = models.TextField()
 
 
 if parler_exists:

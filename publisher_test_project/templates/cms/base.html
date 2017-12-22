@@ -1,6 +1,4 @@
-{% load i18n staticfiles cms_tags cms_static sekizai_tags %}
-
-<!doctype html>
+<!doctype html>{% load i18n staticfiles cms_tags cms_static sekizai_tags menu_tags %}
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="utf-8">
@@ -19,16 +17,15 @@
             </h1>
         </header>
         <section class="cms-welcome-section">
-            <h1>{% page_attribute "page_title" %}</h1>
-
+            {% placeholder "content" %}
+        </section>
+        <section class="cms-welcome-section">
             {% include "includes/user_info.html" %}
-
             <ul>
                 <h2>Some information about this current cms page:</h2>
                 <li>is draft: {{ current_page.publisher_is_draft|yesno:"true,false,none" }}</li>
                 <li>is dirty: {{ current_page.is_dirty|yesno:"true,false,none" }}</li>
             </ul>
-
         </section>
         <footer class="cms-welcome-footer">
             <p class="cms-welcome-links">
@@ -37,6 +34,11 @@
                 <a href="https://pypi.org/project/django-ya-model-publisher/" target="_blank">pypi</a>
                 <a href="https://django-cms.org/" target="_blank">django CMS <strong>v{{ cms_version }}</strong></a>
             </p>
+            {% if user.is_anonymous %}<p><a href="/admin/">login</a></p>{% endif %}
+            <p>Existing CMS pages:</p>
+            <ul>
+                {% show_menu 0 100 100 100 %}
+            </ul>
         </footer>
     </div>
     {% render_block "js" %}

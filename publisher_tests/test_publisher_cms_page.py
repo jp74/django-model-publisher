@@ -25,7 +25,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         super(CmsPagePublisherWorkflowTests, self).setUp()
 
         public_pages = Page.objects.public()
-        self.assertEqual(public_pages.count(), 1)
+        self.assertEqual(public_pages.count(), 4)
 
         page = public_pages[0]
         page.refresh_from_db()
@@ -46,56 +46,12 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.assertEqual(self.page4edit.publisher_is_draft, True)
         self.assertEqual(self.page4edit.is_dirty(language="en"), False)
 
-        self.assertEqual(str(self.page4edit_title), "Test page in English (test-page-in-english, en)")
+        self.assertEqual(str(self.page4edit_title), "Test page 1 in English (test-page-1-in-english, en)")
 
         # self.assertEqual(self.parent_page4edit_url, "/en/XXX/")
         # self.assertEqual(self.parent_page4edit.get_title(language="en"), "XXX")
         # self.assertEqual(self.parent_page4edit.publisher_is_draft, True)
         # self.assertEqual(self.parent_page4edit.is_dirty(language="en"), False)
-
-    def test_reporter_permissions(self):
-        with StdoutStderrBuffer() as buff:
-            call_command("permission_info", "reporter")
-        output = buff.get_output()
-
-        output = [line.strip(" \t_") for line in output.splitlines()]
-        output = "\n".join([line for line in output if line])
-        # print(output)
-
-        # 'reporter' user can create un-/publish requests:
-
-        self.assertIn("[*] cms.change_page", output) # Can change a Django CMS page
-        self.assertIn("[ ] cms.publish_page", output) # Can't publish a Django CMS page changes
-
-        # 'reporter' user can create un-/publish requests:
-        # self.assertIn("[*] publisher.add_publisherstatemodel", output)
-        self.assertIn("[*] publisher.ask_publisher_request", output)
-        # self.assertIn("[*] publisher.change_publisherstatemodel", output)
-        # self.assertIn("[*] publisher.delete_publisherstatemodel", output)
-        # self.assertIn("[ ] publisher.direct_publisher", output)
-        self.assertIn("[ ] publisher.reply_publisher_request", output)
-
-    def test_editor_permissions(self):
-        with StdoutStderrBuffer() as buff:
-            call_command("permission_info", "editor")
-        output = buff.get_output()
-
-        output = [line.strip(" \t_") for line in output.splitlines()]
-        output = "\n".join([line for line in output if line])
-        # print(output)
-
-        # 'editor' user can accept/reject un-/publish requests:
-
-        self.assertIn("[*] cms.change_page", output) # Can change a Django CMS page
-        self.assertIn("[ ] cms.publish_page", output) # Can't publish a Django CMS page changes
-
-        # 'editor' user can accept/reject un-/publish requests:
-        # self.assertIn("[*] publisher.add_publisherstatemodel", output)
-        self.assertIn("[ ] publisher.ask_publisher_request", output)
-        # self.assertIn("[*] publisher.change_publisherstatemodel", output)
-        # self.assertIn("[*] publisher.delete_publisherstatemodel", output)
-        # self.assertIn("[ ] publisher.direct_publisher", output)
-        self.assertIn("[*] publisher.reply_publisher_request", output)
 
     def test_reporter_edit_unchanged_page(self):
         self.login_reporter_user()
@@ -110,7 +66,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertResponse(response,
             must_contain=(
-                "django-ya-model-publisher", "Test page in English",
+                "django-ya-model-publisher", "Test page 1 in English",
 
                 "Logout reporter",
                 "Double-click to edit",
@@ -135,6 +91,8 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
     def test_editor_edit_unchanged_page(self):
         self.login_editor_user()
 
+        self.assertEqual(self.page4edit.is_dirty(language="en"), False)
+
         response = self.client.get(
             "%s?edit" % self.page4edit_url,
             HTTP_ACCEPT_LANGUAGE="en"
@@ -145,15 +103,12 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertResponse(response,
             must_contain=(
-                "django-ya-model-publisher", "Test page in English",
+                "django-ya-model-publisher", "Test page 1 in English",
 
                 "Logout editor",
                 "Double-click to edit",
             ),
             must_not_contain=(
-                # <a href="/en/admin/cms/page/670/en/publish/"...>Publish page changes</a>
-                "/publish/", "Publish page changes",
-
                 # <a href="/en/admin/publisher/publisherstatemodel/2/23/request_unpublish/"...>Request unpublishing</a>
                 "/request_unpublish/", "Request unpublishing",
 
@@ -165,6 +120,19 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             status_code=200,
             template_name="cms/base.html",
             html=False,
+        )
+
+        # "disabled" publish button:
+        self.assertResponse(response,
+            must_contain=(
+                (
+                    '<a href="/en/admin/cms/page/1/en/publish/"'
+                    ' class="cms-btn cms-btn-disabled cms-btn-action cms-btn-publish">'
+                    'Publish page changes'
+                    '</a>'
+                ),
+            ),
+            html=True
         )
 
     def test_reporter_edit_dirty_page(self):
@@ -374,7 +342,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         state = PublisherStateModel.objects.all()[0]
         self.assertEqual(
             str(state),
-            '"Test page in English" unpublish request from: reporter (Please unpublish this cms page.) (open)'
+            '"Test page 1 in English" unpublish request from: reporter (Please unpublish this cms page.) (open)'
         )
         self.assertEqual(state.publisher_instance.pk, self.page4edit.pk)
 

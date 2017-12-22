@@ -26,9 +26,9 @@ class ClientBaseTestCase(TestUserMixin, BaseTestCase):
         super(ClientBaseTestCase, cls).setUpTestData() # create django-tools default test users
         create_test_data()
 
-    def login_test_user(self, username):
+    def get_test_user(self, username):
         try:
-            user = self.UserModel.objects.get(username=username)
+            return self.UserModel.objects.get(username=username)
         except self.UserModel.DoesNotExist as err:
             print("ERROR: %s" % err)
             usernames = ",".join(
@@ -36,6 +36,9 @@ class ClientBaseTestCase(TestUserMixin, BaseTestCase):
             )
             print("Existing users are: %s" % usernames)
             raise
+
+    def login_test_user(self, username):
+        user = self.get_test_user(username)
 
         superuser_data = self.get_userdata(usertype="superuser")
         password = superuser_data["password"]

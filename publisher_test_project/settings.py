@@ -97,7 +97,7 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai',
                 'cms.context_processors.cms_settings',
 
-                'publisher_test_app.context_processors.debug_info',
+                'publisher_test_project.publisher_test_app.context_processors.debug_info',
             ],
         },
     },
@@ -151,6 +151,18 @@ CMS_PERMISSION=False
 CMS_TEMPLATES = (
     ("cms/base.html", "Basic CMS Template"),
 )
+
+CMS_PLACEHOLDER_CONF = {
+    "content": {
+        "plugins": ["PlainTextPlugin"],
+        "default_plugins": [
+            {
+                "plugin_type": "PlainTextPlugin",
+                "values": {"text": "(Default content)"},
+            },
+        ],
+    },
+}
 
 #_____________________________________________________________________________
 # cut 'pathname' in log output
@@ -209,7 +221,15 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        "publisher_test_project": {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
         "django_tools": {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        "django_cms_tools": {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
