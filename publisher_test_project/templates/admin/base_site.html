@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="/">{{ site_header|default:_('Django administration') }} - Publisher Test Project</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block messages %}
+    {{ block.super }}
+    {% include "includes/user_info.html" %}
+{% endblock %}
