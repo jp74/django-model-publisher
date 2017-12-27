@@ -130,7 +130,7 @@ class PublisherChangeManager(models.Manager):
     def _assert_permissions(self, user, publisher_instance):
         # raise PermissionDenied if user can't change object
         has_object_permission(user,
-            obj=publisher_instance,
+            opts=publisher_instance._meta,
             action="change",
             raise_exception=True
         )

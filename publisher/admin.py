@@ -135,26 +135,13 @@ class PublisherAdmin(ModelAdmin):
             messages.error(request, _("You can't edit this, because a publish request is pending!"))
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
-    def has_change_permission(self, request, obj=None):
-        print("publisher.admin.PublisherAdmin#has_change_permission")
-        has_change_permission = super(PublisherAdmin, self).has_change_permission(request, obj=obj)
-        if has_change_permission and obj is not None:
-            log.debug("+++ edit %s", obj)
-        return has_change_permission
-
     def has_publish_permission(self, request, obj=None, raise_exception=True):
         if obj is None:
             opts = self.opts
         else:
             opts = obj._meta
 
-        codename = get_permission_codename(constants.PERMISSION_CAN_PUBLISH, opts)
-        perm_name = "%s.%s" % (
-            opts.app_label,
-            codename
-        )
-        log.debug("Check %r", perm_name)
-        return check_permission(request.user, perm_name, raise_exception)
+        return can_publish_object(request.user, opts, raise_exception=False)
 
     def has_ask_request_permission(self, request, obj=None):
         """
@@ -692,7 +679,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
         # raise PermissionDenied if user can't change object
         has_object_permission(user,
-            obj=publisher_instance,
+            opts=publisher_instance._meta,
             action="change",
             raise_exception=True
         )
