@@ -1,0 +1,13 @@
+{% extends CMS_TEMPLATE %}
+{% load i18n cms_tags menu_tags sekizai_tags static %}
+
+{% block content %}
+    <h1>Publisher List App - list view</h1>
+    <ul>
+        {% for object in object_list %}
+            {% include "list_app/includes/item_teaser.html" %}
+        {% empty %}
+            <p>{% trans "No Items." %}</p>
+        {% endfor %}
+    </ul>
+{% endblock %}

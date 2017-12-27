@@ -1,0 +1,7 @@
+{% load i18n cms_tags %}
+
+{% render_model_block object %}
+<a href="{{ object.get_absolute_url }}">
+    <p>{{ object.text }}</p>
+</a>
+{% endrender_model_block %}

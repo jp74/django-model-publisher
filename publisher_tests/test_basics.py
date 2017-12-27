@@ -70,7 +70,7 @@ class PermissionTestCase(ClientBaseTestCase):
         output = "\n".join([line for line in output if line])
         print(output)
 
-        # 'reporter' user can create un-/publish requests:
+        # 'reporter' user has not 'can_publish' -> can only create un-/publish requests:
 
         self.assertEqual_dedent(output, """
             Display effective user permissions in the same format as user.has_perm() argument: <appname>.<codename>
@@ -142,6 +142,13 @@ class PermissionTestCase(ClientBaseTestCase):
             [ ] publisher.add_publisherstatemodel
             [*] publisher.change_publisherstatemodel
             [ ] publisher.delete_publisherstatemodel
+            [*] publisher_list_app.add_publisheritem
+            [ ] publisher_list_app.can_publish_publisheritem
+            [*] publisher_list_app.change_publisheritem
+            [ ] publisher_list_app.delete_publisheritem
+            [*] publisher_list_app.add_publisheritemcmsplugin
+            [*] publisher_list_app.change_publisheritemcmsplugin
+            [*] publisher_list_app.delete_publisheritemcmsplugin
             [*] publisher_test_app.add_plaintextpluginmodel
             [*] publisher_test_app.change_plaintextpluginmodel
             [*] publisher_test_app.delete_plaintextpluginmodel
@@ -174,7 +181,7 @@ class PermissionTestCase(ClientBaseTestCase):
         output = "\n".join([line for line in output if line])
         print(output)
 
-        # 'editor' user can accept/reject un-/publish requests:
+        # 'editor' user has 'can_publish' -> can publish and accept/reject un-/publish requests:
 
         self.assertEqual_dedent(output, """
             Display effective user permissions in the same format as user.has_perm() argument: <appname>.<codename>
@@ -246,6 +253,13 @@ class PermissionTestCase(ClientBaseTestCase):
             [ ] publisher.add_publisherstatemodel
             [*] publisher.change_publisherstatemodel
             [ ] publisher.delete_publisherstatemodel
+            [*] publisher_list_app.add_publisheritem
+            [*] publisher_list_app.can_publish_publisheritem
+            [*] publisher_list_app.change_publisheritem
+            [*] publisher_list_app.delete_publisheritem
+            [*] publisher_list_app.add_publisheritemcmsplugin
+            [*] publisher_list_app.change_publisheritemcmsplugin
+            [*] publisher_list_app.delete_publisheritemcmsplugin
             [*] publisher_test_app.add_plaintextpluginmodel
             [*] publisher_test_app.change_plaintextpluginmodel
             [*] publisher_test_app.delete_plaintextpluginmodel

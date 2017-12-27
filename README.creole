@@ -199,7 +199,10 @@ Please read the information above.
 
 * v0.6.0 - **dev** - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.1...develop|compare v0.5.1...develop]]
 ** refactor permissions and publisher workflow
+** NEW: {{{publisher.views.PublisherCmsViewMixin}}}
+** NEW: {{{publisher.admin.VisibilityMixin}}}
 ** bugfix django v1.11 compatibility
+** Expand tests with {{{publisher_test_project.publisher_list_app}}}
 * v0.5.1 - 20.12.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.0...v0.5.1|compare v0.5.0...v0.5.1]]
 ** fix python package (add missing parts)
 ** change travis/tox/pytest configuration

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin import ModelAdmin, SimpleListFilter
+from django.contrib.admin.templatetags.admin_static import static
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, SuspiciousOperation, ValidationError
@@ -14,14 +15,15 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
 from django.utils.encoding import force_text
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
+
 from django_tools.permissions import check_permission
 
 from publisher import constants
 from publisher.forms import PublisherForm, PublisherNoteForm, PublisherParlerForm
 from publisher.models import PublisherStateModel
-from publisher.permissions import has_object_permission, can_publish_object
+from publisher.permissions import can_publish_object, has_object_permission
 from publisher.utils import django_cms_exists, hvad_exists, parler_exists
 
 log = logging.getLogger(__name__)
@@ -54,7 +56,52 @@ class PendingPublishRequest(PermissionDenied):
     pass
 
 
-class PublisherAdmin(ModelAdmin):
+class VisibilityMixin:
+    """
+    for PublisherAdmin:
+        list_display = (..., "visibility", ...)
+    """
+    def visibility(self, obj):
+        is_dirty = obj.is_dirty
+        if obj.publisher_linked:
+            obj = obj.publisher_linked
+
+        if obj.is_visible:
+            if is_dirty:
+                alt_text = _("Changed!")
+                title = _("Changes not yet published. Older version is online.")
+                icon_filename = "icon_alert.gif"
+            else:
+                alt_text = _("is public")
+                title = _("Is public.")
+                icon_filename = "icon-yes.gif"
+        elif not obj.is_published:
+            alt_text = _("not public")
+            title = _("Not published, yet")
+            icon_filename = "icon-no.gif"
+        else:
+            alt_text = _("hidden")
+            icon_filename = "icon_alert.gif"
+            if obj.hidden_by_end_date and obj.hidden_by_start_date:
+                title = _("Published, but hidden by start/end date.")
+            elif obj.hidden_by_start_date:
+                title = _("Published, but hidden by start date.")
+            elif obj.hidden_by_end_date:
+                title = _("Published, but hidden by end date.")
+            else:
+                log.error("Unknown why hidden?!?")
+                title = _("Published, but hidden.")
+
+        icon_url = static("admin/img/%s" % icon_filename)
+        return format_html(
+            '<img src="{}" alt="{}" title="{}" />', icon_url, alt_text, title
+        )
+
+    visibility.short_description = _("Visibility")
+    visibility.allow_tags = True
+
+
+class PublisherAdmin(VisibilityMixin, ModelAdmin):
     form = PublisherForm
     change_form_template = "publisher/change_form.html"
     # publish or unpublish actions sometime makes the plugins disappear from page

@@ -38,12 +38,14 @@ INSTALLED_APPS = (
     'sekizai', # https://github.com/ojii/django-sekizai
 
     'django_tools', # https://github.com/jedie/django-tools/
+    'django_cms_tools', # https://github.com/jedie/django-cms-tools/
 
     'debug_toolbar', # https://github.com/jazzband/django-debug-toolbar/
 
     'publisher',
     'publisher_cms',
     'publisher_test_project.publisher_test_app',
+    'publisher_test_project.publisher_list_app',
 )
 if parler_exists:
     INSTALLED_APPS += (
@@ -159,6 +161,15 @@ CMS_PLACEHOLDER_CONF = {
             {
                 "plugin_type": "PlainTextPlugin",
                 "values": {"text": "(Default content)"},
+            },
+        ],
+    },
+    "item_content": {
+        "plugins": ["PlainTextPlugin"],
+        "default_plugins": [
+            {
+                "plugin_type": "PlainTextPlugin",
+                "values": {"text": "(Default item content)"},
             },
         ],
     },

@@ -17,12 +17,22 @@
             </h1>
         </header>
         <section class="cms-welcome-section">
-            {% placeholder "content" %}
+            {% block content %}
+                {% placeholder "content" %}
+            {% endblock %}
         </section>
         <section class="cms-welcome-section">
             {% include "includes/user_info.html" %}
+            {% if object %}
+                <h2>Some information about 'object' {{ object }}:</h2>
+                <ul>
+                    <li>is draft: {{ object.publisher_is_draft|yesno:"true,false,none" }}</li>
+                    <li>is dirty: {{ object.is_dirty|yesno:"true,false,none" }}</li>
+                </ul>
+            {% endif %}
+
+            <h2>Some information about this current cms page:</h2>
             <ul>
-                <h2>Some information about this current cms page:</h2>
                 <li>is draft: {{ current_page.publisher_is_draft|yesno:"true,false,none" }}</li>
                 <li>is dirty: {{ current_page.is_dirty|yesno:"true,false,none" }}</li>
             </ul>

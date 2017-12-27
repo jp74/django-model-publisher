@@ -9,12 +9,15 @@ from django.contrib.contenttypes.models import ContentType
 from cms.models import Page, PagePermission
 
 from django_cms_tools.fixtures.pages import CmsPageCreator
+
 # https://github.com/jedie/django-tools
 from django_tools.permissions import get_filtered_permissions, pformat_permission
 from django_tools.unittest_utils.user import get_or_create_user_and_group
 
 from publisher import constants
 from publisher.models import PublisherStateModel
+from publisher_test_project.publisher_list_app.fixtures import list_item_fixtures
+from publisher_test_project.publisher_list_app.models import PublisherItem
 from publisher_test_project.publisher_test_app.models import (PublisherParlerAutoSlugifyTestModel,
                                                               PublisherParlerTestModel, PublisherTestModel)
 
@@ -119,6 +122,9 @@ def create_test_user(delete_first=False):
                 (PublisherParlerAutoSlugifyTestModel, "can_publish_publisherparlerautoslugifytestmodel"),
                 (PublisherParlerAutoSlugifyTestModel, "delete_publisherparlerautoslugifytestmodel"),
 
+                (PublisherItem, "can_publish_publisheritem"),
+                (PublisherItem, "delete_publisheritem"),
+
                 (PublisherParlerTestModel, "can_publish_publisherparlertestmodel"),
                 (PublisherParlerTestModel, "delete_publisherparlertestmodel"),
 
@@ -191,5 +197,7 @@ def create_test_data(delete_first=False):
     create_test_page(delete_first=delete_first)
 
     create_test_model_entries(delete_first=delete_first)
+
+    list_item_fixtures()
 
     return reporter_user, editor_user

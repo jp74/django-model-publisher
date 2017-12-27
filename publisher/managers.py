@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 
 class PublisherQuerySet(models.QuerySet):
     def drafts(self):
-        from .models import PublisherModelBase
         return self.filter(publisher_is_draft=True)
 
     def published(self):
@@ -27,7 +26,6 @@ class PublisherQuerySet(models.QuerySet):
         Note: will ignore start/end date!
         Use self.visible() to get all publicly accessible entries.
         """
-        from .models import PublisherModelBase
         return self.filter(
             publisher_is_draft=False,
         )
@@ -36,10 +34,10 @@ class PublisherQuerySet(models.QuerySet):
         """
         Filter all publicly accessible entries.
         """
-        from .models import PublisherModelBase
+        now = timezone.now()
         return self.filter(
-            Q(publication_start_date__isnull=True) | Q(publication_start_date__lte=timezone.now()),
-            Q(publication_end_date__isnull=True) | Q(publication_end_date__gt=timezone.now()),
+            Q(publication_start_date__isnull=True) | Q(publication_start_date__lte=now),
+            Q(publication_end_date__isnull=True) | Q(publication_end_date__gt=now),
             publisher_is_draft=False,
         )
 

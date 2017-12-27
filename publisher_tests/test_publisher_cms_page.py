@@ -25,7 +25,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         super(CmsPagePublisherWorkflowTests, self).setUp()
 
         public_pages = Page.objects.public()
-        self.assertEqual(public_pages.count(), 4)
+        self.assertEqual(public_pages.count(), 5)
 
         page = public_pages[0]
         page.refresh_from_db()

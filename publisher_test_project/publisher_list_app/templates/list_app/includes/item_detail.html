@@ -1,0 +1,6 @@
+{% load i18n cms_tags %}
+
+{% render_model_block object %}
+    <p>{{ object.text }}</p>
+{% endrender_model_block %}
+{% render_placeholder object.content %}

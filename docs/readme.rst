@@ -6,16 +6,20 @@ Publisher workflow for django models and Django CMS pages.
 
 This is a fork of `andersinno/django-model-publisher-ai <https://github.com/andersinno/django-model-publisher-ai>`_ which is a fork of the origin `jp74/django-model-publisher <https://github.com/jp74/django-model-publisher>`_.
 
-+---------------------------------+-------------------------------------------------------+
-| |Build Status on travis-ci.org| | `travis-ci.org/wearehoods/django-ya-model-publisher`_ |
-+---------------------------------+-------------------------------------------------------+
-| |Coverage Status on codecov.io| | `codecov.io/gh/wearehoods/django-ya-model-publisher`_ |
-+---------------------------------+-------------------------------------------------------+
++-----------------------------------+--------------------------------------------------------+
+| |Build Status on travis-ci.org|   | `travis-ci.org/wearehoods/django-ya-model-publisher`_  |
++-----------------------------------+--------------------------------------------------------+
+| |Coverage Status on codecov.io|   | `codecov.io/gh/wearehoods/django-ya-model-publisher`_  |
++-----------------------------------+--------------------------------------------------------+
+| |Coverage Status on coveralls.io| | `coveralls.io/r/wearehoods/django-ya-model-publisher`_ |
++-----------------------------------+--------------------------------------------------------+
 
 .. |Build Status on travis-ci.org| image:: https://travis-ci.org/wearehoods/django-ya-model-publisher.svg
 .. _travis-ci.org/wearehoods/django-ya-model-publisher: https://travis-ci.org/wearehoods/django-ya-model-publisher/
 .. |Coverage Status on codecov.io| image:: https://codecov.io/gh/wearehoods/django-ya-model-publisher/branch/develop/graph/badge.svg
 .. _codecov.io/gh/wearehoods/django-ya-model-publisher: https://codecov.io/gh/wearehoods/django-ya-model-publisher
+.. |Coverage Status on coveralls.io| image:: https://coveralls.io/repos/wearehoods/django-ya-model-publisher/badge.svg
+.. _coveralls.io/r/wearehoods/django-ya-model-publisher: https://coveralls.io/r/wearehoods/django-ya-model-publisher
 
 --------
 Features
@@ -31,6 +35,104 @@ Features
 
 * Restrict user access to publish functions with user permissions.
 
+---------
+base info
+---------
+
+We have these three user types:
+
+* A user with only a few rights (we call it **'reporter'**)
+
+* A user with more rights (We call it **'editor'**)
+
+* The superuser with all rights
+
+The user case is following:
+
+* **'reporter'**:
+
+    * can only change draft content
+
+    * can't change public content
+
+    * can't delete publisher model entries or CMS pages.
+
+    * can send a *(un-)publish request* to the 'editor' with a text node.
+
+* **'editor'**:
+
+    * can response open publishing request from 'reporter'.
+
+    * can change drafts and public content, but only if there is no pending request.
+
+    * can delete publisher model entries or CMS pages.
+
+    * can't delete/manipulate publisher state model entries.
+
+-----------
+permissions
+-----------
+
+Permissions for **'reporter'** who can only create *(un-)publish requests*:
+
+::
+
+    ...
+    [ ] cms.publish_page
+    ...
+    [*] cms.add_page
+    [*] cms.change_page
+    [ ] cms.delete_page
+    ...
+    [ ] publisher.add_publisherstatemodel
+    [*] publisher.change_publisherstatemodel
+    [ ] publisher.delete_publisherstatemodel
+    ...
+    [ ] <app_name>.can_publish_<model_name>
+    ...
+    [*] <app_name>.add_<model_name>
+    [*] <app_name>.change_<model_name>
+    [ ] <app_name>.delete_<model_name>
+    ...
+
+Permissions for **'editor'** who can *accept/reject (un-)publish requests*:
+
+::
+
+    ...
+    [*] cms.publish_page
+    ...
+    [*] cms.add_page
+    [*] cms.change_page
+    [*] cms.delete_page
+    ...
+    [ ] publisher.add_publisherstatemodel
+    [*] publisher.change_publisherstatemodel
+    [ ] publisher.delete_publisherstatemodel
+    ...
+    [*] <app_name>.can_publish_<model_name>
+    ...
+    [*] <app_name>.add_<model_name>
+    [*] <app_name>.change_<model_name>
+    [*] <app_name>.delete_<model_name>
+    ...
+
+**Important**: To prevent a privilege escalation, both users must **not** have access to these models:
+
+* django.contrib.auth.models.Permission
+
+* django.contrib.auth.models.Group
+
+* cms.models.PagePermission
+
+-----------
+Test users:
+-----------
+
+See user permission tests in:
+
+* `publisher_tests.test_basics.PermissionTestCase <https://github.com/wearehoods/django-ya-model-publisher/blob/master/publisher_tests/test_basics.py>`_
+
 --------------------
 Django compatibility
 --------------------
@@ -38,7 +140,7 @@ Django compatibility
 +---------------------------+----------------------+--------------------+
 | django-ya-model-publisher | django version       | python             |
 +===========================+======================+====================+
-| v0.5.x                    | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
+| >=v0.5.x                  | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
 +---------------------------+----------------------+--------------------+
 | v0.4.x                    | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
 +---------------------------+----------------------+--------------------+
@@ -132,9 +234,40 @@ For a complete fresh database, just remove the sqlite file, e.g.:
 
     $ rm publisher_test_project/publisher_test_database.sqlite3
 
+------------------------------
+Backwards-incompatible changes
+------------------------------
+
+v0.6.0
+======
+
+The permission names changed! Please update your django user permissions, too.
+
+These permissions are removed:
+
+* direct_publisher
+
+* ask_publisher_request
+
+* reply_publisher_request
+
+Please read the information above.
+
 -------
 history
 -------
+
+* v0.6.0 - **dev** - `compare v0.5.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.1...develop>`_ 
+
+    * refactor permissions and publisher workflow
+
+    * NEW: ``publisher.views.PublisherCmsViewMixin``
+
+    * NEW: ``publisher.admin.VisibilityMixin``
+
+    * bugfix django v1.11 compatibility
+
+    * Expand tests with ``publisher_test_project.publisher_list_app``
 
 * v0.5.1 - 20.12.2017 - `compare v0.5.0...v0.5.1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.0...v0.5.1>`_ 
 
