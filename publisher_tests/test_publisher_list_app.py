@@ -6,14 +6,15 @@
 import sys
 from unittest import mock
 
+import django
 from django.test.utils import override_settings
 
-from publisher_test_project.publisher_list_app.models import PublisherItem
 from cms.models import Page
 
 from publisher.models import PublisherStateModel
-
+from publisher_test_project.publisher_list_app.models import PublisherItem
 from publisher_tests.base import ClientBaseTestCase
+
 
 @override_settings(LOGGING={})
 class PublisherItemAppTestCase(ClientBaseTestCase):
@@ -95,10 +96,15 @@ class PublisherItemAppTestCase(ClientBaseTestCase):
         self.assertEqual(self.dirty_item.is_dirty, True)
         self.assertEqual(self.dirty_item_url, "/en/publisheritems/dirty/")
 
-        self.assertEqual(
-            self.get_admin_change_url(obj=self.published_item),
-            "/en/admin/publisher_list_app/publisheritem/%i/change/?language=en" % self.published_item.pk
-        )
+        url = self.get_admin_change_url(obj=self.published_item)
+        if django.VERSION < (1, 11):
+            self.assertEqual(url,
+                "/en/admin/publisher_list_app/publisheritem/%i/?language=en" % self.published_item.pk
+            )
+        else:
+            self.assertEqual(url,
+                "/en/admin/publisher_list_app/publisheritem/%i/change/?language=en" % self.published_item.pk
+            )
 
     #-------------------------------------------------------------------------
 
