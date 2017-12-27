@@ -257,7 +257,7 @@ Please read the information above.
 history
 -------
 
-* v0.6.0 - **dev** - `compare v0.5.1...develop <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.1...develop>`_ 
+* v0.6.0 - 27.12.2017 - `compare v0.5.1...v0.6.0 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.1...v0.6.0>`_ 
 
     * refactor permissions and publisher workflow
 
