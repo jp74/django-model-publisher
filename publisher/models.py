@@ -263,16 +263,6 @@ class PublisherModelBase(ModelPermissionMixin, models.Model):
 
         return draft_obj
 
-    def get_unique_together(self):
-        return self._meta.unique_together
-
-    def get_field(self, field_name):
-        # return the actual field (not the db representation of the field)
-        try:
-            return self._meta.get_field_by_name(field_name)[0]
-        except models.fields.FieldDoesNotExist:
-            return None
-
     @staticmethod
     def clone_translations(src_obj, dst_obj):
         if hasattr(src_obj, 'translations'):

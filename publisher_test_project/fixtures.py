@@ -175,6 +175,7 @@ def create_test_model_entries(delete_first=False):
 
     for no in range(1,5):
         instance, created = PublisherTestModel.objects.get_or_create(
+            no = no,
             title="Test entry %i" % no,
             publisher_is_draft=True
         )

@@ -30,7 +30,7 @@ class PublisherStateTests(ClientBaseTestCase):
         super(PublisherStateTests, cls).setUpTestData()
 
         PublisherTestModel.objects.all().delete() # FIXME
-        cls.draft = PublisherTestModel.objects.create(title="publisher test")
+        cls.draft = PublisherTestModel.objects.create(no=1, title="publisher test")
 
         User = get_user_model()
         cls.user_no_permissions = User.objects.create(username="user_with_no_permissions")

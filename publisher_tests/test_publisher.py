@@ -2,28 +2,29 @@
 import datetime
 
 from django import test
+from django.db.utils import IntegrityError
 from django.utils import timezone
 
 from mock import MagicMock
-from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
 from publisher.signals import publisher_post_publish, publisher_post_unpublish
 from publisher.utils import NotDraftException
+from publisher_test_project.publisher_test_app.models import PublisherTestModel
 
 
 class PublisherTest(test.TestCase):
 
     def test_creating_model_creates_only_one_record(self):
-        PublisherTestModel.objects.create(title='Test model')
+        PublisherTestModel.objects.create(no=1, title='Test model')
         count = PublisherTestModel.objects.count()
         self.assertEqual(count, 1)
 
     def test_new_models_are_draft(self):
-        instance = PublisherTestModel(title='Test model')
+        instance = PublisherTestModel(no=1, title='Test model')
         self.assertTrue(instance.publisher_is_draft)
 
     def test_editing_a_record_does_not_create_a_duplicate(self):
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.title = 'Updated test model'
         instance.save()
         count = PublisherTestModel.objects.count()
@@ -31,7 +32,7 @@ class PublisherTest(test.TestCase):
 
     def test_editing_a_draft_does_not_update_published_record(self):
         title = 'Test model'
-        instance = PublisherTestModel.objects.create(title=title)
+        instance = PublisherTestModel.objects.create(no=1, title=title)
         instance.publish()
         instance.title = 'Updated test model'
         instance.save()
@@ -39,7 +40,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published_instance.title, title)
 
     def test_publishing_creates_new_record(self):
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
 
         published = PublisherTestModel.objects.published().count()
@@ -49,7 +50,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(drafts, 1)
 
     def test_unpublishing_deletes_published_record(self):
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
         instance.unpublish()
 
@@ -60,7 +61,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(drafts, 1)
 
     def test_unpublished_record_can_be_republished(self):
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
         instance.unpublish()
         instance.publish()
@@ -72,12 +73,12 @@ class PublisherTest(test.TestCase):
         self.assertEqual(drafts, 1)
 
     def test_published_date_is_set_to_none_for_new_records(self):
-        draft = PublisherTestModel(title='Test model')
+        draft = PublisherTestModel(no=1, title='Test model')
         self.assertEqual(draft.publisher_published_at, None)
 
     def test_published_date_is_updated_when_publishing(self):
         now = timezone.now()
-        draft = PublisherTestModel.objects.create(title='Test model')
+        draft = PublisherTestModel.objects.create(no=1, title='Test model')
         draft.publish()
         draft = PublisherTestModel.objects.drafts().get()
         published = PublisherTestModel.objects.drafts().get()
@@ -88,7 +89,7 @@ class PublisherTest(test.TestCase):
 
     def test_published_date_is_not_changed_when_publishing_twice(self):
         published_date = datetime.datetime(1970, 1, 1, 0, 0, tzinfo=timezone.utc)
-        draft = PublisherTestModel.objects.create(title='Test model')
+        draft = PublisherTestModel.objects.create(no=1, title='Test model')
         draft.publish()
         published = PublisherTestModel.objects.drafts().get()
         draft.publisher_published_at = published_date
@@ -103,21 +104,21 @@ class PublisherTest(test.TestCase):
         self.assertEqual(published.publisher_published_at, published_date)
 
     def test_published_date_is_set_to_none_when_unpublished(self):
-        draft = PublisherTestModel.objects.create(title='Test model')
+        draft = PublisherTestModel.objects.create(no=1, title='Test model')
         draft.publish()
         draft.unpublish()
         self.assertIsNone(draft.publisher_published_at)
 
     def test_published_date_is_set_when_republished(self):
         now = timezone.now()
-        draft = PublisherTestModel.objects.create(title='Test model')
+        draft = PublisherTestModel.objects.create(no=1, title='Test model')
         draft.publish()
         draft.unpublish()
         draft.publish()
         self.assertGreaterEqual(draft.publisher_published_at, now)
 
     def test_deleting_draft_also_deletes_published_record(self):
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
         instance.delete()
 
@@ -128,7 +129,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(drafts, 0)
 
     def test_delete_published_does_not_delete_draft(self):
-        obj = PublisherTestModel.objects.create(title='Test model')
+        obj = PublisherTestModel.objects.create(no=1, title='Test model')
         obj.publish()
 
         published = PublisherTestModel.objects.published().get()
@@ -142,7 +143,7 @@ class PublisherTest(test.TestCase):
 
     def test_reverting_reverts_draft_from_published_record(self):
         title = 'Test model'
-        instance = PublisherTestModel.objects.create(title=title)
+        instance = PublisherTestModel.objects.create(no=1, title=title)
         instance.publish()
         instance.title = 'Updated test model'
         instance.save()
@@ -150,7 +151,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(title, revert_instance.title)
 
     def test_only_draft_records_can_be_published_or_reverted(self):
-        draft = PublisherTestModel.objects.create(title='Test model')
+        draft = PublisherTestModel.objects.create(no=1, title='Test model')
         draft.publish()
 
         published = PublisherTestModel.objects.published().get()
@@ -172,7 +173,7 @@ class PublisherTest(test.TestCase):
         publisher_post_publish.connect(handle_signal)
 
         # call the function
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
 
         self.assertTrue(self.got_signal)
@@ -193,7 +194,7 @@ class PublisherTest(test.TestCase):
         publisher_post_unpublish.connect(handle_signal)
 
         # Call the function.
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
         instance.unpublish()
 
@@ -214,7 +215,7 @@ class PublisherTest(test.TestCase):
         publisher_post_unpublish.connect(handle_signal)
 
         # Call the function.
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
         instance.delete()
 
@@ -223,7 +224,7 @@ class PublisherTest(test.TestCase):
         self.assertEqual(self.signal_instance, instance)
 
     def test_model_properties(self):
-        draft_obj = PublisherTestModel.objects.create(title="one")
+        draft_obj = PublisherTestModel.objects.create(no=1, title="one")
 
         self.assertEqual(draft_obj.publisher_is_draft, True)
         self.assertEqual(draft_obj.is_published, False)
@@ -277,7 +278,7 @@ class PublisherTest(test.TestCase):
         yesterday = timezone.now() - datetime.timedelta(days=1)
         tomorrow = timezone.now() + datetime.timedelta(days=1)
 
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
 
         # No publication_start_date set:
@@ -345,7 +346,7 @@ class PublisherTest(test.TestCase):
         yesterday = timezone.now() - datetime.timedelta(days=1)
         tomorrow = timezone.now() + datetime.timedelta(days=1)
 
-        instance = PublisherTestModel.objects.create(title='Test model')
+        instance = PublisherTestModel.objects.create(no=1, title='Test model')
         instance.publish()
 
         # No publication_end_date set:
@@ -410,3 +411,22 @@ class PublisherTest(test.TestCase):
         self.assertEqual(obj.hidden_by_end_date, False)
         self.assertEqual(obj.hidden_by_start_date, False)
         self.assertEqual(obj.is_visible, True)
+
+    def test_unique_together_direct(self):
+        PublisherTestModel.objects.create(no=1, title="one")
+
+        self.assertRaises(IntegrityError,
+            PublisherTestModel.objects.create, no=1, title="one"
+        )
+
+    def test_unique_together_indirect(self):
+        one = PublisherTestModel.objects.create(no=1, title="one")
+        one.publish()
+
+        one.title = "draft with new title"
+        one.save()
+
+        two = PublisherTestModel.objects.create(no=1, title="one")
+        self.assertRaises(IntegrityError,
+            two.publish
+        )

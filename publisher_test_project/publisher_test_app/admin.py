@@ -11,7 +11,7 @@ class PublisherTestModelAdmin(PublisherAdmin):
     fieldsets = (
         (None, {
             "fields": (
-                "title",
+                "no", "title",
             )
         }),
         ("visibility", {
