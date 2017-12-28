@@ -197,6 +197,8 @@ Please read the information above.
 
 == history
 
+* v0.6.1 - *dev*
+** remove out dated manage command "update_permissions" (can be found in [[https://github.com/jedie/django-tools|django-tools]])
 * v0.6.0 - 27.12.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.5.1...v0.6.0|compare v0.5.1...v0.6.0]]
 ** refactor permissions and publisher workflow
 ** NEW: {{{publisher.views.PublisherCmsViewMixin}}}
