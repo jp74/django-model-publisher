@@ -98,6 +98,6 @@ def list_item_fixtures():
                 draft.save()
 
             if created:
-                print("PublisherItem created: %s", instance)
+                print("PublisherItem created:", instance)
             else:
-                print("Existing PublisherItem: %s", instance)
+                print("Existing PublisherItem:", instance)
