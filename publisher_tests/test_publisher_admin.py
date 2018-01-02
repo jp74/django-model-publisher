@@ -1,5 +1,6 @@
 # coding: utf-8
-
+from publisher.models import PublisherStateModel
+from publisher_test_project.publisher_test_app.models import PublisherTestModel
 from publisher_tests.base import ClientBaseTestCase
 
 
@@ -53,4 +54,25 @@ class AdminLoggedinTests(ClientBaseTestCase):
             ),
             must_not_contain=('error', 'traceback'),
             template_name='publisher/change_form.html',
+        )
+
+    def test_edit_pending_request(self):
+        draft = PublisherTestModel.objects.create(no=1, title="foobar")
+
+        ask_permission_user = self.login_reporter_user() # 'reporter' user can create un-/publish requests
+
+        PublisherStateModel.objects.request_publishing(
+            user=ask_permission_user,
+            publisher_instance=draft,
+        )
+
+        response = self.client.get(
+            "/en/admin/publisher_test_app/publishertestmodel/%s/change/" % draft.pk,
+            HTTP_ACCEPT_LANGUAGE='en'
+        )
+        self.assertRedirects(response,
+            expected_url="/en/admin/publisher_test_app/publishertestmodel/"
+        )
+        self.assertMessages(response,
+            ["You can't edit this, because a publish request is pending!"]
         )

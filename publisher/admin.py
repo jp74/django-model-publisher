@@ -171,6 +171,9 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
                 self.current_request = self.publisher_states.latest()
             except PublisherStateModel.DoesNotExist:
                 pass
+            else:
+                if self.current_request.state==constants.STATE_REQUEST:
+                    raise PendingPublishRequest
 
         return super(PublisherAdmin, self).get_form(request, obj=obj, **kwargs)
 
@@ -274,17 +277,13 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
     def get_model_object(self, request, object_id):
         print("publisher.admin.PublisherAdmin#get_model_object")
         obj = self.model.objects.get(pk=object_id)
-
-        if not self.has_change_permission(request, obj):
-            raise PermissionDenied
-
         if obj is None:
             raise Http404(_("%s object with primary key %s does not exist.") % (
                 force_text(self.model._meta.verbose_name),
                 escape(object_id)
             ))
 
-        if not self.has_change_permission(request) and not self.has_add_permission(request):
+        if not self.has_change_permission(request, obj) or not self.has_add_permission(request):
             raise PermissionDenied
 
         return obj
@@ -327,14 +326,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
             return HttpResponseRedirect(reverse(self.changelist_reverse))
 
         return http_json_response({"success": True})
-
-    def _add_ask_publish_publisher_request(self, request, obj):
-        if obj is not None:
-            has_open_requests = PublisherStateModel.objects.has_open_requests(obj)
-            if has_open_requests:
-                raise PendingPublishRequest
-
-        return self.has_ask_request_permission(request, obj)
 
     def post_ask_publish(self, request, obj, form):
         if not obj.is_dirty:

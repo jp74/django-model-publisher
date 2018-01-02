@@ -15,7 +15,7 @@ aldryn_translation_tools
 django-cms
 
 django-parler
-django-tools>=0.38.0
+django-tools>=0.38.5
 django-cms-tools>=0.5.0
 
 # http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
