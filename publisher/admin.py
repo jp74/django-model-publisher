@@ -769,6 +769,11 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     note=note
                 )
 
+                messages.info(request, _("%(action)s %(state)s created.") % {
+                    "action": state_instance.action_name,
+                    "state": state_instance.state_name,
+                })
+
                 url = publisher_instance.get_absolute_url()
                 url = "%s?edit_off" % url
                 return redirect(url)
