@@ -1,4 +1,12 @@
 # coding: utf-8
+
+
+import sys
+
+import django
+
+import mock
+
 from publisher.models import PublisherStateModel
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
 from publisher_tests.base import ClientBaseTestCase
@@ -66,10 +74,19 @@ class AdminLoggedinTests(ClientBaseTestCase):
             publisher_instance=draft,
         )
 
-        response = self.client.get(
-            "/en/admin/publisher_test_app/publishertestmodel/%s/change/" % draft.pk,
-            HTTP_ACCEPT_LANGUAGE='en'
-        )
+        if django.VERSION < (1, 11):
+            url = "/en/admin/publisher_test_app/publishertestmodel/%s/" % draft.pk
+        else:
+            url = "/en/admin/publisher_test_app/publishertestmodel/%s/change/" % draft.pk
+
+        def raise_error(*args, **kwargs):
+            tb = sys.exc_info()[2]
+            raise AssertionError().with_traceback(tb)
+
+        # django/conf/urls/__init__.py - handler404
+        with mock.patch('django.views.defaults.page_not_found', new=raise_error):
+            response = self.client.get(url, HTTP_ACCEPT_LANGUAGE='en')
+
         self.assertRedirects(response,
             expected_url="/en/admin/publisher_test_app/publishertestmodel/"
         )
