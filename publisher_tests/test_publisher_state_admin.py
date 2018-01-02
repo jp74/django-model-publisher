@@ -86,6 +86,8 @@ class AdminLoggedinTests(ClientBaseTestCase):
         )
         draft.delete()
 
+        state_instance = PublisherStateModel.objects.get(pk=state_instance.pk) # needed for django 1.8
+
         return state_instance, draft_id
 
     def test_delete_publisher_instance_index_view(self):
