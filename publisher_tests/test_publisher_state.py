@@ -100,7 +100,6 @@ class PublisherStateTests(ClientBaseTestCase):
             [('publish', 'accepted'), ('publish', 'request')]
         )
 
-
     def test_ask_request(self):
         self.draft.title = "test_ask_request"
         self.draft.save()
@@ -287,3 +286,29 @@ class PublisherStateTests(ClientBaseTestCase):
         self.assert_timestamp(state_instance.response_timestamp)
         self.assertEqual(state_instance.response_user, self.reply_permission_user)
         self.assertEqual(state_instance.response_note, "test_accept_unpublish_request response")
+
+    def test_delete_publisher_instance(self):
+        draft = PublisherTestModel.objects.create(no=1, title="delete publisher test")
+        draft_id = draft.pk
+
+        PublisherStateModel.objects.request_publishing(
+            user=self.ask_permission_user,
+            publisher_instance=draft,
+        )
+
+        draft.delete()
+
+        qs = PublisherStateModel.objects.all()
+        self.assertEqual(qs.count(), 1)
+
+        # FIXME: 'deleted' entries are open, see also: publisher.managers.PublisherStateQuerySet
+        self.assertEqual(PublisherStateModel.objects.filter_open().count(), 1)
+        self.assertEqual(PublisherStateModel.objects.filter_closed().count(), 0)
+
+        state_instance = qs[0]
+
+        self.assertEqual(
+            str(state_instance),
+            "Deleted 'Publisher Test Model' with pk:%i publish request from: reporter" % draft_id
+        )
+        self.assertFalse(state_instance.is_open)

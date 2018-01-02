@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools.permissions import ModelPermissionMixin, check_permission
 
 from . import constants
-from .managers import PublisherChangeManager, PublisherManager
+from .managers import PublisherStateManager, PublisherManager
 from .signals import (
     publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
     publisher_publish_pre_save_draft
@@ -391,7 +391,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     """
     Save request/response actions for a publisher model.
     """
-    objects = PublisherChangeManager()
+    objects = PublisherStateManager()
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -419,6 +419,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         (constants.STATE_REQUEST, _('request')),
         (constants.STATE_REJECTED, _('rejected')),
         (constants.STATE_ACCEPTED, _('accepted')),
+        (constants.STATE_DONE, _('done')), # e.g.: close a entry with deleted instance
     )
     STATE_DICT=dict(STATE_CHOICES)
 
@@ -430,8 +431,11 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
     @cached_property
     def is_open(self):
-        """ is not a 'closed' entry. """
-        return self.state == constants.STATE_REQUEST
+        """
+        return True if is not a 'closed' entry.
+        Is self.publisher_instance is None: The instance was deleted.
+        """
+        return self.publisher_instance is not None and self.state == constants.STATE_REQUEST
 
     #-------------------------------------------------------------------------
 
@@ -506,7 +510,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
     def status_text(self):
         txt = [self.action_name, self.state_name]
 
-        if self.is_open:
+        if self.is_open or self.publisher_instance is None:
             if self.request_user:
                 txt.append(
                     _('from: %(user)s') % {'user': self.request_user}
@@ -528,12 +532,22 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         )
         return url
 
+    def admin_close_deleted_url(self):
+        """
+        Link to 'close this deleted request'
+        """
+        url = reverse(
+            "admin:publisher_publisherstatemodel_close_deleted",
+            kwargs={'pk': self.pk}
+        )
+        return url
+
     ############################################################################
     # response methods:
 
     def accept(self, response_user, response_note=None):
         assert self.state == constants.STATE_REQUEST, "%r != %r" % (self.state, constants.STATE_REQUEST)
-        assert self.publisher_instance is not None
+        assert self.publisher_instance is not None, "Publisher instance was deleted!"
         assert self.request_user is not None
         assert self.request_timestamp is not None
 
@@ -582,7 +596,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
     def reject(self, response_user, response_note):
         assert self.state == constants.STATE_REQUEST, "%r != %r" % (self.state, constants.STATE_REQUEST)
-        assert self.publisher_instance is not None
+        assert self.publisher_instance is not None, "Publisher instance was deleted!"
         assert self.request_user is not None
         assert self.request_timestamp is not None
 
@@ -595,7 +609,16 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         log.info('Reject "%s" for "%s"', self.action, self.publisher_instance)
         self.save()
 
+    def close_deleted(self, response_user):
+        self.state = constants.STATE_DONE
+        self.response_user = response_user
+        log.info("Close state for deleted instance")
+        self.save()
+
     def __str__(self):
+        if self.publisher_instance is None:
+            return "Deleted '%s' with pk:%r %s" % (self.content_type, self.object_id, self.status_text)
+
         txt = '"%s" %s' % (self.publisher_instance, self.status_text)
         if self.is_open:
             txt += ' (open)'

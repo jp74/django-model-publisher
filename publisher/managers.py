@@ -72,7 +72,11 @@ if parler_exists:
 
 
 
-class PublisherChangeQuerySet(models.QuerySet):
+class PublisherStateQuerySet(models.QuerySet):
+    """
+    FIXME: We can't filter open/close with e.g.: publisher_instance__isnull=False
+    because GenericForeignKey 'publisher_instance' does not generate an automatic reverse relation
+    """
     def filter_open(self):
         return self.filter(state=constants.STATE_REQUEST)
 
@@ -91,10 +95,10 @@ class PublisherChangeQuerySet(models.QuerySet):
         return queryset
 
 
-class PublisherChangeManager(models.Manager):
+class BasePublisherStateManager(models.Manager):
 
     def get_queryset(self):
-        return PublisherChangeQuerySet(self.model, using=self._db)
+        return PublisherStateQuerySet(self.model, using=self._db)
 
     def get_open_requests(self, publisher_instance):
         return self.all().filter_open().filter_by_instance(
@@ -200,3 +204,4 @@ class PublisherChangeManager(models.Manager):
             viewname="admin:publisher_publisherstatemodel_request_unpublish",
         )
 
+PublisherStateManager = BasePublisherStateManager.from_queryset(PublisherStateQuerySet)

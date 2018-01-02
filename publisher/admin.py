@@ -618,6 +618,9 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             # "publisher_publisherstatemodel_reply_request"
             pat(r'^(?P<pk>[0-9]+)/reply_request/$', self.reply_request),
 
+            # "publisher_publisherstatemodel_close_deleted"
+            pat(r'^(?P<pk>[0-9]+)/close_deleted/$', self.close_deleted),
+
             # "publisher_publisherstatemodel_request_publish"
             pat(r'^(?P<content_type_id>[0-9]+)/(?P<object_id>[0-9]+)/request_publish/$', self.request_publish),
 
@@ -640,6 +643,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             state=constants.STATE_REQUEST # only open requests
         )
         publisher_instance = current_request.publisher_instance
+        assert publisher_instance is not None, "Publisher instance was deleted!"
 
         if request.method == "POST":
             form = PublisherNoteForm(request.POST)
@@ -712,6 +716,28 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             template_name=self.request_publish_page_template,
             context=context
         )
+
+    def close_deleted(self, request, pk):
+        """
+        mark a request for a deleted instance as 'closed'
+        """
+        user = request.user
+        PublisherStateModel.has_change_permission(
+            user,
+            raise_exception=True
+        )
+
+        current_request = get_object_or_404(
+            PublisherStateModel,
+            pk=pk,
+            state=constants.STATE_REQUEST # only open requests
+        )
+        assert current_request.publisher_instance is None, "The instance was not deleted!"
+
+        current_request.close_deleted(response_user=user)
+        messages.success(request, _("Entry with deleted instance was closed."))
+        url = reverse("admin:publisher_publisherstatemodel_changelist")
+        return redirect(url)
 
     def _publisher_request(self, request, content_type_id, object_id, action):
         assert action in PublisherStateModel.ACTION_DICT
@@ -801,23 +827,32 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
     def view_on_page_link(self, obj):
         publisher_instance = obj.publisher_instance
-        txt = str(publisher_instance)
-        try:
-            url = publisher_instance.get_absolute_url()
-        except AttributeError as err:
-            log.error("Can't add 'view on page' link: %s", err)
-            if settings.DEBUG:
-                return '<span title="{err}">{txt}</span>'.format(err=err, txt=txt)
-            else:
-                return "-"
-        html = '<a href="{url}?edit">{txt}</a>'.format(url=url, txt=txt)
+        if publisher_instance is None:
+            txt = "Deleted '%s' (old pk:%r)" % (obj.content_type, obj.object_id)
+            html = "<i>%s</i>" % txt
+        else:
+            txt = str(publisher_instance)
+            try:
+                url = publisher_instance.get_absolute_url()
+            except AttributeError as err:
+                log.error("Can't add 'view on page' link: %s", err)
+                if settings.DEBUG:
+                    return '<span title="{err}">{txt}</span>'.format(err=err, txt=txt)
+                else:
+                    return "-"
+            html = '<a href="{url}?edit">{txt}</a>'.format(url=url, txt=txt)
         return html
     view_on_page_link.allow_tags = True
     view_on_page_link.short_description = _("view on page")
 
     def change_link(self, obj):
         if not obj.is_open:
-            return "-"
+            if obj.publisher_instance is None:
+                # instance was delete -> display 'close' link
+                url = obj.admin_close_deleted_url()
+                txt=_("close deleted request")
+            else:
+                return "-"
         else:
             url = obj.admin_reply_url()
             if obj.action == constants.ACTION_PUBLISH:
@@ -827,8 +862,8 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             else:
                 raise RuntimeError
 
-            html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
-            return html
+        html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
+        return html
     change_link.allow_tags = True
     change_link.short_description = _("Reply Link")
 
