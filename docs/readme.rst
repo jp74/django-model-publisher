@@ -133,6 +133,13 @@ See user permission tests in:
 
 * `publisher_tests.test_basics.PermissionTestCase <https://github.com/wearehoods/django-ya-model-publisher/blob/master/publisher_tests/test_basics.py>`_
 
+------------------------------
+Primary key type compatibility
+------------------------------
+
+The ``publisher.models.PublisherStateModel`` used a ``PositiveIntegerField`` for the ``GenericForeignKey`` so it can only be used for models with a integer primary keys!
+See also: `https://docs.djangoproject.com/en/1.11/ref/contrib/contenttypes/#django.contrib.contenttypes.fields.GenericForeignKey <https://docs.djangoproject.com/en/1.11/ref/contrib/contenttypes/#django.contrib.contenttypes.fields.GenericForeignKey>`_
+
 --------------------
 Django compatibility
 --------------------
@@ -256,6 +263,14 @@ Please read the information above.
 -------
 history
 -------
+
+* v0.6.2 - 02.01.2018 - `compare v0.6.1...v0.6.2 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...v0.6.2>`_ 
+
+    * Handle publishes states with deletes instance: Add a admin view to close the request.
+
+    * Bugfix: deny editing pending request objects
+
+    * Create messages after (un-)/publish request created.
 
 * v0.6.1 - 28.12.2017 - `compare v0.6.0...v0.6.1 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.0...v0.6.1>`_ 
 

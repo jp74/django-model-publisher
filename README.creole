@@ -203,7 +203,7 @@ Please read the information above.
 
 == history
 
-* *dev* - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...master|compare v0.6.1...master]]
+* v0.6.2 - 02.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...v0.6.2|compare v0.6.1...v0.6.2]]
 ** Handle publishes states with deletes instance: Add a admin view to close the request.
 ** Bugfix: deny editing pending request objects
 ** Create messages after (un-)/publish request created.
