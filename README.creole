@@ -203,6 +203,8 @@ Please read the information above.
 
 == history
 
+* *dev* - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...master|compare v0.6.1...master]]
+** Handle publishes states with deletes instance: Add a admin view to close the request.
 * v0.6.1 - 28.12.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.0...v0.6.1|compare v0.6.0...v0.6.1]]
 ** remove own "unique_together": Add {{{"publisher_is_draft"}}} to your own "unique_together" tuple
 ** remove out dated manage command "update_permissions" (can be found in [[https://github.com/jedie/django-tools|django-tools]])
