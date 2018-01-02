@@ -98,6 +98,12 @@ See user permission tests in:
 * [[https://github.com/wearehoods/django-ya-model-publisher/blob/master/publisher_tests/test_basics.py|publisher_tests.test_basics.PermissionTestCase]]
 
 
+== Primary key type compatibility
+
+The {{{publisher.models.PublisherStateModel}}} used a  {{{PositiveIntegerField}}} for the {{{GenericForeignKey}}} so it can only be used for models with a integer primary keys!
+See also: https://docs.djangoproject.com/en/1.11/ref/contrib/contenttypes/#django.contrib.contenttypes.fields.GenericForeignKey
+
+
 == Django compatibility
 
 |= django-ya-model-publisher |= django version      |= python            |
