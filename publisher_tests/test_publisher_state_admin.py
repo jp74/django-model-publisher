@@ -130,3 +130,5 @@ class AdminLoggedinTests(ClientBaseTestCase):
         # Now the state updates to 'closed':
         self.assertEqual(PublisherStateModel.objects.filter_open().count(), 0)
         self.assertEqual(PublisherStateModel.objects.filter_closed().count(), 1)
+
+        self.assertMessages(response, ["Entry with deleted instance was closed."])

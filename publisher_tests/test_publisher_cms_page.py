@@ -199,8 +199,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             expected_url="%s?edit_off" % self.page4edit_url,
             fetch_redirect_response=False
         )
-
-        # TODO: Check if user get a message
+        self.assertMessages(response, ["This page 'A new page title' has pending publish request."])
 
     def test_reporter_publish_request_view(self):
         reporter = self.login_reporter_user() # can create un-/publish requests
@@ -261,6 +260,8 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             HTTP_ACCEPT_LANGUAGE="de"
         )
         # debug_response(response)
+
+        self.assertMessages(response, ["publish request created."])
 
         self.assertRedirects(response,
             expected_url="http://testserver/en/?edit_off",
@@ -345,6 +346,8 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             '"Test page 1 in English" unpublish request from: reporter (Please unpublish this cms page.) (open)'
         )
         self.assertEqual(state.publisher_instance.pk, self.page4edit.pk)
+
+        self.assertMessages(response, ["unpublish request created."])
 
 
     #-------------------------------------------------------------------------
@@ -443,6 +446,10 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.page4edit = Page.objects.get(pk=self.page4edit.pk)
         self.assertEqual(self.page4edit.is_dirty(language="en"), False)
 
+        self.assertMessages(response, [
+            '"A new page title" publish accepted from: editor (OK, I publish this cms page, now.) has been accept.'
+        ])
+
     def test_editor_reject_publish_request(self):
         self.page4edit_title.title = "A new page title"
         self.page4edit_title.save()
@@ -495,3 +502,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.page4edit = Page.objects.get(pk=self.page4edit.pk)
         self.assertEqual(self.page4edit.is_dirty(language="en"), True)
+
+        self.assertMessages(response, [
+            '"A new page title" publish rejected from: editor (No, I reject this request.) has been rejected.'
+        ])
