@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from .managers import PublisherManager, PublisherQuerySet
+from .managers import PublisherManager
 from .utils import assert_draft
 from .signals import (
     publisher_publish_pre_save_draft,
@@ -270,7 +270,7 @@ class PublisherModelBase(models.Model):
 
 class PublisherModel(PublisherModelBase):
     objects = models.Manager()
-    publisher_manager = PublisherQuerySet.as_manager()
+    publisher_manager = PublisherManager()
 
     class Meta:
         abstract = True
