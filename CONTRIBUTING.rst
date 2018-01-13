@@ -69,7 +69,11 @@ Ready to contribute? Here's how to set up `django-model-publisher` for local dev
 Now you can make your changes locally.
 
 4. When you're done making changes, check that your changes pass flake8 and the
-tests with tox::
+tests, including testing other Python versions with tox::
+
+    $ flake8 publisher tests
+    $ python tests/manage.py test myapp
+    $ tox
 
     $ tox -e flake8,django18-py27  # Specific envs
     $ tox  # All envs

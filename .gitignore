@@ -25,6 +25,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+htmlcov
 
 # Translations
 *.mo
@@ -47,3 +48,7 @@ docs/_build
 # PyPI
 *.pypirc
 .pypirc
+
+# Virtualenv
+env/
+venv/
