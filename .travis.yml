@@ -1,13 +1,10 @@
 language: python
-python:
-  - "2.7"
-  - "2.6"
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
-  - "pip install -r requirements.txt"
-  - "pip install -r requirements-test.txt"
-# command to run tests, e.g. python setup.py test
+  - pip install tox
 script:
-  coverage run --source=publisher runtests.py
-after_success:
-  coveralls
+  - tox
+env:
+  - TOXENV=django16-py27-coveralls
+  - TOXENV=django18-py27-coveralls
+  - TOXENV=django19-py27-coveralls
+  - TOXENV=flake8
