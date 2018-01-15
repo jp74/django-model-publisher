@@ -4,12 +4,9 @@
 import os
 import sys
 
-import publisher
+from setuptools import setup
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+import publisher
 
 version = publisher.__version__
 
@@ -34,10 +31,6 @@ setup(
         'publisher',
     ],
     include_package_data=True,
-    install_requires=[
-        'Django>=1.4.3',
-        'django-model-utils>=2.0.3',
-    ],
     license="BSD",
     zip_safe=False,
     keywords='django-model-publisher',

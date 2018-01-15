@@ -15,3 +15,4 @@ Contributors
 ------------
 
 * Basil Shubin
+* Chris Dobbyn

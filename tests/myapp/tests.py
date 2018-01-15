@@ -5,18 +5,14 @@ from django.utils import timezone
 
 from mock import MagicMock
 
-from ..utils import NotDraftException
-from ..signals import publisher_post_publish, publisher_post_unpublish
-from ..middleware import PublisherMiddleware, get_draft_status
+from publisher.utils import NotDraftException
+from publisher.signals import publisher_post_publish, publisher_post_unpublish
+from publisher.middleware import PublisherMiddleware, get_draft_status
 
-from .models import PublisherTestModel
-from .utils import create_models_from_app
+from myapp.models import PublisherTestModel
 
 
 class PublisherTest(test.TestCase):
-
-    def setUp(self):
-        create_models_from_app('publisher.tests')
 
     def test_creating_model_creates_only_one_record(self):
         PublisherTestModel.publisher_manager.create(title='Test model')

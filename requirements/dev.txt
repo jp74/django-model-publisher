@@ -1,0 +1,6 @@
+-r base.txt
+mock
+coverage
+flake8
+tox
+coveralls
