@@ -155,8 +155,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
          * self.get_fieldsets()
          * self.render_change_form()
         """
-        print("publisher.admin.PublisherAdmin#get_form")
-
         # Current user can direct publish the current object:
         self.user_can_publish = self.has_publish_permission(request, obj=obj, raise_exception=False)
 
@@ -178,7 +176,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
         return super(PublisherAdmin, self).get_form(request, obj=obj, **kwargs)
 
     def changeform_view(self, request, *args, **kwargs):
-        print("publisher.admin.PublisherAdmin#changeform_view")
         try:
             return super(PublisherAdmin, self).changeform_view(request, *args, **kwargs)
         except PendingPublishRequest:
@@ -275,7 +272,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
         return publish_urls + urls
 
     def get_model_object(self, request, object_id):
-        print("publisher.admin.PublisherAdmin#get_model_object")
         obj = self.model.objects.get(pk=object_id)
         if obj is None:
             raise Http404(_("%s object with primary key %s does not exist.") % (
@@ -401,7 +397,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
         """
         Add 'node' fieldset.
         """
-        print("publisher.admin.PublisherAdmin#get_fieldsets")
         fieldsets = super(PublisherAdmin, self).get_fieldsets(request, obj=obj)
 
         fieldset_name = None
@@ -423,12 +418,6 @@ class PublisherAdmin(VisibilityMixin, ModelAdmin):
         return fieldsets
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
-        print("publisher.admin.PublisherAdmin#render_change_form")
-        user = request.user
-
-        print("obj", repr(obj))
-        print("original", repr(context.get("original", None)))
-
         obj = context.get("original", None)
 
         current_request = None
