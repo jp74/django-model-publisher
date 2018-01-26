@@ -4,7 +4,7 @@ import sys
 import mock
 
 from django.contrib.auth import get_user_model
-from django.urls import reverse
+from django.core.urlresolvers import reverse
 from publisher.models import PublisherStateModel
 from publisher_test_project.fixtures import REPORTER_USER
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
