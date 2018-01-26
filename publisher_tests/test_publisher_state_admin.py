@@ -1,10 +1,12 @@
 # coding: utf-8
 import sys
 
-import mock
-
+import django
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
+
+import mock
+
 from publisher.models import PublisherStateModel
 from publisher_test_project.fixtures import REPORTER_USER
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
@@ -173,7 +175,10 @@ class AdminLoggedinTests(ClientBaseTestCase):
             "admin:publisher_publisherstatemodel_change",
             args=(state_instance.pk,)
         )
-        self.assertEqual(url, "/en/admin/publisher/publisherstatemodel/%i/change/" % state_instance.pk)
+        if django.VERSION < (1, 11):
+            self.assertEqual(url, "/en/admin/publisher/publisherstatemodel/%i/" % state_instance.pk)
+        else:
+            self.assertEqual(url, "/en/admin/publisher/publisherstatemodel/%i/change/" % state_instance.pk)
         return url
 
     def test_permission_deny_on_changeform_view(self):
