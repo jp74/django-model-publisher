@@ -134,3 +134,32 @@ class AdminLoggedinTests(ClientBaseTestCase):
         self.assertEqual(PublisherStateModel.objects.filter_closed().count(), 1)
 
         self.assertMessages(response, ["Entry with deleted instance was closed."])
+
+    def test_permission_deny_on_admin_reply_request_view(self):
+        ask_permission_user = self.login_reporter_user()
+        self.assertFalse(ask_permission_user.has_perm("cms.publish_page"))
+
+        draft = PublisherTestModel.objects.create(no=1, title="test_permission_deny_on_admin_reply_request_view")
+
+        state_instance = PublisherStateModel.objects.request_publishing(
+            user=ask_permission_user,
+            publisher_instance=draft,
+            note="test_permission_deny_on_admin_reply_request_view request",
+        )
+        self.assertEqual(PublisherStateModel.objects.all().count(), 1)
+
+        reply_url = state_instance.admin_reply_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/reply_request/
+        print(reply_url)
+
+        def raise_error(*args, **kwargs):
+            tb = sys.exc_info()[2]
+            raise AssertionError().with_traceback(tb)
+
+        # django/conf/urls/__init__.py - handler404
+        with mock.patch('django.views.defaults.page_not_found', new=raise_error):
+            response = self.client.get(reply_url)
+        self.assertResponse(response,
+            must_contain=('403 Forbidden',),
+            must_not_contain=('error', 'traceback'),
+            status_code=403
+        )

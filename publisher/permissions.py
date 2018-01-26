@@ -1,7 +1,10 @@
 import logging
 
 from django.contrib.auth import get_permission_codename
-from django_tools.permissions import check_permission
+from django.core.exceptions import PermissionDenied
+
+from django_tools.permissions import check_permission, get_permission_by_string
+
 from publisher import constants
 
 log = logging.getLogger(__name__)
@@ -14,11 +17,29 @@ def has_object_permission(user, opts, action, raise_exception=True):
     opts is <model_instance>._meta
     """
     codename = get_permission_codename(action, opts)
+
+    if codename == "can_publish_page":
+        # FIXME: Django CMS code name doesn't has the prefix "can_" !
+        # TODO: Remove "can_" from own permissions to unify it.
+        codename = "publish_page"
+
     perm_name = "%s.%s" % (
         opts.app_label,
         codename
     )
-    return check_permission(user, perm_name, raise_exception)
+
+    try:
+        has_permission = check_permission(user, perm_name, raise_exception)
+    except PermissionDenied:
+        # get_permission() will raise helpfull errors if format is wrong
+        # or if the permission doesn't exists
+        get_permission_by_string(perm_name)
+        raise
+
+    if not has_permission:
+        get_permission_by_string(perm_name)
+
+    return has_permission
 
 
 def can_publish_object(user, opts, raise_exception=True):

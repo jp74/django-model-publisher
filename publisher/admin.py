@@ -623,10 +623,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
     def reply_request(self, request, pk):
         user = request.user
-        PublisherStateModel.has_change_permission(
-            user,
-            raise_exception=True
-        )
+        PublisherStateModel.has_change_permission(user, raise_exception=True)
 
         current_request = get_object_or_404(
             PublisherStateModel,
@@ -635,6 +632,10 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         )
         publisher_instance = current_request.publisher_instance
         assert publisher_instance is not None, "Publisher instance was deleted!"
+
+        # raise PermissionDenied if user has no publish permissions:
+        opts = publisher_instance._meta
+        can_publish_object(user, opts, raise_exception=True)
 
         if request.method == "POST":
             form = PublisherNoteForm(request.POST)

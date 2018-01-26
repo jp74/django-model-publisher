@@ -325,6 +325,7 @@ class PublisherStateTests(ClientBaseTestCase):
         )
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
+        self.assertFalse(self.ask_permission_user.has_perm("cms.publish_page"))
         self.assertRaises(
             PermissionDenied,
             state_instance.accept,
@@ -344,6 +345,7 @@ class PublisherStateTests(ClientBaseTestCase):
         )
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
+        self.assertFalse(self.ask_permission_user.has_perm("cms.publish_page"))
         self.assertRaises(
             PermissionDenied,
             state_instance.reject,
