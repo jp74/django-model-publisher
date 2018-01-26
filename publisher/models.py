@@ -17,12 +17,10 @@ from django_tools.permissions import ModelPermissionMixin, check_permission
 from publisher.permissions import can_publish_object
 
 from . import constants
-from .managers import PublisherStateManager, PublisherManager
-from .signals import (
-    publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
-    publisher_publish_pre_save_draft
-)
-from .utils import assert_draft, django_cms_exists, parler_exists, aldryn_translation_tools_exists
+from .managers import PublisherManager, PublisherStateManager
+from .signals import (publisher_post_publish, publisher_post_unpublish, publisher_pre_publish, publisher_pre_unpublish,
+                      publisher_publish_pre_save_draft)
+from .utils import aldryn_translation_tools_exists, assert_draft, django_cms_exists, parler_exists
 
 log = logging.getLogger(__name__)
 
