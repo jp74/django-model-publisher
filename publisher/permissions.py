@@ -22,6 +22,7 @@ def has_object_permission(user, opts, action, raise_exception=True):
         # FIXME: Django CMS code name doesn't has the prefix "can_" !
         # TODO: Remove "can_" from own permissions to unify it.
         # see also: publisher.models.PublisherStateModel#object_permission_name
+        # https://github.com/wearehoods/django-ya-model-publisher/issues/8
         codename = "publish_page"
 
     perm_name = "%s.%s" % (

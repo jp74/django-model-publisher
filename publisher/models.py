@@ -481,6 +481,7 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
             # FIXME: Django CMS code name doesn't has the prefix "can_" !
             # TODO: Remove "can_" from own permissions to unify it.
             # see also: publisher.permissions.has_object_permission
+            # https://github.com/wearehoods/django-ya-model-publisher/issues/8
             permission = "cms.publish_page"
         return permission
 
