@@ -4,6 +4,7 @@ import sys
 import mock
 
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from publisher.models import PublisherStateModel
 from publisher_test_project.fixtures import REPORTER_USER
 from publisher_test_project.publisher_test_app.models import PublisherTestModel
@@ -49,13 +50,9 @@ class AdminLoggedinTests(ClientBaseTestCase):
         self.login_superuser()
         response = self.client.get('/en/admin/publisher/publisherstatemodel/add/', HTTP_ACCEPT_LANGUAGE='en')
         self.assertResponse(response,
-            must_contain=(
-                'Django administration',
-                'superuser',
-                'Add Publisher State',
-            ),
+            must_contain=('403 Forbidden',),
             must_not_contain=('error', 'traceback'),
-            template_name='admin/change_form.html',
+            status_code=403
         )
 
     def assert_cant_add_publisherstatemodel(self):
@@ -162,4 +159,51 @@ class AdminLoggedinTests(ClientBaseTestCase):
             must_contain=('403 Forbidden',),
             must_not_contain=('error', 'traceback'),
             status_code=403
+        )
+
+    def _get_changeform_url(self, title):
+        draft = PublisherTestModel.objects.create(no=1, title=title)
+        ask_permission_user = self.get_test_user(username=REPORTER_USER)
+        state_instance = PublisherStateModel.objects.request_publishing(
+            user=ask_permission_user,
+            publisher_instance=draft,
+            note="%s request" % title,
+        )
+        url = reverse(
+            "admin:publisher_publisherstatemodel_change",
+            args=(state_instance.pk,)
+        )
+        self.assertEqual(url, "/en/admin/publisher/publisherstatemodel/%i/change/" % state_instance.pk)
+        return url
+
+    def test_permission_deny_on_changeform_view(self):
+        # create PublisherStateModel instance and returned the admin change link to it:
+        change_url = self._get_changeform_url(title="test_permission_deny_on_changeform_view")
+        print(change_url)
+
+        self.login_editor_user()
+        response = self.client.get(change_url)
+        self.assertResponse(response,
+            must_contain=('403 Forbidden',),
+            must_not_contain=('error', 'traceback'),
+            status_code=403
+        )
+
+    def test_superuser_can_use_changeform_view(self):
+        # create PublisherStateModel instance and returned the admin change link to it:
+        change_url = self._get_changeform_url(title="test_superuser_can_use_changeform_view")
+        print(change_url)
+
+        self.login_superuser()
+        response = self.client.get(change_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertResponse(response,
+            must_contain=(
+                'Django administration',
+                'Change Publisher State',
+
+                "test_superuser_can_use_changeform_view request",
+            ),
+            must_not_contain=('error', 'traceback'),
+            messages=[],
+            template_name='admin/change_form.html',
         )

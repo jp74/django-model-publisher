@@ -811,6 +811,30 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             action=constants.ACTION_UNPUBLISH
         )
 
+    def changeform_view(self, request, *args, **kwargs):
+        """
+        Only the superuser should be able to use the "raw" change view
+        """
+        user = request.user
+        if not user.is_superuser:
+            log.error("Only superuser can use the 'raw' change view!")
+            raise PermissionDenied
+        return super(PublisherStateModelAdmin, self).changeform_view(request, *args, **kwargs)
+
+    ###########################################################################
+    # Change List stuff:
+
+    def has_add_permission(self, request):
+        """ Hide 'add' links/views """
+        return False
+
+    def get_changelist(self, request, **kwargs):
+        """
+        Make 'request' object available in list_display methods e.g.: self.change_link()
+        """
+        self.request = request
+        return super(PublisherStateModelAdmin, self).get_changelist(request, **kwargs)
+
     def view_on_page_link(self, obj):
         publisher_instance = obj.publisher_instance
         if publisher_instance is None:
@@ -832,6 +856,14 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
     view_on_page_link.short_description = _("view on page")
 
     def change_link(self, obj):
+        user = self.request.user # self.request set in self.get_changelist()
+        has_publish_permissions = obj.check_object_publish_permission(user, raise_exception=False)
+        if not has_publish_permissions:
+            html = '<span title="%s">-</span>' % (
+                _("You have no reply permissions.")
+            )
+            return html
+
         if not obj.is_open:
             if obj.publisher_instance is None:
                 # instance was delete -> display 'close' link
@@ -852,6 +884,15 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         return html
     change_link.allow_tags = True
     change_link.short_description = _("Reply Link")
+
+    def get_list_display_links(self, request, list_display):
+        user = request.user
+        if user.is_superuser:
+            # Only superuser can use the "raw" change view:
+            return super(PublisherStateModelAdmin, self).get_list_display_links(request, list_display)
+        else:
+            # Hide change view link for all non-superusers:
+            return ()
 
     list_display = (
         "request_timestamp",

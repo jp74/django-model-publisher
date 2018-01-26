@@ -465,6 +465,44 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
 
     #-------------------------------------------------------------------------
 
+    def object_permission_name(self, action):
+        """
+        Built the permission name with self.content_type
+
+        check permission against self.content_type and not agains self.publisher_instance
+        works also, if the instance is deleted ;)
+        """
+        permission = "{app}.{action}_{model}".format(
+            app=self.content_type.app_label,
+            action=action,
+            model=self.content_type.model # python model class name
+        )
+        if permission == "cms.can_publish_page":
+            # FIXME: Django CMS code name doesn't has the prefix "can_" !
+            # TODO: Remove "can_" from own permissions to unify it.
+            # see also: publisher.permissions.has_object_permission
+            permission = "cms.publish_page"
+        return permission
+
+    def check_object_permission(self, user, action, raise_exception=True):
+        """
+        e.g.: <app-label>.<action>_<model-name>
+
+        TODO: Use only permission checks against self.content_type everywhere if possible!
+        """
+        permission_name = self.object_permission_name(action)
+        return check_permission(user, permission_name, raise_exception)
+
+    def check_object_publish_permission(self, user, raise_exception=True):
+        """
+        Check 'publish' permission with self.content_type, e.g.:
+            <app-label>.publish_<model-name>
+        """
+        return self.check_object_permission(user,
+            action=constants.PERMISSION_CAN_PUBLISH,
+            raise_exception=raise_exception
+        )
+
     @classmethod
     def has_can_publish_permission(cls, user, raise_exception=True):
         """
@@ -472,8 +510,8 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
          * (un-)publish a object directly
          * accept/reject a (un-)publish request
         """
-        permission = cls.extra_permission_name(action=constants.PERMISSION_CAN_PUBLISH)
-        return check_permission(user, permission, raise_exception)
+        permission_name = cls.extra_permission_name(action=constants.PERMISSION_CAN_PUBLISH)
+        return check_permission(user, permission_name, raise_exception)
 
     #-------------------------------------------------------------------------
 
