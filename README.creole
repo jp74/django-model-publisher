@@ -203,7 +203,9 @@ Please read the information above.
 
 == history
 
-* v0.6.3 - *dev* - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...master|compare v0.6.2...master]]
+
+* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...master|compare v0.6.3...master]]
+* v0.6.3 - 26.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3|compare v0.6.2...v0.6.3]]
 ** Security Fix: User without 'can_publish' permission can accept/reject requests.
 ** Hide 'change' PublisherStateModel admin view for all non-superusers
 ** Disable 'add' PublisherStateModel admin view for all users
@@ -233,6 +235,7 @@ Please read the information above.
 ** bugfix project name
 * v0.4.0.dev1 - 14.11.2017 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.3.1...v0.4.0.dev1|compare v0.3.1...v0.4.0.dev1]]
 ** Just create the fork and apply all pull requests from [[https://github.com/andersinno/django-model-publisher-ai/pull/14|andersinno/django-model-publisher-ai/pull/14]]
+
 
 == links ==
 
