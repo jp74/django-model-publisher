@@ -203,6 +203,8 @@ Please read the information above.
 
 == history
 
+* v0.6.3 - *dev* - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...master|compare v0.6.2...master]]
+** Security Fix: User without 'can_publish' permission can accept/reject requests.
 * v0.6.2 - 02.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...v0.6.2|compare v0.6.1...v0.6.2]]
 ** Handle publishes states with deletes instance: Add a admin view to close the request.
 ** Bugfix: deny editing pending request objects

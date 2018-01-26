@@ -14,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 # https://github.com/jedie/django-tools
 from django_tools.permissions import ModelPermissionMixin, check_permission
 
+from publisher.permissions import can_publish_object
+
 from . import constants
 from .managers import PublisherStateManager, PublisherManager
 from .signals import (
@@ -551,6 +553,9 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         assert self.request_user is not None
         assert self.request_timestamp is not None
 
+        opts = self.publisher_instance._meta
+        can_publish_object(response_user, opts, raise_exception=True)
+
         self.response_user = response_user
         self.response_note = response_note
         self.state = constants.STATE_ACCEPTED
@@ -599,6 +604,9 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         assert self.publisher_instance is not None, "Publisher instance was deleted!"
         assert self.request_user is not None
         assert self.request_timestamp is not None
+
+        opts = self.publisher_instance._meta
+        can_publish_object(response_user, opts, raise_exception=True)
 
         self.response_user = response_user
         self.response_note = response_note

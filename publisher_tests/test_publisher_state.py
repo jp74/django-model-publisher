@@ -312,3 +312,41 @@ class PublisherStateTests(ClientBaseTestCase):
             "Deleted 'Publisher Test Model' with pk:%i publish request from: reporter" % draft_id
         )
         self.assertFalse(state_instance.is_open)
+
+    def test_no_permission_to_accept_request(self):
+        self.draft.title = "test_no_permission_to_accept_request"
+        self.draft.save()
+
+        self.assertEqual(PublisherStateModel.objects.all().count(), 0)
+        state_instance = PublisherStateModel.objects.request_publishing(
+            user=self.ask_permission_user,
+            publisher_instance=self.draft,
+            note="test_no_permission_to_accept_request request",
+        )
+        self.assertEqual(PublisherStateModel.objects.all().count(), 1)
+
+        self.assertRaises(
+            PermissionDenied,
+            state_instance.accept,
+            response_user=self.ask_permission_user,
+            response_note="test_no_permission_to_accept_request response",
+        )
+
+    def test_no_permission_to_reject_request(self):
+        self.draft.title = "test_no_permission_to_reject_request"
+        self.draft.save()
+
+        self.assertEqual(PublisherStateModel.objects.all().count(), 0)
+        state_instance = PublisherStateModel.objects.request_publishing(
+            user=self.ask_permission_user,
+            publisher_instance=self.draft,
+            note="test_no_permission_to_reject_request request",
+        )
+        self.assertEqual(PublisherStateModel.objects.all().count(), 1)
+
+        self.assertRaises(
+            PermissionDenied,
+            state_instance.reject,
+            response_user=self.ask_permission_user,
+            response_note="test_no_permission_to_reject_request response",
+        )
