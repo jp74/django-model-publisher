@@ -264,6 +264,16 @@ Please read the information above.
 history
 -------
 
+* *dev* `compare v0.6.3...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...master>`_
+
+* v0.6.3 - 26.01.2018 - `compare v0.6.2...v0.6.3 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3>`_ 
+
+    * Security Fix: User without 'can_publish' permission can accept/reject requests.
+
+    * Hide 'change' PublisherStateModel admin view for all non-superusers
+
+    * Disable 'add' PublisherStateModel admin view for all users
+
 * v0.6.2 - 02.01.2018 - `compare v0.6.1...v0.6.2 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.1...v0.6.2>`_ 
 
     * Handle publishes states with deletes instance: Add a admin view to close the request.
