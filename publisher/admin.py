@@ -587,6 +587,9 @@ class StatusListFilter(admin.SimpleListFilter):
 
 @admin.register(PublisherStateModel)
 class PublisherStateModelAdmin(admin.ModelAdmin):
+
+    actions = None # disable admin actions
+
     request_publish_page_template = "publisher/publisher_requests.html"
 
     def get_urls(self):
