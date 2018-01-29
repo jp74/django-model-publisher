@@ -205,6 +205,7 @@ Please read the information above.
 
 
 * *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...master|compare v0.6.3...master]]
+** Hide PublisherStateModel admin actions for all non-superusers
 * v0.6.3 - 26.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3|compare v0.6.2...v0.6.3]]
 ** Security Fix: User without 'can_publish' permission can accept/reject requests.
 ** Hide 'change' PublisherStateModel admin view for all non-superusers

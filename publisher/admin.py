@@ -1,6 +1,7 @@
 
 import json
 import logging
+from collections import OrderedDict
 
 from django.conf import settings
 from django.conf.urls import url
@@ -588,8 +589,6 @@ class StatusListFilter(admin.SimpleListFilter):
 @admin.register(PublisherStateModel)
 class PublisherStateModelAdmin(admin.ModelAdmin):
 
-    actions = None # disable admin actions
-
     request_publish_page_template = "publisher/publisher_requests.html"
 
     def get_urls(self):
@@ -896,6 +895,15 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         else:
             # Hide change view link for all non-superusers:
             return None
+
+    def get_actions(self, request):
+        user = request.user
+        if user.is_superuser:
+            # Only superuser can use the admin actions:
+            return super(PublisherStateModelAdmin, self).get_actions(request)
+        else:
+            # Hide admin actions for all non-superusers:
+            return OrderedDict()
 
     list_display = (
         "request_timestamp",
