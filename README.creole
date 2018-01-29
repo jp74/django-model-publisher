@@ -204,7 +204,8 @@ Please read the information above.
 == history
 
 
-* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...master|compare v0.6.3...master]]
+* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...master|compare v0.6.4...master]]
+* v0.6.4 - 29.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...v0.6.4|compare v0.6.3...v0.6.4]]
 ** Hide PublisherStateModel admin actions for all non-superusers
 * v0.6.3 - 26.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3|compare v0.6.2...v0.6.3]]
 ** Security Fix: User without 'can_publish' permission can accept/reject requests.
