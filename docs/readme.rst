@@ -264,7 +264,11 @@ Please read the information above.
 history
 -------
 
-* *dev* `compare v0.6.3...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...master>`_
+* *dev* `compare v0.6.4...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...master>`_
+
+* v0.6.4 - 29.01.2018 - `compare v0.6.3...v0.6.4 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...v0.6.4>`_ 
+
+    * Hide PublisherStateModel admin actions for all non-superusers
 
 * v0.6.3 - 26.01.2018 - `compare v0.6.2...v0.6.3 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3>`_ 
 
