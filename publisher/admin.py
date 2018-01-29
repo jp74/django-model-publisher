@@ -895,7 +895,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             return super(PublisherStateModelAdmin, self).get_list_display_links(request, list_display)
         else:
             # Hide change view link for all non-superusers:
-            return ()
+            return None
 
     list_display = (
         "request_timestamp",
