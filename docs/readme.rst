@@ -264,7 +264,11 @@ Please read the information above.
 history
 -------
 
-* *dev* `compare v0.6.5...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...master>`_
+* *dev* `compare v0.6.6...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...master>`_
+
+* v0.6.6 - 30.01.2018 - `compare v0.6.5...v0.6.6 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...v0.6.6>`_ 
+
+    * Bugfix: redirect after "Request publishing" can result in a 404, see: `issues #9 <https://github.com/wearehoods/django-ya-model-publisher/issues/9>`_
 
 * v0.6.5 - 30.01.2018 - `compare v0.6.4...v0.6.5 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...v0.6.5>`_ 
 

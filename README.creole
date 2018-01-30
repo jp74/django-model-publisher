@@ -204,7 +204,9 @@ Please read the information above.
 == history
 
 
-* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...master|compare v0.6.5...master]]
+* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...master|compare v0.6.6...master]]
+* v0.6.6 - 30.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...v0.6.6|compare v0.6.5...v0.6.6]]
+** Bugfix: redirect after "Request publishing" can result in a 404, see: [[https://github.com/wearehoods/django-ya-model-publisher/issues/9|issues #9]]
 * v0.6.5 - 30.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...v0.6.5|compare v0.6.4...v0.6.5]]
 ** Bugfix: Missing "Request publishing" toobar link on new created pages
 ** Add username list on test pages
