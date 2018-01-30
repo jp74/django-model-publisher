@@ -45,7 +45,10 @@
                 <a href="https://www.djangoproject.com/" target="_blank">django <strong>v{{ django_version }}</strong></a>
                 <a href="https://django-cms.org/" target="_blank">django CMS <strong>v{{ cms_version }}</strong></a>
             </p>
-            {% if user.is_anonymous %}<p><a href="/admin/">login</a></p>{% endif %}
+            <p>
+                {% if user.is_anonymous %}<a href="/admin/">login</a> | {% endif %}
+                Existing users are: <strong>{{ usernames|join:", " }}</strong>
+            </p>
             <p>Existing CMS pages:</p>
             <ul>
                 {% show_menu 0 100 100 100 %}
