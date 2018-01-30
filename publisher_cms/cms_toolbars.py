@@ -148,6 +148,9 @@ class PublisherPageToolbar(PageToolbar):
         see: cms.cms_toolbars.PageToolbar#get_publish_button
         """
         dirty = self.has_dirty_objects()
+        if dirty:
+            log.debug("Current page has dirty objects")
+            return True
 
         if self.dirty_statics or (self.page and self.page.is_published(self.current_lang)):
             log.debug("Current page is dirty.")
