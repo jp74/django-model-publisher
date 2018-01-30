@@ -204,7 +204,10 @@ Please read the information above.
 == history
 
 
-* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...master|compare v0.6.4...master]]
+* *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...master|compare v0.6.5...master]]
+* v0.6.5 - 30.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...v0.6.5|compare v0.6.4...v0.6.5]]
+** Bugfix: Missing "Request publishing" toobar link on new created pages
+** Add username list on test pages
 * v0.6.4 - 29.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...v0.6.4|compare v0.6.3...v0.6.4]]
 ** Hide PublisherStateModel admin actions for all non-superusers
 * v0.6.3 - 26.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.2...v0.6.3|compare v0.6.2...v0.6.3]]
