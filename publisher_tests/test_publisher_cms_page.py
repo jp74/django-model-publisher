@@ -14,12 +14,16 @@ from publisher_tests.base import CmsBaseTestCase
 
 
 class NewTestPageCreator(CmsPageCreator):
-    def __init__(self, title, *args, **kwargs):
+    def __init__(self, title, *args, parent_page=None, **kwargs):
         self.title = title
+        self.parent_page = parent_page
         super().__init__(*args, **kwargs)
 
     def get_title(self, language_code, lang_name):
         return self.title
+
+    def get_parent_page(self):
+        return self.parent_page
 
     def publish(self, page):
         # don't publish the page
@@ -279,7 +283,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.assertMessages(response, ["publish request created."])
 
         self.assertRedirects(response,
-            expected_url="http://testserver/en/?edit_off",
+            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
             status_code=302,
             fetch_redirect_response=False
         )
@@ -292,6 +296,94 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             '"A new page title" publish request from: reporter (Please publish this cms page changes.) (open)'
         )
         self.assertEqual(state.publisher_instance.pk, self.page4edit.pk)
+
+    def test_reporter_create_publish_request_on_new_page(self):
+
+        self.assertEqual(PublisherStateModel.objects.all().count(), 0)
+
+        reporter = self.login_reporter_user() # can create un-/publish requests
+        self.assertTrue(reporter.has_perm("cms.change_page"))
+
+        # parent page
+
+        parent_page = Page.objects.public()[1]
+        parent_page_url = parent_page.get_absolute_url(language="en")
+        self.assertEqual(parent_page_url, "/en/test-page-2-in-english/")
+
+        # new page 1
+
+        new_page1, created = NewTestPageCreator(
+            title="new page 1",
+            parent_page=parent_page.get_draft_object()
+        ).create()
+        self.assertTrue(created)
+
+        new_page1_url = new_page1.get_absolute_url(language="en")
+        self.assertEqual(new_page1_url, "/en/test-page-2-in-english/new-page-1/")
+
+        # new page 2
+
+        new_page2, created = NewTestPageCreator(
+            title="new page 2",
+            parent_page=new_page1.get_draft_object()
+        ).create()
+        self.assertTrue(created)
+
+        new_page2_url = new_page2.get_absolute_url(language="en")
+        self.assertEqual(new_page2_url, "/en/test-page-2-in-english/new-page-1/new-page-2/")
+
+        self.login_reporter_user()
+
+        # Set CMS edit mode, otherwise we didn't see non published pages ;)
+        session = self.client.session
+        session['cms_edit'] = True
+        session.save()
+
+        request_publish_url = PublisherStateModel.objects.admin_request_publish_url(new_page2)
+        print(request_publish_url)
+        self.assert_startswith(request_publish_url, "/en/admin/publisher/publisherstatemodel/")
+        self.assert_endswith(request_publish_url, "/request_publish/")
+
+        response = self.client.post(
+            request_publish_url,
+            data={
+                "note": "publish new page 2",
+                "_ask_publish": "This value doesn't really matter.",
+            },
+            HTTP_ACCEPT_LANGUAGE="de"
+        )
+        # debug_response(response)
+
+        self.assertMessages(response, ["publish request created."])
+
+        # We have create a new cms page.
+        # This page is not public visible.
+        # A redirect to /en/test-new-emtpy-created-cms-page/?edit_off will raise a 404
+
+        # TODO: redirect must be done to the first publish page
+        # See: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+        # see also:
+        # publisher.admin.PublisherStateModelAdmin#redirect_to_parent
+
+        self.assertRedirects(response,
+            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+            status_code=302,
+            fetch_redirect_response=False
+        )
+        # self.assertRedirects(response,
+        #     expected_url="http://testserver/en/test-page-2-in-english/?edit_off",
+        #     status_code=302,
+        #     fetch_redirect_response=True
+        # )
+
+        self.assertEqual(PublisherStateModel.objects.all().count(), 1)
+
+        state = PublisherStateModel.objects.all()[0]
+        self.assertEqual(
+            str(state),
+            '"new page 2" publish request from: reporter (publish new page 2) (open)'
+        )
+        self.assertEqual(state.publisher_instance.pk, new_page2.pk)
 
     def test_reporter_unpublish_request_view(self):
         reporter = self.login_reporter_user() # can create un-/publish requests
@@ -348,7 +440,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         # debug_response(response)
 
         self.assertRedirects(response,
-            expected_url="http://testserver/en/?edit_off",
+            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
             status_code=302,
             fetch_redirect_response=False
         )

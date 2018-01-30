@@ -722,6 +722,20 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         url = reverse("admin:publisher_publisherstatemodel_changelist")
         return redirect(url)
 
+    def redirect_to_parent(self, publisher_instance):
+        # url = publisher_instance.get_absolute_url()
+        # url = "%s?edit_off" % url
+
+        # TODO: redirect to the first publish parent
+        # See: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+        # But how to get this url ?!?
+
+        # Update test, too:
+        # publisher_tests.test_publisher_cms_page.CmsPagePublisherWorkflowTests#test_reporter_create_publish_request_on_new_page
+
+        url = "/?edit_off"
+        return redirect(url)
+
     def _publisher_request(self, request, content_type_id, object_id, action):
         assert action in PublisherStateModel.ACTION_DICT
 
@@ -739,6 +753,11 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             action="change",
             raise_exception=True
         )
+
+        has_open_requests = PublisherStateModel.objects.has_open_requests(publisher_instance)
+        if has_open_requests:
+            messages.error(request, _("Can't create new request, because there are pending requests!"))
+            return self.redirect_to_parent(publisher_instance)
 
         if request.method != 'POST':
             form = PublisherNoteForm()
@@ -765,10 +784,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     "action": state_instance.action_name,
                     "state": state_instance.state_name,
                 })
-
-                url = publisher_instance.get_absolute_url()
-                url = "%s?edit_off" % url
-                return redirect(url)
+                return self.redirect_to_parent(publisher_instance)
 
         publisher_states = PublisherStateModel.objects.all().filter_by_instance(
             publisher_instance=publisher_instance
