@@ -264,7 +264,13 @@ Please read the information above.
 history
 -------
 
-* *dev* `compare v0.6.4...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...master>`_
+* *dev* `compare v0.6.5...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...master>`_
+
+* v0.6.5 - 30.01.2018 - `compare v0.6.4...v0.6.5 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.4...v0.6.5>`_ 
+
+    * Bugfix: Missing "Request publishing" toobar link on new created pages
+
+    * Add username list on test pages
 
 * v0.6.4 - 29.01.2018 - `compare v0.6.3...v0.6.4 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.3...v0.6.4>`_ 
 
