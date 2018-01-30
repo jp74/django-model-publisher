@@ -4,16 +4,31 @@ from unittest import mock
 
 import pytest
 
-from django.core.management import call_command
-
 from cms.models import Page
 
-from django_tools.unittest_utils.BrowserDebug import debug_response
-from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
+from django_cms_tools.fixtures.pages import CmsPageCreator
 
 from publisher import constants
 from publisher.models import PublisherStateModel
 from publisher_tests.base import CmsBaseTestCase
+
+
+class NewTestPageCreator(CmsPageCreator):
+    def __init__(self, title, *args, **kwargs):
+        self.title = title
+        super().__init__(*args, **kwargs)
+
+    def get_title(self, language_code, lang_name):
+        return self.title
+
+    def publish(self, page):
+        # don't publish the page
+        return
+
+    def fill_content(self, page, placeholder_slot):
+        # don't create/add any placeholder/plugins
+        return
+
 
 
 @pytest.mark.django_db
@@ -506,3 +521,37 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.assertMessages(response, [
             '"A new page title" publish rejected from: editor (No, I reject this request.) has been rejected.'
         ])
+
+    def test_new_emtpy_created_cms_page(self):
+        page, created = NewTestPageCreator(title="test_new_emtpy_created_cms_page").create()
+        self.assertTrue(created)
+
+        url = page.get_absolute_url(language="en")
+        self.assertEqual(url, "/en/test-new-emtpy-created-cms-page/")
+
+        pages = Page.objects.drafts()
+        urls = [page.get_absolute_url(language="en") for page in pages]
+        self.assertIn("/en/test-new-emtpy-created-cms-page/", urls)
+
+        self.login_reporter_user()
+
+        # Set CMS edit mode, otherwise we didn't see non published pages ;)
+        session = self.client.session
+        session['cms_edit'] = True
+        session.save()
+
+        response = self.client.get(url, HTTP_ACCEPT_LANGUAGE="en")
+        self.assertResponse(response,
+            must_contain=(
+                "<title>test_new_emtpy_created_cms_page</title>",
+                "Double-click to edit",
+
+                # <a href="/de/admin/publisher/publisherstatemodel/2/614/request_publish/"...>Request publishing</a>
+                "/request_publish/", "Request publishing",
+            ),
+            must_not_contain=("Error", "Traceback"),
+            status_code=200,
+            messages=[],
+            template_name="cms/base.html", # Normal CMS page
+            html=False,
+        )
