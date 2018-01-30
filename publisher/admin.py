@@ -733,7 +733,10 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         # Update test, too:
         # publisher_tests.test_publisher_cms_page.CmsPagePublisherWorkflowTests#test_reporter_create_publish_request_on_new_page
 
-        url = "/?edit_off"
+        url = "/"
+        if django_cms_exists:
+            # turn off Django CMS edit mode
+            url += "?edit_off"
         return redirect(url)
 
     def _publisher_request(self, request, content_type_id, object_id, action):
