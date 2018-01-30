@@ -659,6 +659,8 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     if current_request.action == constants.ACTION_UNPUBLISH:
                         # We should not redirect to a unpublished page/object ;)
                         # otherwise we get a 404
+                        # see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+                        # merge with self.redirect_to_parent() ?
                         if django_cms_exists:
                             # turn on Django CMS edit mode
                             url += "?edit"
