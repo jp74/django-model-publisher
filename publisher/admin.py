@@ -893,7 +893,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                 url = obj.admin_close_deleted_url()
                 txt=_("close deleted request")
             else:
-                return "-"
+                return _("(closed)")
         else:
             url = obj.admin_reply_url()
             if obj.action == constants.ACTION_PUBLISH:
