@@ -237,3 +237,85 @@ class AdminLoggedinTests(ClientBaseTestCase):
         self.assertMessages(response, messages=[
             "Publisher instance 'Publisher Test Model' was deleted. (old pk:%i)" % pk
         ])
+
+    def test_history_view_with_open_request(self):
+        state_instance = self._create_request(title="test_history_view_with_open_request")
+        history_url = state_instance.admin_history_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/history/
+
+        self.login_reporter_user()
+
+        response = self.client.get(history_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertResponse(response,
+            must_contain=(
+                'Publisher History',
+
+                "User reporter made a publish request at",
+                "note:",
+                "test_history_view_with_open_request request",
+
+                "Publisher History for",
+            ),
+            must_not_contain=('error', 'traceback'),
+            messages=[],
+            template_name="publisher/publish_history.html",
+        )
+
+    def test_history_with_reject_request(self):
+        state_instance = self._create_request(title="test_history_with_reject_request")
+
+        editor = self.login_editor_user()
+        state_instance.reject(response_user=editor, response_note="reject test_history_with_reject_request")
+
+        history_url = state_instance.admin_history_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/history/
+
+        self.login_reporter_user()
+        response = self.client.get(history_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertResponse(response,
+            must_contain=(
+                'Publisher History',
+
+                "User reporter made a publish request at",
+                "note:",
+                "test_history_with_reject_request request",
+
+                "User editor response at",
+                "reject test_history_with_reject_request",
+
+                "Publisher History for",
+            ),
+            must_not_contain=('error', 'traceback'),
+            messages=[],
+            template_name="publisher/publish_history.html",
+        )
+
+    def test_history_with_deleted_instance(self):
+        state_instance = self._create_request(title="test_history_with_deleted_instance")
+
+        history_url = state_instance.admin_history_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/history/
+
+        editor = self.login_editor_user()
+        state_instance.reject(response_user=editor, response_note="reject test_history_with_deleted_instance")
+
+        pk = state_instance.publisher_instance.pk
+        state_instance.publisher_instance.delete()
+
+        self.login_reporter_user()
+        response = self.client.get(history_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertResponse(response,
+            must_contain=(
+                'Publisher History',
+
+                "User reporter made a publish request at",
+                "Publisher Test Model:", "(deleted, old ID: %i)" % pk,
+                "note:",
+                "test_history_with_deleted_instance request",
+
+                "User editor response at",
+                "reject test_history_with_deleted_instance",
+
+                "Publisher History for",
+            ),
+            must_not_contain=('error', 'traceback'),
+            messages=[],
+            template_name="publisher/publish_history.html",
+        )
