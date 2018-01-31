@@ -739,9 +739,15 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         current_state = get_object_or_404(PublisherStateModel, pk=pk)
         publisher_instance = current_state.publisher_instance
         publisher_states = PublisherStateModel.objects.filter_by_state(publisher_state=current_state)
+
+        if publisher_instance is None: # was deleted
+            original = current_state
+        else:
+            original = publisher_instance
+
         context = {
             "current_state": current_state,
-            "original": publisher_instance,
+            "original": original,
             "publisher_states": publisher_states,
 
             # For origin django admin templates:
