@@ -487,8 +487,10 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
                 "Publisher",
                 "Publisher States",
                 "Accept/Reject Publish Request",
-                "Note:",
-                "&quot;A new page title&quot; publish request from: reporter (open)",
+
+                "User reporter made a publish request at",
+                "page:", "A new page title",
+                "Note:", "-",
                 "Publisher History",
             ),
             must_not_contain=(
