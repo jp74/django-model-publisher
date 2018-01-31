@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<h2>{% trans 'Current publisher state:' %}</h2>
+{% if current_state %}
+    <h3>
+    {% blocktrans with user=current_state.request_user action=current_state.action_name time=current_state.request_timestamp %}
+        User {{ user }} made a {{ action }} request at {{ time }}:
+    {% endblocktrans %}
+    </h3>
+    <p>
+        {{ current_state.content_type }}:
+        {% if current_state.publisher_instance %}
+            <a href="{{ current_state.publisher_instance.get_absolute_url }}">{{ current_state.publisher_instance }}</a>
+        {% else %}
+            {% blocktrans with id=current_state.object_id %}
+                (deleted, old ID: {{ id }})
+            {% endblocktrans %}
+        {% endif %}
+    <p>
+    <p>{% trans "note:" %}</p>
+    <pre>{{ current_state.request_note|default_if_none:"-" }}</pre>
+
+    {% if current_state.response_user %}
+        <h3>
+        {% blocktrans with user=current_state.response_user time=current_state.response_timestamp %}
+            User {{ user }} response at {{ time }}:
+        {% endblocktrans %}
+        </h3>
+        <p>{% trans "note:" %}</p>
+        <pre>{{ current_state.response_note|default_if_none:"-" }}</pre>
+    {% endif %}
+
+    <p>{% trans "Current state is:" %} <strong>{{ current_state.state_name }}</strong></p>
+{% else %}
+    <p>{% trans 'No current state.' %}</p>
+{% endif %}

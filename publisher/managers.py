@@ -83,6 +83,13 @@ class PublisherStateQuerySet(models.QuerySet):
     def filter_closed(self):
         return self.exclude(state=constants.STATE_REQUEST)
 
+    def filter_by_state(self, publisher_state):
+        queryset = self.filter(
+            content_type=publisher_state.content_type,
+            object_id=publisher_state.object_id,
+        )
+        return queryset
+
     def filter_by_instance(self, publisher_instance):
         assert publisher_instance.publisher_is_draft
 

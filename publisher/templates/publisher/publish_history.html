@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block title %}{% trans 'Publisher History' %}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+&rsaquo; {% trans "History" %}
+&rsaquo; {{ original|truncatewords:"18" }}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+    {% include "publisher/includes/current_state_info.html" %}
+    {% include "publisher/includes/state_history.html" %}
+{% endblock %}
+
+
+

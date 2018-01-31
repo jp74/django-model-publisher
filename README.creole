@@ -205,6 +205,7 @@ Please read the information above.
 
 
 * *dev* [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...master|compare v0.6.6...master]]
+** NEW: 'History' view in admin (e.g.: see status/history of closed request and status for users that can only create requests)
 ** No 404 when "reply" closed requests or deleted instance.
 * v0.6.6 - 30.01.2018 - [[https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...v0.6.6|compare v0.6.5...v0.6.6]]
 ** Bugfix: redirect after "Request publishing" can result in a 404, see: [[https://github.com/wearehoods/django-ya-model-publisher/issues/9|issues #9]]

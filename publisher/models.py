@@ -571,6 +571,13 @@ class PublisherStateModel(ModelPermissionMixin, models.Model):
         )
         return url
 
+    def admin_history_url(self):
+        url = reverse(
+            "admin:publisher_publisherstatemodel_history",
+            kwargs={'pk': self.pk}
+        )
+        return url
+
     def admin_close_deleted_url(self):
         """
         Link to 'close this deleted request'

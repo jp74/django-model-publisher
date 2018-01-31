@@ -590,6 +590,7 @@ class StatusListFilter(admin.SimpleListFilter):
 class PublisherStateModelAdmin(admin.ModelAdmin):
 
     request_publish_page_template = "publisher/publisher_requests.html"
+    publish_history_page_template = "publisher/publish_history.html"
 
     def get_urls(self):
         info = "%s_%s" % (self.model._meta.app_label, self.model._meta.model_name) # => "publisher_publisherstatemodel"
@@ -602,6 +603,9 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
             # "publisher_publisherstatemodel_close_deleted"
             pat(r'^(?P<pk>[0-9]+)/close_deleted/$', self.close_deleted),
+
+            # Just output the history of one state
+            pat(r'^(?P<pk>[0-9]+)/history/$', self.history),
 
             # "publisher_publisherstatemodel_request_publish"
             pat(r'^(?P<content_type_id>[0-9]+)/(?P<object_id>[0-9]+)/request_publish/$', self.request_publish),
@@ -730,6 +734,24 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         current_request.close_deleted(response_user=user)
         messages.success(request, _("Entry with deleted instance was closed."))
         return self.redirect_to_changelist()
+
+    def history(self, request, pk):
+        current_state = get_object_or_404(PublisherStateModel, pk=pk)
+        publisher_instance = current_state.publisher_instance
+        publisher_states = PublisherStateModel.objects.filter_by_state(publisher_state=current_state)
+        context = {
+            "current_state": current_state,
+            "original": publisher_instance,
+            "publisher_states": publisher_states,
+
+            # For origin django admin templates:
+            "has_change_permission": self.has_change_permission(request),
+            "opts": self.opts,
+        }
+        return render(request,
+            template_name=self.publish_history_page_template,
+            context=context
+        )
 
     def redirect_to_changelist(self):
         url = reverse("admin:publisher_publisherstatemodel_changelist")
@@ -919,6 +941,13 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
     change_link.allow_tags = True
     change_link.short_description = _("Reply Link")
 
+    def history_link(self, obj):
+        url = obj.admin_history_url()
+        html = '<a href="{url}">{txt}</a>'.format(url=url, txt=_("Histroy"))
+        return html
+    history_link.allow_tags = True
+    history_link.short_description = _("Histroy")
+
     def get_list_display_links(self, request, list_display):
         user = request.user
         if user.is_superuser:
@@ -939,6 +968,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
     list_display = (
         "request_timestamp",
+        "history_link",
         "change_link",
         "request_user",
         # "action_name", "response_user", "state_name",
