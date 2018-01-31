@@ -163,7 +163,7 @@ class AdminLoggedinTests(ClientBaseTestCase):
             status_code=403
         )
 
-    def _get_changeform_url(self, title):
+    def _create_request(self, title):
         draft = PublisherTestModel.objects.create(no=1, title=title)
         ask_permission_user = self.get_test_user(username=REPORTER_USER)
         state_instance = PublisherStateModel.objects.request_publishing(
@@ -171,10 +171,10 @@ class AdminLoggedinTests(ClientBaseTestCase):
             publisher_instance=draft,
             note="%s request" % title,
         )
-        url = reverse(
-            "admin:publisher_publisherstatemodel_change",
-            args=(state_instance.pk,)
-        )
+        return state_instance
+
+    def _get_change_url(self, state_instance):
+        url = self.get_admin_change_url(obj=state_instance)
         if django.VERSION < (1, 11):
             self.assertEqual(url, "/en/admin/publisher/publisherstatemodel/%i/" % state_instance.pk)
         else:
@@ -183,8 +183,8 @@ class AdminLoggedinTests(ClientBaseTestCase):
 
     def test_permission_deny_on_changeform_view(self):
         # create PublisherStateModel instance and returned the admin change link to it:
-        change_url = self._get_changeform_url(title="test_permission_deny_on_changeform_view")
-        print(change_url)
+        state_instance = self._create_request(title="test_permission_deny_on_changeform_view")
+        change_url = self._get_change_url(state_instance)
 
         self.login_editor_user()
         response = self.client.get(change_url)
@@ -196,8 +196,8 @@ class AdminLoggedinTests(ClientBaseTestCase):
 
     def test_superuser_can_use_changeform_view(self):
         # create PublisherStateModel instance and returned the admin change link to it:
-        change_url = self._get_changeform_url(title="test_superuser_can_use_changeform_view")
-        print(change_url)
+        state_instance = self._create_request(title="test_superuser_can_use_changeform_view")
+        change_url = self._get_change_url(state_instance)
 
         self.login_superuser()
         response = self.client.get(change_url, HTTP_ACCEPT_LANGUAGE='en')
@@ -212,3 +212,28 @@ class AdminLoggedinTests(ClientBaseTestCase):
             messages=[],
             template_name='admin/change_form.html',
         )
+
+    def test_replay_view_on_closed_request(self):
+        state_instance = self._create_request(title="test_replay_view_on_closed_request")
+        reply_url = state_instance.admin_reply_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/reply_request/
+
+        editor = self.login_editor_user()
+        state_instance.reject(response_user=editor, response_note="reject response")
+
+        response = self.client.get(reply_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertRedirects(response, expected_url="/en/admin/publisher/publisherstatemodel/")
+        self.assertMessages(response, messages=["This request has been closed!"])
+
+    def test_replay_view_on_deleted_instance(self):
+        state_instance = self._create_request(title="test_replay_view_on_deleted_instance")
+        reply_url = state_instance.admin_reply_url() # e.g.: /en/admin/publisher/publisherstatemodel/1/reply_request/
+
+        pk = state_instance.publisher_instance.pk
+        state_instance.publisher_instance.delete()
+
+        self.login_editor_user()
+        response = self.client.get(reply_url, HTTP_ACCEPT_LANGUAGE='en')
+        self.assertRedirects(response, expected_url="/en/admin/publisher/publisherstatemodel/")
+        self.assertMessages(response, messages=[
+            "Publisher instance 'Publisher Test Model' was deleted. (old pk:%i)" % pk
+        ])
