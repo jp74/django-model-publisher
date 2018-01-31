@@ -701,6 +701,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             "POST_REPLY_REJECT_KEY": constants.POST_REPLY_REJECT_KEY,
 
             # For origin django admin templates:
+            "has_change_permission": self.has_change_permission(request),
             "opts": self.opts,
         }
         request.current_app = self.admin_site.name
