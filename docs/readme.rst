@@ -264,7 +264,13 @@ Please read the information above.
 history
 -------
 
-* *dev* `compare v0.6.6...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...master>`_
+* *dev* `compare v0.6.7...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.7...master>`_
+
+* v0.6.7 - 31.01.2018 - `compare v0.6.6...v0.6.7 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...v0.6.7>`_ 
+
+    * NEW: 'History' view in admin (e.g.: see status/history of closed request and status for users that can only create requests)
+
+    * No 404 when "reply" closed requests or deleted instance.
 
 * v0.6.6 - 30.01.2018 - `compare v0.6.5...v0.6.6 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.5...v0.6.6>`_ 
 
