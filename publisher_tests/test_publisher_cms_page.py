@@ -553,9 +553,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.page4edit = Page.objects.get(pk=self.page4edit.pk)
         self.assertEqual(self.page4edit.is_dirty(language="en"), False)
 
-        self.assertMessages(response, [
-            '"A new page title" publish accepted from: editor (OK, I publish this cms page, now.) has been accept.'
-        ])
+        self.assertMessages(response, ["publish has been accept."])
 
     def test_editor_reject_publish_request(self):
         self.page4edit_title.title = "A new page title"
@@ -610,9 +608,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         self.page4edit = Page.objects.get(pk=self.page4edit.pk)
         self.assertEqual(self.page4edit.is_dirty(language="en"), True)
 
-        self.assertMessages(response, [
-            '"A new page title" publish rejected from: editor (No, I reject this request.) has been rejected.'
-        ])
+        self.assertMessages(response, ["publish has been rejected."])
 
     def test_new_emtpy_created_cms_page(self):
         page, created = NewTestPageCreator(title="test_new_emtpy_created_cms_page").create()

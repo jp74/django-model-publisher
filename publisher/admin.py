@@ -657,7 +657,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                         response_note=note,
                     )
                     log.debug("reject: %s", current_request)
-                    messages.success(request, _("%s has been rejected.") % current_request)
+                    messages.success(request, _("%s has been rejected.") % current_request.action_name)
 
                 elif constants.POST_REPLY_ACCEPT_KEY in request.POST:
                     current_request.accept(
@@ -665,7 +665,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                         response_note=note,
                     )
                     log.debug("accept: %s", current_request)
-                    messages.success(request, _("%s has been accept.") % current_request)
+                    messages.success(request, _("%s has been accept.") % current_request.action_name)
 
                     if current_request.action == constants.ACTION_UNPUBLISH:
                         # We should not redirect to a unpublished page/object ;)
