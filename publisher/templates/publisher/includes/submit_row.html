@@ -2,10 +2,9 @@
 
 {% if add_current_request_info %}
     {% if current_request %}
-        <p>{{ current_request }}</p>
-        <p>{% trans "Request time:" %} {{ current_request.request_timestamp }}</p>
-        <p>{% trans 'Note:' %}</p>
-        <pre>{{ current_request.request_note|default_if_none:"-" }}</pre>
+        {% with current_state=current_request %}
+            {% include "publisher/includes/current_state_info.html" %}
+        {% endwith %}
     {% else %}
         <p>{% trans "(No pending publisher request)" %}</p>
     {% endif %}
