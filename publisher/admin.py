@@ -616,13 +616,20 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         user = request.user
         PublisherStateModel.has_change_permission(user, raise_exception=True)
 
-        current_request = get_object_or_404(
-            PublisherStateModel,
-            pk=pk,
-            state=constants.STATE_REQUEST # only open requests
-        )
+        current_request = get_object_or_404(PublisherStateModel, pk=pk)
+
         publisher_instance = current_request.publisher_instance
-        assert publisher_instance is not None, "Publisher instance was deleted!"
+        if publisher_instance is None:
+            messages.error(request,
+                _("Publisher instance '%s' was deleted. (old pk:%r)") % (
+                    current_request.content_type, current_request.object_id
+                )
+            )
+            return self.redirect_to_changelist()
+
+        if not current_request.is_open:
+            messages.error(request, _("This request has been closed!"))
+            return self.redirect_to_changelist()
 
         # raise PermissionDenied if user has no publish permissions:
         opts = publisher_instance._meta
@@ -721,6 +728,9 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
 
         current_request.close_deleted(response_user=user)
         messages.success(request, _("Entry with deleted instance was closed."))
+        return self.redirect_to_changelist()
+
+    def redirect_to_changelist(self):
         url = reverse("admin:publisher_publisherstatemodel_changelist")
         return redirect(url)
 
