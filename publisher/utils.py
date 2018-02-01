@@ -13,8 +13,10 @@ hvad_exists = find_loader("hvad") is not None # django-hvad
 django_cms_exists = find_loader("cms") is not None # django-cms
 aldryn_translation_tools_exists = find_loader("aldryn_translation_tools") is not None # aldryn-translation-tools
 
-
 ##############################################################################
+
+if django_cms_exists:
+    from cms.utils import get_cms_setting
 
 
 class NotDraftException(Exception):
@@ -28,3 +30,13 @@ def assert_draft(method):
 
         return method(self, *args, **kwargs)
     return decorated
+
+
+def edit_on_url(url):
+    """
+    Attach "?edit_on" to url, if django cms is installed.
+    """
+    if django_cms_exists:
+        url += "?%s" % get_cms_setting('CMS_TOOLBAR_URL__EDIT_ON')
+
+    return url

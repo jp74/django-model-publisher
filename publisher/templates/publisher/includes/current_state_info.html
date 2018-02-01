@@ -10,7 +10,7 @@
     <p>
         {{ current_state.content_type }}:
         {% if current_state.publisher_instance %}
-            <a href="{{ current_state.publisher_instance.get_absolute_url }}">{{ current_state.publisher_instance }}</a>
+            <a href="{{ current_state.publisher_instance.get_absolute_url }}{{ edit_on_parameter }}">{{ current_state.publisher_instance }}</a>
         {% else %}
             {% blocktrans with id=current_state.object_id %}
                 (deleted, old ID: {{ id }})

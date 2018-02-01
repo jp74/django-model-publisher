@@ -25,7 +25,7 @@ from publisher import constants
 from publisher.forms import PublisherForm, PublisherNoteForm, PublisherParlerForm
 from publisher.models import PublisherStateModel
 from publisher.permissions import can_publish_object, has_object_permission
-from publisher.utils import django_cms_exists, hvad_exists, parler_exists
+from publisher.utils import django_cms_exists, hvad_exists, parler_exists, edit_on_url
 
 log = logging.getLogger(__name__)
 
@@ -750,6 +750,8 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
             "original": original,
             "publisher_states": publisher_states,
 
+            "edit_on_parameter": edit_on_url(url=""), # Adds '?edit' if Django CMS used
+
             # For origin django admin templates:
             "has_change_permission": self.has_change_permission(request),
             "opts": self.opts,
@@ -763,21 +765,20 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         url = reverse("admin:publisher_publisherstatemodel_changelist")
         return redirect(url)
 
-    def redirect_to_parent(self, publisher_instance):
-        # url = publisher_instance.get_absolute_url()
-        # url = "%s?edit_off" % url
+    def redirect_to_page(self, publisher_instance):
+        """
+        Redirect to frontend.
+        See also:
+             https://github.com/wearehoods/django-ya-model-publisher/issues/9
+        """
+        url = publisher_instance.get_absolute_url()
 
-        # TODO: redirect to the first publish parent
-        # See: https://github.com/wearehoods/django-ya-model-publisher/issues/9
-        # But how to get this url ?!?
+        # turn on Django CMS edit mode
+        # otherwise a not published page will raise a 404!
+        # See also:
+        #   publisher_cms.cms_toolbars.PublisherPageToolbar.request_hook()
+        url = edit_on_url(url)
 
-        # Update test, too:
-        # publisher_tests.test_publisher_cms_page.CmsPagePublisherWorkflowTests#test_reporter_create_publish_request_on_new_page
-
-        url = "/"
-        if django_cms_exists:
-            # turn off Django CMS edit mode
-            url += "?edit_off"
         return redirect(url)
 
     def _publisher_request(self, request, content_type_id, object_id, action):
@@ -801,7 +802,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
         has_open_requests = PublisherStateModel.objects.has_open_requests(publisher_instance)
         if has_open_requests:
             messages.error(request, _("Can't create new request, because there are pending requests!"))
-            return self.redirect_to_parent(publisher_instance)
+            return self.redirect_to_page(publisher_instance)
 
         if request.method != 'POST':
             form = PublisherNoteForm()
@@ -828,7 +829,7 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     "action": state_instance.action_name,
                     "state": state_instance.state_name,
                 })
-                return self.redirect_to_parent(publisher_instance)
+                return self.redirect_to_page(publisher_instance)
 
         publisher_states = PublisherStateModel.objects.all().filter_by_instance(
             publisher_instance=publisher_instance
@@ -912,7 +913,14 @@ class PublisherStateModelAdmin(admin.ModelAdmin):
                     return '<span title="{err}">{txt}</span>'.format(err=err, txt=txt)
                 else:
                     return "-"
-            html = '<a href="{url}?edit">{txt}</a>'.format(url=url, txt=txt)
+
+            # turn on Django CMS edit mode
+            # otherwise a not published page will raise a 404!
+            # See also:
+            #   publisher_cms.cms_toolbars.PublisherPageToolbar.request_hook()
+            url = edit_on_url(url)
+
+            html = '<a href="{url}">{txt}</a>'.format(url=url, txt=txt)
         return html
     view_on_page_link.allow_tags = True
     view_on_page_link.short_description = _("view on page")
