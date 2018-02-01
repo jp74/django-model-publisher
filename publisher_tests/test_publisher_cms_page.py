@@ -212,13 +212,28 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
             "%s?edit" % self.page4edit_url,
             HTTP_ACCEPT_LANGUAGE="en",
         )
+        self.assertResponse(response,
+            must_contain=(
+                "Some information about this current cms page:",
+                "is draft: true",
+                "is dirty: false",
 
-        self.assertRedirects(
-            response,
-            expected_url="%s?edit_off" % self.page4edit_url,
-            fetch_redirect_response=False
+                # publisher_cms.cms_toolbars.PublisherStateToolbar
+                "open requests",
+                "publish: A new page title",
+                "/en/admin/publisher/publisherstatemodel/%i/reply_request/" % state_instance.pk,
+                "Current page history...",
+                "/en/admin/publisher/publisherstatemodel/%i/history/" % state_instance.pk,
+
+                # publisher_cms.cms_toolbars.PublisherPageToolbar
+                "pending publish request",
+            ),
+            must_not_contain=("Error", "Traceback"),
+            status_code=200,
+            messages=[],
+            template_name="cms/base.html", # <- the normal page rendered
+            html=False,
         )
-        self.assertMessages(response, ["This page 'A new page title' has pending publish request."])
 
     def test_reporter_publish_request_view(self):
         reporter = self.login_reporter_user() # can create un-/publish requests
@@ -282,8 +297,9 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertMessages(response, ["publish request created."])
 
+        # Redirect in edit mode, see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
         self.assertRedirects(response,
-            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+            expected_url="/en/?edit",
             status_code=302,
             fetch_redirect_response=False
         )
@@ -358,23 +374,12 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         # We have create a new cms page.
         # This page is not public visible.
-        # A redirect to /en/test-new-emtpy-created-cms-page/?edit_off will raise a 404
-
-        # TODO: redirect must be done to the first publish page
-        # See: https://github.com/wearehoods/django-ya-model-publisher/issues/9
-        # see also:
-        # publisher.admin.PublisherStateModelAdmin#redirect_to_parent
-
+        # Redirect in edit mode, see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
         self.assertRedirects(response,
-            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+            expected_url="/en/test-page-2-in-english/new-page-1/new-page-2/?edit",
             status_code=302,
             fetch_redirect_response=False
         )
-        # self.assertRedirects(response,
-        #     expected_url="http://testserver/en/test-page-2-in-english/?edit_off",
-        #     status_code=302,
-        #     fetch_redirect_response=True
-        # )
 
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
@@ -439,8 +444,9 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         )
         # debug_response(response)
 
+        # Redirect in edit mode, see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
         self.assertRedirects(response,
-            expected_url="/?edit_off", # <- FIXME: https://github.com/wearehoods/django-ya-model-publisher/issues/9
+            expected_url="/en/?edit",
             status_code=302,
             fetch_redirect_response=False
         )
