@@ -39,23 +39,14 @@ class PublisherStateToolbar(CMSToolbar):
         state_qs = PublisherStateModel.objects.all().filter_open() # All open entries
         for state in state_qs:
             url = state.admin_reply_url()
-
             publisher_instance = state.publisher_instance
-            # try:
-            #     url = publisher_instance.get_absolute_url()
-            # except AttributeError as err:
-            #     log.error("Can't add 'view on page' link: %s", err)
-            #     if settings.DEBUG:
-            #         url = "#%s" % err
-            #     else:
-            #         url = "#"
-
             menu.add_link_item(
                 name="%s: %s" % (state.action_name, publisher_instance),
                 url=url,
             )
 
         menu.add_break()
+
         menu.add_sideframe_item(
             name=_("Publisher State list"),
             url=admin_reverse("publisher_publisherstatemodel_changelist"),
