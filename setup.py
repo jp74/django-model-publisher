@@ -247,7 +247,6 @@ classifiers=[
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 
-
 # https://packaging.python.org/tutorials/distributing-packages/
 setup(
     name='django-ya-model-publisher',
@@ -268,6 +267,7 @@ setup(
     zip_safe=False,
     keywords='publisher django cms parler workflow model-publisher',
     python_requires='>=2.7',
+    install_requires=["django>1.8"],
     classifiers=classifiers,
     cmdclass={
         'test': TestCommand,
