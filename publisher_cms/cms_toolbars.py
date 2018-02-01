@@ -167,6 +167,38 @@ class PublisherPageToolbar(PageToolbar):
             self.has_publish_permission(),
         )
 
+        if self.current_request is not None:
+            log.debug("Replace default 'publish page' button with 'review request' button")
+            can_publish = self.current_request.check_object_publish_permission(self.request.user, raise_exception=False)
+            if can_publish:
+                log.debug("Add 'reply' button")
+                url = self.current_request.admin_reply_url()
+
+                button_list = ButtonList(side=self.toolbar.RIGHT)
+                button_list.add_button(
+                    name=_("Reply publish request"),
+                    url=url,
+                    disabled=False,
+                    extra_classes=('cms-btn-action',),
+                )
+                self.toolbar.add_item(button_list)
+            else:
+                log.debug("User has not publish permission: Add 'history' button")
+                url = self.current_request.admin_history_url()
+
+                button_list = ButtonList(side=self.toolbar.RIGHT)
+                button_list.add_button(
+                    name=_("pending {action} {state}").format(
+                        action = self.current_request.action_name,
+                        state = self.current_request.state_name,
+                    ),
+                    url=url,
+                    disabled=False,
+                    extra_classes=('cms-btn-action',),
+                )
+                self.toolbar.add_item(button_list)
+            return
+
         if not self.toolbar.edit_mode:
             log.debug("Not in edit mode: don't add buttons, ok.")
             return
