@@ -114,14 +114,16 @@ class PublisherPageToolbar(PageToolbar):
 
         self.current_request = open_requests.latest()
 
-        if not self.toolbar.edit_mode:
-            return response
-        else:
-            # User should not edit a page with pending request
-            messages.error(self.request, _("This page '%s' has pending publish request.") % page)
-            url = "?%s" % self.toolbar.edit_mode_url_off
-            log.debug("Redirect to 'edit off': '%s'" % url)
-            return HttpResponseRedirect(url)
+        if self.toolbar.edit_mode:
+            # The page has pending request: The User should not be able to edit it.
+            # But we need the "edit mode": The user should raise into 404
+            # if current page is not published yet!
+            # see also:
+            #    https://github.com/wearehoods/django-ya-model-publisher/issues/9
+            log.debug("Turn off edit mode, because page as pending requests")
+            self.toolbar.edit_mode = False
+
+        return response
 
     def add_button(self, button_list, title, url, disabled=False):
         log.debug("add button txt:'%s', url:%r disabled:%r", title, url, disabled)
