@@ -275,7 +275,7 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         reporter = self.login_reporter_user() # can create un-/publish requests
         self.assertTrue(reporter.has_perm("cms.change_page"))
 
-        self.page4edit_title.title = "A new page title"
+        self.page4edit_title.title = "page test_reporter_create_publish_request title"
         self.page4edit_title.save()
 
         self.assertEqual(self.page4edit.is_dirty(language="en"), True)
@@ -288,14 +288,12 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         response = self.client.post(
             request_publish_url,
             data={
-                "note": "Please publish this cms page changes.",
+                "note": "publish test_reporter_create_publish_request note",
                 "_ask_publish": "This value doesn't really matter.",
             },
             HTTP_ACCEPT_LANGUAGE="de"
         )
         # debug_response(response)
-
-        self.assertMessages(response, ["publish request created."])
 
         # Redirect in edit mode, see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
         self.assertRedirects(response,
@@ -306,12 +304,47 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
-        state = PublisherStateModel.objects.all()[0]
+        state_instance = PublisherStateModel.objects.all()[0]
         self.assertEqual(
-            str(state),
-            '"A new page title" publish request from: reporter (Please publish this cms page changes.) (open)'
+            str(state_instance),
+            (
+                '"page test_reporter_create_publish_request title" publish request from: reporter'
+                ' (publish test_reporter_create_publish_request note) (open)'
+            )
         )
-        self.assertEqual(state.publisher_instance.pk, self.page4edit.pk)
+        self.assertEqual(state_instance.publisher_instance.pk, self.page4edit.pk)
+
+        # Check the page:
+
+        response = self.client.get(
+            "/en/?edit",
+            HTTP_ACCEPT_LANGUAGE="en",
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Some information about this current cms page:",
+                "is draft: true",
+                "is dirty: false",
+
+                # publisher_cms.cms_toolbars.PublisherStateToolbar
+                "open requests",
+                "publish: page test_reporter_create_publish_request title",
+                "/en/admin/publisher/publisherstatemodel/%i/reply_request/" % state_instance.pk,
+                "Current page history...",
+                "/en/admin/publisher/publisherstatemodel/%i/history/" % state_instance.pk,
+
+                # publisher_cms.cms_toolbars.PublisherPageToolbar
+                "pending publish request",
+
+                # default Django CMS buttons:
+                "View published page", "/en/?edit_off",
+            ),
+            must_not_contain=("Error", "Traceback"),
+            status_code=200,
+            messages=["publish request created."],
+            template_name="cms/base.html", # <- the normal page rendered
+            html=False,
+        )
 
     def test_reporter_create_publish_request_on_new_page(self):
 
@@ -370,8 +403,6 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
         )
         # debug_response(response)
 
-        self.assertMessages(response, ["publish request created."])
-
         # We have create a new cms page.
         # This page is not public visible.
         # Redirect in edit mode, see: https://github.com/wearehoods/django-ya-model-publisher/issues/9
@@ -383,12 +414,47 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
-        state = PublisherStateModel.objects.all()[0]
+        state_instance = PublisherStateModel.objects.all()[0]
         self.assertEqual(
-            str(state),
+            str(state_instance),
             '"new page 2" publish request from: reporter (publish new page 2) (open)'
         )
-        self.assertEqual(state.publisher_instance.pk, new_page2.pk)
+        self.assertEqual(state_instance.publisher_instance.pk, new_page2.pk)
+
+        # Check the page:
+
+        response = self.client.get(
+            "/en/test-page-2-in-english/new-page-1/new-page-2/?edit",
+            HTTP_ACCEPT_LANGUAGE="en",
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Some information about this current cms page:",
+                "is draft: true",
+                "is dirty: false",
+
+                # publisher_cms.cms_toolbars.PublisherStateToolbar
+                "open requests",
+                "publish: new page 2",
+                "/en/admin/publisher/publisherstatemodel/%i/reply_request/" % state_instance.pk,
+                "Current page history...",
+                "/en/admin/publisher/publisherstatemodel/%i/history/" % state_instance.pk,
+
+                # publisher_cms.cms_toolbars.PublisherPageToolbar
+                "pending publish request",
+            ),
+            must_not_contain=(
+                "Error", "Traceback",
+
+                # default Django CMS buttons
+                # The page is new and not published in the past!
+                "View published page", "?edit_off",
+            ),
+            status_code=200,
+            messages=["publish request created."],
+            template_name="cms/base.html", # <- the normal page rendered
+            html=False,
+        )
 
     def test_reporter_unpublish_request_view(self):
         reporter = self.login_reporter_user() # can create un-/publish requests
@@ -453,15 +519,44 @@ class CmsPagePublisherWorkflowTests(CmsBaseTestCase):
 
         self.assertEqual(PublisherStateModel.objects.all().count(), 1)
 
-        state = PublisherStateModel.objects.all()[0]
+        state_instance = PublisherStateModel.objects.all()[0]
         self.assertEqual(
-            str(state),
+            str(state_instance),
             '"Test page 1 in English" unpublish request from: reporter (Please unpublish this cms page.) (open)'
         )
-        self.assertEqual(state.publisher_instance.pk, self.page4edit.pk)
+        self.assertEqual(state_instance.publisher_instance.pk, self.page4edit.pk)
 
-        self.assertMessages(response, ["unpublish request created."])
+        # Check the page:
 
+        response = self.client.get(
+            "/en/?edit",
+            HTTP_ACCEPT_LANGUAGE="en",
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Some information about this current cms page:",
+                "is draft: true",
+                "is dirty: false",
+
+                # publisher_cms.cms_toolbars.PublisherStateToolbar
+                "open requests",
+                "unpublish: Test page 1 in English",
+                "/en/admin/publisher/publisherstatemodel/%i/reply_request/" % state_instance.pk,
+                "Current page history...",
+                "/en/admin/publisher/publisherstatemodel/%i/history/" % state_instance.pk,
+
+                # publisher_cms.cms_toolbars.PublisherPageToolbar
+                "pending unpublish request",
+
+                # default Django CMS buttons:
+                "View published page", "/en/?edit_off",
+            ),
+            must_not_contain=("Error", "Traceback"),
+            status_code=200,
+            messages=['unpublish request created.'],
+            template_name="cms/base.html", # <- the normal page rendered
+            html=False,
+        )
 
     #-------------------------------------------------------------------------
 
