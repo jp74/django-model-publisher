@@ -144,15 +144,18 @@ See also: `https://docs.djangoproject.com/en/1.11/ref/contrib/contenttypes/#djan
 Django compatibility
 --------------------
 
-+---------------------------+----------------------+--------------------+
-| django-ya-model-publisher | django version       | python             |
-+===========================+======================+====================+
-| >=v0.5.x                  | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
-+---------------------------+----------------------+--------------------+
-| v0.4.x                    | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
-+---------------------------+----------------------+--------------------+
++---------------------------+------------+----------------------+--------------------+
+| django-ya-model-publisher | django cms | django version       | python             |
++===========================+============+======================+====================+
+| >=v0.5.x                  | 3.4.x      | 1.8, 1.9, 1.10, 1.11 | 3.5, 3.6           |
++---------------------------+------------+----------------------+--------------------+
+| v0.4.x                    | 3.4.x      | 1.8, 1.9, 1.10, 1.11 | 2.7, 3.4, 3.5, 3.6 |
++---------------------------+------------+----------------------+--------------------+
 
 Note: See travis/tox config files for current test matrix
+
+Currently Django CMS v3.5 is not supported, yet.
+It's on the TODO, see: `issues #10 <https://github.com/wearehoods/django-ya-model-publisher/issues/10>`_
 
 ---------
 run tests
@@ -264,7 +267,13 @@ Please read the information above.
 history
 -------
 
-* *dev* `compare v0.6.7...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.7...master>`_
+* *dev* `compare v0.6.8...master <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.8...master>`_
+
+* v0.6.8 - 01.02.2018 - `compare v0.6.7...v0.6.8 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.7...v0.6.8>`_ 
+
+    * Fix `#9 Redirect after "request publishing" <https://github.com/wearehoods/django-ya-model-publisher/issues/9>`_
+
+    * Add reply/history Links in Django CMS Toolbar (specially for page with pending requests)
 
 * v0.6.7 - 31.01.2018 - `compare v0.6.6...v0.6.7 <https://github.com/wearehoods/django-ya-model-publisher/compare/v0.6.6...v0.6.7>`_ 
 
