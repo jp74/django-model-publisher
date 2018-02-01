@@ -61,6 +61,25 @@ class PublisherStateToolbar(CMSToolbar):
             url=admin_reverse("publisher_publisherstatemodel_changelist"),
         )
 
+        menu.add_break()
+
+        # Add history link:
+        page = get_page_draft(self.request.current_page)
+        if page is not None:
+            states = PublisherStateModel.objects.filter_by_instance(publisher_instance = page)
+            state = states.first()
+            name=_("Current page history")
+            if state is None:
+                # No history -> disabled entry
+                menu.add_link_item(
+                    name=name, url="", disabled=True,
+                )
+            else:
+                # Has history -> add link to it:
+                url = state.admin_history_url()
+                menu.add_sideframe_item(name=name, url=url)
+
+
 
 class PublisherPageToolbar(PageToolbar):
     """
