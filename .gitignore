@@ -2,6 +2,7 @@ publisher_test_project/static
 
 *.py[cod]
 .cache
+.pytest_cache
 *.sqlite*
 
 # C extensions
