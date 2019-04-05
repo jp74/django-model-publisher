@@ -5,7 +5,7 @@ from django.contrib.admin import ModelAdmin, SimpleListFilter
 from django.contrib import messages
 from django.conf.urls import url
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape
