@@ -82,7 +82,7 @@ class PublisherModelBase(models.Model):
         return False
 
     @assert_draft
-    def publish(self):
+    def publish(self, **kwargs):
         if not self.is_draft:
             return
 
@@ -116,7 +116,7 @@ class PublisherModelBase(models.Model):
 
         # Link the published obj to the draft version
         # publish_obj.publisher_linked = draft_obj
-        publish_obj.save()
+        publish_obj.save(**kwargs)
 
         # Check for translations, if so duplicate the object
         self.clone_translations(draft_obj, publish_obj)
@@ -132,7 +132,7 @@ class PublisherModelBase(models.Model):
 
         publisher_publish_pre_save_draft.send(sender=draft_obj.__class__, instance=draft_obj)
 
-        draft_obj.save(suppress_modified=True)
+        draft_obj.save(suppress_modified=True, **kwargs)
 
         publisher_post_publish.send(sender=draft_obj.__class__, instance=draft_obj)
 
